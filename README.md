@@ -10,6 +10,8 @@
 * Тулфоров Джахонгир
 * Мотыченков Леонид
 
+[Требования к проекту](https://docs.google.com/document/d/1hI9rOrfSuzHD1adIg4Y66S1JQlDdRZlSf0Zo7zG3A3U/edit)
+
 [Техническое задание](https://docs.google.com/document/d/1PtViO1sjrjfZF7-fXsu0kK5ZF6HWoGo-jLZUFKDa1ug)
 
 [Прототип](https://marvelapp.com/jaf7b1j/screen/62643038)
