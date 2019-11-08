@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 class AlarmViewHolder extends RecyclerView.ViewHolder {
     private TextView alarmNameView;
     private TextView addressView;
-    private Switch switchAlarmView;
+    Switch switchAlarmView;
 
     AlarmViewHolder(@NonNull View itemView) {
         super(itemView);

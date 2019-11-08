@@ -1,8 +1,10 @@
 package com.example.locationalarm;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +23,10 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
         notifyItemInserted(alarms.size() - 1);
     }
 
+    ArrayList<Alarm> getAlarms() {
+        return this.alarms;
+    }
+
     @NonNull
     @Override
     public AlarmViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -32,9 +38,17 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AlarmViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
         Alarm alarm = alarms.get(position);
         holder.setAlarm(alarm);
+
+        holder.switchAlarmView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.v("Switch State=", " " + isChecked);
+            }
+        });
     }
 
     @Override
