@@ -3,7 +3,7 @@
     <dimen name="twoLineItemHeight">72dp</dimen>
     <dimen name="twoLineItemPadding">16dp</dimen>
     <dimen name="twoLineItemPaddingTop">8dp</dimen>
-    <dimen name="primaryTextSize">16dp</dimen>
+    <dimen name="primaryTextSize">16sp</dimen>
     <dimen name="secondaryTextHeight">20dp</dimen>
-    <dimen name="secondaryTextSize">14dp</dimen>
+    <dimen name="secondaryTextSize">14sp</dimen>
 </resources>

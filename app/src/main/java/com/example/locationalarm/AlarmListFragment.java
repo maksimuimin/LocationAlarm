@@ -39,6 +39,7 @@ public class AlarmListFragment extends Fragment {
             if (adapter == null) {
                 alarms = new ArrayList<>();
 
+                // TO-DO delete test items
                 alarms.add(new Alarm("Test Alarm 1", "Moscow"));
                 alarms.add(new Alarm("Test Alarm 2", "Izmaylovskiy metro"));
                 alarms.add(new Alarm("Test Alarm 3", "Baumanskiy metro"));
