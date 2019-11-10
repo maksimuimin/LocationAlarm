@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm.viewmodels;
+package com.example.locationalarm.alarm.viewmodels.alarm_view_model;
 
 import android.app.Application;
 import android.util.Log;
@@ -14,23 +14,26 @@ import java.util.ArrayList;
 
 public class AlarmViewModel extends AndroidViewModel {
     private static final String TAG = "AlarmViewModel";
-    private MutableLiveData<ArrayList<Alarm>> alarms = new MutableLiveData<>();
+    private MutableLiveData<AlarmDataSet> dataSet = new MutableLiveData<>();
 
     public AlarmViewModel(@NonNull Application application) {
         super(application);
-        alarms.setValue(loadAlarms());
+        dataSet.setValue(loadAlarms());
     }
 
-    private @NonNull ArrayList<Alarm> loadAlarms() {
+    private AlarmDataSet loadAlarms() {
         Log.i(TAG, "on loadAlarms()");
         ArrayList<Alarm> alarmList = new ArrayList<>();
+        //TODO remove
         alarmList.add(new Alarm("MyName", "MyAddress"));
         alarmList.add(new Alarm("MyName", "MyAddress", false));
         //TODO get data from repository
-        return alarmList;
+        return new AlarmDataSet(alarmList);
     }
 
-    public LiveData<ArrayList<Alarm>> getData() {
-        return alarms;
+    public LiveData<AlarmDataSet> getData() {
+        return dataSet;
     }
+
+
 }

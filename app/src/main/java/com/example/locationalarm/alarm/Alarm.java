@@ -40,4 +40,9 @@ public class Alarm {
         return this.isActive;
     }
 
+    public boolean equals(Alarm alarm) {
+        return name.equals(alarm.name) &&
+                address.equals(alarm.address) &&
+                isActive == alarm.isActive;
+    }
 }

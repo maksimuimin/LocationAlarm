@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.locationalarm.R;
@@ -16,11 +15,10 @@ import com.example.locationalarm.alarm.Alarm;
 import java.util.ArrayList;
 
 public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
-    private static final String TAG = "AlarmListAdapter";
-    private LiveData<ArrayList<Alarm>> alarms;
+    private ArrayList<Alarm> alarms;
 
-    AlarmListAdapter(LiveData<ArrayList<Alarm>> _data) {
-        this.alarms = _data;
+    AlarmListAdapter(ArrayList<Alarm> _data) {
+        alarms = _data;
     }
 
     @NonNull
@@ -35,28 +33,24 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
-        ArrayList<Alarm> alarmList = alarms.getValue();
-        if (alarmList == null) {
-            Log.wtf(TAG, "onBindViewHolder with null alarmList");
-            return;
-        }
-        holder.setAlarm(alarmList.get(position));
+        holder.setAlarm(alarms.get(position));
 
         holder.switchAlarmView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Log.v("Switch State=", " " + isChecked);
+                //TODO update alarm state
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        ArrayList<Alarm> alarmList = alarms.getValue();
-        if (alarmList == null) {
-            return 0;
-        }
-        return alarmList.size();
+        return alarms.size();
+    }
+
+    public void setAlarms(ArrayList<Alarm> alarms) {
+        this.alarms = alarms;
     }
 }
