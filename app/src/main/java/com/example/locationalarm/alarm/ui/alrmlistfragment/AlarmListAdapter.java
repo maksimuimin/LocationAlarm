@@ -1,4 +1,4 @@
-package com.example.locationalarm;
+package com.example.locationalarm.alarm.ui.alrmlistfragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,24 +7,20 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.locationalarm.R;
+import com.example.locationalarm.alarm.Alarm;
 
 import java.util.ArrayList;
 
 public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
-    private ArrayList<Alarm> alarms;
+    private static final String TAG = "AlarmListAdapter";
+    private LiveData<ArrayList<Alarm>> alarms;
 
-    AlarmListAdapter(ArrayList<Alarm> _data) {
+    AlarmListAdapter(LiveData<ArrayList<Alarm>> _data) {
         this.alarms = _data;
-    }
-
-    void add(Alarm _alarm) {
-        alarms.add(_alarm);
-        notifyItemInserted(alarms.size() - 1);
-    }
-
-    ArrayList<Alarm> getAlarms() {
-        return this.alarms;
     }
 
     @NonNull
@@ -39,8 +35,12 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
-        Alarm alarm = alarms.get(position);
-        holder.setAlarm(alarm);
+        ArrayList<Alarm> alarmList = alarms.getValue();
+        if (alarmList == null) {
+            Log.wtf(TAG, "onBindViewHolder with null alarmList");
+            return;
+        }
+        holder.setAlarm(alarmList.get(position));
 
         holder.switchAlarmView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -53,6 +53,10 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
     @Override
     public int getItemCount() {
-        return alarms.size();
+        ArrayList<Alarm> alarmList = alarms.getValue();
+        if (alarmList == null) {
+            return 0;
+        }
+        return alarmList.size();
     }
 }

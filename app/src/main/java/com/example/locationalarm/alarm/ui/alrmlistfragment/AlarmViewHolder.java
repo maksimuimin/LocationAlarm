@@ -1,4 +1,4 @@
-package com.example.locationalarm;
+package com.example.locationalarm.alarm.ui.alrmlistfragment;
 
 import android.view.View;
 import android.widget.Switch;
@@ -6,6 +6,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.locationalarm.R;
+import com.example.locationalarm.alarm.Alarm;
 
 class AlarmViewHolder extends RecyclerView.ViewHolder {
     private TextView alarmNameView;
@@ -20,7 +23,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         switchAlarmView = itemView.findViewById(R.id.switch_alarm);
     }
 
-    void setAlarm(Alarm alarm) {
+    void setAlarm(@NonNull Alarm alarm) {
         alarmNameView.setText(alarm.getName());
         addressView.setText(alarm.getAddress());
         switchAlarmView.setChecked(alarm.getIsActive());

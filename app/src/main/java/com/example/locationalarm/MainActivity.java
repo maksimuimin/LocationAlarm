@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import com.example.locationalarm.alarm.ui.alrmlistfragment.AlarmListFragment;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -14,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.fragment_container, new AlarmListFragment())
+                    .add(R.id.fragment_container, AlarmListFragment.newInstance())
                     .commit();
         }
     }
