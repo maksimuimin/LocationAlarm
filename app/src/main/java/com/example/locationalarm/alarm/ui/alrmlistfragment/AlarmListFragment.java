@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 
 import com.example.locationalarm.R;
 import com.example.locationalarm.alarm.Alarm;
-import com.example.locationalarm.alarm.viewmodels.alarm_view_model.AlarmDataSet;
+import com.example.locationalarm.alarm.usecases.AlarmDataSet;
 import com.example.locationalarm.alarm.viewmodels.alarm_view_model.AlarmViewModel;
 
 import java.util.ArrayList;

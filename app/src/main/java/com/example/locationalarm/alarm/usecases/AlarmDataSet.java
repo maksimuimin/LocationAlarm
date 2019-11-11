@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm.viewmodels.alarm_view_model;
+package com.example.locationalarm.alarm.usecases;
 
 import androidx.annotation.NonNull;
 
@@ -10,7 +10,7 @@ public class AlarmDataSet {
     private ArrayList<Alarm> alarms;
     private ArrayList<AlarmDataSetUpdate> updates;
 
-    AlarmDataSet(@NonNull ArrayList<Alarm> _alarms) {
+    public AlarmDataSet(@NonNull ArrayList<Alarm> _alarms) {
         alarms = _alarms;
         updates = new ArrayList<>();
         for (int i = 0; i < alarms.size(); i++) {
@@ -36,5 +36,11 @@ public class AlarmDataSet {
             idx = _idx;
             type = _type;
         }
+    }
+
+    public enum AlarmDataSetUpdateType {
+        CHANGE,
+        INSERT,
+        REMOVE
     }
 }
