@@ -34,6 +34,4 @@ public class AlarmViewModel extends AndroidViewModel {
     public LiveData<AlarmDataSet> getData() {
         return dataSet;
     }
-
-
 }
