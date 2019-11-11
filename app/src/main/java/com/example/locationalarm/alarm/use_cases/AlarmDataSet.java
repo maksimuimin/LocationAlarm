@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm.usecases;
+package com.example.locationalarm.alarm.use_cases;
 
 import androidx.annotation.NonNull;
 
