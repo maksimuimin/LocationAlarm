@@ -10,29 +10,36 @@ import java.util.ArrayList;
 
 public class AlarmRepository {
     private static AlarmRepository instance = new AlarmRepository();
-    private AlarmRepository() { }
+    private MutableLiveData<AlarmDataSet> dataSet = new MutableLiveData<>();
+
+    private AlarmRepository() {
+        dataSet.setValue(loadDataSet());
+    }
 
     @NonNull
     public static AlarmRepository getInstance() {
         return instance;
     }
 
-    private MutableLiveData<AlarmDataSet> dataSet;
-
     @NonNull
     public LiveData<AlarmDataSet> getAlarms() {
-        if (dataSet == null) {
-            dataSet = new MutableLiveData<>();
-            dataSet.setValue(loadDataSet());
-        }
         return dataSet;
     }
 
+    public void registerAlarm(String name, String address, boolean isActive) {
+        Alarm alarm = new Alarm(name, address, isActive);
+        AlarmDataSet dataSetValue = dataSet.getValue();
+        if (dataSetValue == null) {
+            dataSetValue = loadDataSet();
+        }
+        dataSetValue.insertAlarm(alarm);
+        dataSet.setValue(dataSetValue);
+    }
+
+    @NonNull
     private AlarmDataSet loadDataSet() {
         ArrayList<Alarm> alarmList = new ArrayList<>();
-        //TODO remove
-        alarmList.add(new Alarm("MyName", "MyAddress"));
-        alarmList.add(new Alarm("MyName", "MyAddress", false));
+        //TODO load data from DB
         return new AlarmDataSet(alarmList);
     }
 }

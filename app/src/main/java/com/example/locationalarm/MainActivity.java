@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.locationalarm.alarm.ui.alrmlistfragment.AlarmListFragment;
+import com.example.locationalarm.alarm.use_cases.AlarmRepository;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,6 +19,9 @@ public class MainActivity extends AppCompatActivity {
                     .beginTransaction()
                     .add(R.id.fragment_container, AlarmListFragment.newInstance())
                     .commit();
+
+            //TODO delete
+            AlarmRepository.getInstance().registerAlarm("MyAlarm1", "MyAddress", true);
         }
     }
 }

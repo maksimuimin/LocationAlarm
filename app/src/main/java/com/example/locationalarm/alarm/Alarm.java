@@ -7,28 +7,15 @@ public class Alarm {
 
     public Alarm(String _name, String _address, Boolean _isActive) {
         //We will need this when restoring alarms from DB
-        this.setName(_name);
-        this.setAddress(_address);
-        this.setActive(_isActive);
+        name = _name;
+        address = _address;
+        isActive = _isActive;
     }
 
-    public Alarm(String _name, String _address) {
-        this.setName(_name);
-        this.setAddress(_address);
-        this.setActive(true);
-    }
-
-
-    public void setName(String _name) {
-        this.name = _name;
-    }
     public String getName() {
         return this.name;
     }
 
-    public void setAddress(String _address) {
-        this.address = _address;
-    }
     public String getAddress() {
         return this.address;
     }

@@ -28,6 +28,11 @@ public class AlarmDataSet {
         return updatesToCommit;
     }
 
+    public void insertAlarm(Alarm alarm) {
+        alarms.add(alarm);
+        updates.add(new AlarmDataSetUpdate(alarms.size() - 1, AlarmDataSetUpdateType.INSERT));
+    }
+
     public class AlarmDataSetUpdate {
         public int idx;
         public AlarmDataSetUpdateType type;
