@@ -1,6 +1,7 @@
 package com.example.locationalarm.alarm.use_cases;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -34,6 +35,13 @@ public class AlarmRepository {
         }
         dataSetValue.insertAlarm(alarm);
         dataSet.setValue(dataSetValue);
+    }
+
+    public void changeAlarmQuietly(int idx, @Nullable String newName,
+                                   @Nullable String newAddress, @Nullable Boolean newIsActive) {
+        AlarmDataSet dataSetValue = dataSet.getValue();
+        if (dataSetValue == null) return;
+        dataSetValue.changeAlarmQuietly(idx, newName, newAddress, newIsActive);
     }
 
     @NonNull

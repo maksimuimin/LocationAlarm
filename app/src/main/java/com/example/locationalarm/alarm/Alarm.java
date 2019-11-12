@@ -12,15 +12,21 @@ public class Alarm {
         isActive = _isActive;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
     public String getName() {
         return this.name;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
     public String getAddress() {
         return this.address;
     }
 
-    public void setActive(Boolean _isActive) {
+    public void setIsActive(Boolean _isActive) {
         this.isActive = _isActive;
     }
     public Boolean getIsActive() {

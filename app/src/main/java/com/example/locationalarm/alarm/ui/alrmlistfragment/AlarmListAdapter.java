@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.locationalarm.R;
 import com.example.locationalarm.alarm.Alarm;
+import com.example.locationalarm.alarm.use_cases.AlarmRepository;
 
 import java.util.ArrayList;
 
@@ -39,8 +40,8 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.v("Switch State=", " " + isChecked);
-                //TODO update alarm state
+                Log.d("Switch State=", " " + isChecked);
+                AlarmRepository.getInstance().changeAlarmQuietly(position, null, null, isChecked);
             }
         });
     }
