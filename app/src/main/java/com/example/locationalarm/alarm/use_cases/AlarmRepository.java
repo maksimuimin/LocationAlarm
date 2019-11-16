@@ -1,5 +1,7 @@
 package com.example.locationalarm.alarm.use_cases;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -10,44 +12,63 @@ import com.example.locationalarm.alarm.Alarm;
 import java.util.ArrayList;
 
 public class AlarmRepository {
+    private static final String TAG = "AlarmRepository";
     private static AlarmRepository instance = new AlarmRepository();
-    private MutableLiveData<AlarmDataSet> dataSet = new MutableLiveData<>();
+    private MutableLiveData<AlarmDataSet> dataSetLiveData = new MutableLiveData<>();
 
     private AlarmRepository() {
-        dataSet.setValue(loadDataSet());
+        AlarmDataSet alarms = loadDataSet();
+        dataSetLiveData.setValue(alarms);
     }
 
     @NonNull
-    public static AlarmRepository getInstance() {
-        return instance;
-    }
+    public static AlarmRepository getInstance() { return instance; }
 
     @NonNull
-    public LiveData<AlarmDataSet> getAlarms() {
-        return dataSet;
-    }
+    public LiveData<AlarmDataSet> getDataSetLiveData() { return dataSetLiveData; }
 
-    public void registerAlarm(String name, String address, boolean isActive) {
-        Alarm alarm = new Alarm(name, address, isActive);
-        AlarmDataSet dataSetValue = dataSet.getValue();
-        if (dataSetValue == null) {
-            dataSetValue = loadDataSet();
+    public void newAlarm(String name, String address, boolean isActive) {
+        Alarm alarm = new Alarm(getNewAlarmId(), name, address, isActive);
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            dataSet = new AlarmDataSet();
         }
-        dataSetValue.insertAlarm(alarm);
-        dataSet.setValue(dataSetValue);
+        dataSet.addAlarm(alarm);
+        dataSetLiveData.postValue(dataSet);
     }
 
-    public void changeAlarmQuietly(int idx, @Nullable String newName,
-                                   @Nullable String newAddress, @Nullable Boolean newIsActive) {
-        AlarmDataSet dataSetValue = dataSet.getValue();
-        if (dataSetValue == null) return;
-        dataSetValue.changeAlarmQuietly(idx, newName, newAddress, newIsActive);
+    public void deleteAlarm(int id) {
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
+            return;
+        }
+
+        dataSet.removeAlarm(id);
+        dataSetLiveData.postValue(dataSet);
     }
 
-    @NonNull
+    public void changeAlarm(int id, @Nullable String name,
+                            @Nullable String address, @Nullable Boolean isActive) {
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
+            return;
+        }
+
+        dataSet.changeAlarm(id, name, address, isActive);
+        // Since we are using array of LiveData in AlarmDataSet we don't need to update
+        // whole dataSetLiveData directly, so we will not trigger heavy mechanism with diff utils
+    }
+
+    private int getNewAlarmId() {
+        //TODO develop
+        return 0;
+    }
+
     private AlarmDataSet loadDataSet() {
-        ArrayList<Alarm> alarmList = new ArrayList<>();
         //TODO load data from DB
-        return new AlarmDataSet(alarmList);
+        ArrayList<Alarm> alarms = new ArrayList<>();
+        return new AlarmDataSet(alarms);
     }
 }

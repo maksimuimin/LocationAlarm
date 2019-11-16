@@ -1,11 +1,14 @@
 package com.example.locationalarm;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 
 import com.example.locationalarm.alarm.ui.alrmlistfragment.AlarmListFragment;
-import com.example.locationalarm.alarm.use_cases.AlarmRepository;
+import com.example.locationalarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,7 +24,11 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
 
             //TODO delete
-            AlarmRepository.getInstance().registerAlarm("MyAlarm1", "MyAddress", true);
+            AlarmViewModel alarmViewModel = ViewModelProviders
+                    .of(Objects.requireNonNull(this)) //Shared with MapFragment
+                    .get(AlarmViewModel.class);
+            alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true);
+            alarmViewModel.changeAlarm(0, "MyNewName", null, null);
         }
     }
 }

@@ -4,22 +4,29 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.locationalarm.R;
 import com.example.locationalarm.alarm.Alarm;
-import com.example.locationalarm.alarm.use_cases.AlarmRepository;
-
-import java.util.ArrayList;
+import com.example.locationalarm.alarm.use_cases.AlarmDataSet;
+import com.example.locationalarm.alarm.view_models.alarm_view_model.AlarmViewModel;
 
 public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
-    private ArrayList<Alarm> alarms;
+    private static final String TAG = "AlarmListAdapter";
+    private AlarmDataSet alarmDataSet;
+    private AlarmViewModel viewModel;
+    private LifecycleOwner parentLifecycleOwner;
 
-    AlarmListAdapter(ArrayList<Alarm> _data) {
-        alarms = _data;
+    AlarmListAdapter(@NonNull AlarmDataSet _alarmDataSet,
+                     @NonNull AlarmViewModel _viewModel,
+                     @NonNull LifecycleOwner _parentLifecycleOwner) {
+        alarmDataSet = _alarmDataSet;
+        viewModel = _viewModel;
+        parentLifecycleOwner = _parentLifecycleOwner;
     }
 
     @NonNull
@@ -29,29 +36,23 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
                 .from(parent.getContext())
                 .inflate(R.layout.alarm_item, parent, false);
 
-        return new AlarmViewHolder(view);
+        return new AlarmViewHolder(view, viewModel, parentLifecycleOwner);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
-        holder.setAlarm(alarms.get(position));
-
-        holder.switchAlarmView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Log.d("Switch State=", " " + isChecked);
-                AlarmRepository.getInstance().changeAlarmQuietly(position, null, null, isChecked);
-            }
-        });
+        LiveData<Alarm> alarmLiveData = alarmDataSet.getAlarmLiveDataByPosition(position);
+        if (alarmLiveData == null) {
+            Log.wtf(TAG, "Trying to bindViewHolder with null LiveData");
+            return;
+        }
+        holder.setAlarmLiveData(alarmLiveData);
     }
 
     @Override
-    public int getItemCount() {
-        return alarms.size();
-    }
+    public int getItemCount() { return alarmDataSet.size(); }
 
-    public void setAlarms(ArrayList<Alarm> alarms) {
-        this.alarms = alarms;
-    }
+    void setAlarmDataSet(AlarmDataSet _alarmDataSet) { alarmDataSet = _alarmDataSet; }
+    AlarmDataSet getAlarmDataSet() { return alarmDataSet; }
 }

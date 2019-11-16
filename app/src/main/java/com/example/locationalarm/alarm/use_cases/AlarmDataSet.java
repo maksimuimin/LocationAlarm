@@ -1,70 +1,133 @@
 package com.example.locationalarm.alarm.use_cases;
 
+import android.util.Log;
+import android.util.SparseArray;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.recyclerview.widget.DiffUtil;
 
 import com.example.locationalarm.alarm.Alarm;
 
 import java.util.ArrayList;
 
 public class AlarmDataSet {
-    private ArrayList<Alarm> alarms;
-    private ArrayList<AlarmDataSetUpdate> updates;
+    // AlarmDataSet is representation of AlarmRepository in RAM
+    // It may be used directly for read-only operations
+    // All data changes must be performed via AlarmRepository since it is responsible for
+    //   long-time data storing
+    // If we need to change data representation without data changes (different sorting, for example)
+    //   it must be performed on AlarmDataSet level
+    private static final String TAG = "AlarmDataSet";
+    private SparseArray<MutableLiveData<Alarm>> dataSet = new SparseArray<>();
 
-    AlarmDataSet(@NonNull ArrayList<Alarm> _alarms) {
-        alarms = _alarms;
-        updates = new ArrayList<>();
-        for (int i = 0; i < alarms.size(); i++) {
-            updates.add(new AlarmDataSetUpdate(i, AlarmDataSetUpdateType.INSERT));
+    AlarmDataSet() {}
+    AlarmDataSet(@NonNull ArrayList<Alarm> alarms) {
+        for (Alarm alarm : alarms) {
+            dataSet.put(alarm.getId(), new MutableLiveData<>(alarm));
         }
     }
 
-    public ArrayList<Alarm> getAlarms() {
-        return alarms;
+    @Nullable
+    public LiveData<Alarm> getAlarmLiveDataById(int id) {
+        return dataSet.get(id, null);
     }
 
-    public ArrayList<AlarmDataSetUpdate> commitUpdates() {
-        ArrayList<AlarmDataSetUpdate> updatesToCommit = new ArrayList<>(updates);
-        updates.clear();
-        return updatesToCommit;
+    @Nullable
+    public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
+        return dataSet.get(dataSet.keyAt(pos), null);
     }
 
-    void insertAlarm(Alarm alarm) {
-        alarms.add(alarm);
-        updates.add(new AlarmDataSetUpdate(alarms.size() - 1, AlarmDataSetUpdateType.INSERT));
+    void addAlarm(@NonNull Alarm alarm) {
+        dataSet.put(alarm.getId(), new MutableLiveData<>(alarm));
     }
 
-    void changeAlarm(int idx, @Nullable String newName,
-                     @Nullable String newAddress, @Nullable Boolean newIsActive) {
-        changeAlarmQuietly(idx, newName, newAddress, newIsActive);
-        updates.add(new AlarmDataSetUpdate(idx, AlarmDataSetUpdateType.CHANGE));
+    void removeAlarm(int id) {
+        dataSet.remove(id);
     }
 
-    void changeAlarmQuietly(int idx, @Nullable String newName,
-                            @Nullable String newAddress, @Nullable Boolean newIsActive) {
-        if (newName != null) alarms.get(idx).setName(newName);
-        if (newAddress != null) alarms.get(idx).setAddress(newAddress);
-        if (newIsActive != null) alarms.get(idx).setIsActive(newIsActive);
-    }
-
-    void removeAlarm(int idx) {
-        alarms.remove(idx);
-        updates.add(new AlarmDataSetUpdate(idx, AlarmDataSetUpdateType.REMOVE));
-    }
-
-    public class AlarmDataSetUpdate {
-        public int idx;
-        public AlarmDataSetUpdateType type;
-
-        AlarmDataSetUpdate(int _idx, AlarmDataSetUpdateType _type) {
-            idx = _idx;
-            type = _type;
+    void changeAlarm(int id, @Nullable String name,
+                     @Nullable String address, @Nullable Boolean isActive) {
+        MutableLiveData<Alarm> alarmLiveData = dataSet.get(id, null);
+        if (alarmLiveData == null) {
+            Log.e(TAG, "Requested change of not existing alarm");
+            return;
         }
+
+        Alarm alarm = dataSet.get(id).getValue();
+        if (alarm == null) {
+            Log.wtf(TAG, "dataSet contains LiveData to null Alarm");
+            return;
+        }
+
+        if (name != null) alarm.setName(name);
+        if (address != null) alarm.setAddress(address);
+        if (isActive != null) alarm.setIsActive(isActive);
+        alarmLiveData.postValue(alarm);
     }
 
-    public enum AlarmDataSetUpdateType {
-        CHANGE,
-        INSERT,
-        REMOVE
+    public int size() {
+        return dataSet.size();
+    }
+
+    @NonNull
+    public DiffUtil.DiffResult diffFrom(AlarmDataSet oldDataSet) {
+        return DiffUtil.calculateDiff(new AlarmDataSetDiffUtilCallback(oldDataSet, this));
+    }
+
+    public class AlarmDataSetDiffUtilCallback extends DiffUtil.Callback {
+        private final AlarmDataSet oldDataSet;
+        private final AlarmDataSet newDataSet;
+
+        AlarmDataSetDiffUtilCallback(AlarmDataSet _oldDataSet, AlarmDataSet _newDataSet) {
+            oldDataSet = _oldDataSet;
+            newDataSet = _newDataSet;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldDataSet.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newDataSet.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            LiveData<Alarm> oldItem = oldDataSet.getAlarmLiveDataByPosition(oldItemPosition);
+            LiveData<Alarm> newItem = newDataSet.getAlarmLiveDataByPosition(newItemPosition);
+            if(oldItem == null || newItem == null) {
+                return false;
+            }
+
+            Alarm oldAlarm = oldItem.getValue();
+            Alarm newAalrm = newItem.getValue();
+            if (oldAlarm == null || newAalrm == null) {
+                return false;
+            }
+
+            return oldAlarm.getId() == newAalrm.getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            LiveData<Alarm> oldItem = oldDataSet.getAlarmLiveDataByPosition(oldItemPosition);
+            LiveData<Alarm> newItem = newDataSet.getAlarmLiveDataByPosition(newItemPosition);
+            if(oldItem == null || newItem == null) {
+                return false;
+            }
+
+            Alarm oldAlarm = oldItem.getValue();
+            Alarm newAalrm = newItem.getValue();
+            if (oldAlarm == null || newAalrm == null) {
+                return false;
+            }
+
+            return oldAlarm.equals(newAalrm);
+        }
     }
 }
