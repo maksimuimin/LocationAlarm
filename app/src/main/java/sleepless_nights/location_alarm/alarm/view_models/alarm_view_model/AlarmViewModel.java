@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm.view_models.alarm_view_model;
+package sleepless_nights.location_alarm.alarm.view_models.alarm_view_model;
 
 import android.app.Application;
 import android.util.Log;
@@ -9,9 +9,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
-import com.example.locationalarm.alarm.Alarm;
-import com.example.locationalarm.alarm.use_cases.AlarmDataSet;
-import com.example.locationalarm.alarm.use_cases.AlarmRepository;
+import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
+import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
 
 public class AlarmViewModel extends AndroidViewModel {
     private static final String TAG = "AlarmViewModel";

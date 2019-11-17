@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm.ui.alrmlistfragment;
+package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,10 +10,10 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.locationalarm.R;
-import com.example.locationalarm.alarm.Alarm;
-import com.example.locationalarm.alarm.use_cases.AlarmDataSet;
-import com.example.locationalarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import com.locationalarm.R;
+import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
+import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
 
 public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private static final String TAG = "AlarmListAdapter";

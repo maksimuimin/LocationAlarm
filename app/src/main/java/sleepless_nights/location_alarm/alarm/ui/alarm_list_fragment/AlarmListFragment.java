@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm.ui.alrmlistfragment;
+package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.os.Bundle;
 
@@ -16,9 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.locationalarm.R;
-import com.example.locationalarm.alarm.use_cases.AlarmDataSet;
-import com.example.locationalarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import com.locationalarm.R;
+import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
+import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
 
 import java.util.Objects;
 

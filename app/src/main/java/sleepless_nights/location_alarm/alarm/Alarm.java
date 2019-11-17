@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm;
+package sleepless_nights.location_alarm.alarm;
 
 public class Alarm {
     private int id;

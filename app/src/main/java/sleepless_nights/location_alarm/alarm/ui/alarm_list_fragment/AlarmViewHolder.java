@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm.ui.alrmlistfragment;
+package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.util.Log;
 import android.view.View;
@@ -11,21 +11,21 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.locationalarm.R;
-import com.example.locationalarm.alarm.Alarm;
-import com.example.locationalarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import com.locationalarm.R;
+import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
 
 class AlarmViewHolder extends RecyclerView.ViewHolder {
     private static final String TAG = "AlarmViewHolder";
 
-    private TextView alarmNameView;
-    private TextView addressView;
-    private Switch switchAlarmView;
+    private final TextView alarmNameView;
+    private final TextView addressView;
+    private final Switch switchAlarmView;
 
+    private final AlarmViewModel viewModel;
+    private final LifecycleOwner parentLifecycleOwner;
+    private final Observer<Alarm> alarmObserver;
     private LiveData<Alarm> alarmLiveData = null;
-    private AlarmViewModel viewModel;
-    private LifecycleOwner parentLifecycleOwner;
-    private Observer<Alarm> alarmObserver;
 
     AlarmViewHolder(@NonNull View itemView,
                     @NonNull AlarmViewModel _viewModel,

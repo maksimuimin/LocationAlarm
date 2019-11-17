@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".alarm.ui.alrmlistfragment.AlarmListFragment">
+    tools:context="sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/alarm_list"

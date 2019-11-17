@@ -1,4 +1,4 @@
-package com.example.locationalarm.alarm.use_cases;
+package sleepless_nights.location_alarm.alarm.use_cases;
 
 import android.util.Log;
 import android.util.SparseArray;
@@ -9,7 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.DiffUtil;
 
-import com.example.locationalarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.Alarm;
 
 import java.util.ArrayList;
 
