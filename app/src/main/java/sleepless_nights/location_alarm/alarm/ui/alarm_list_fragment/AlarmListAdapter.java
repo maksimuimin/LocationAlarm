@@ -21,12 +21,12 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private AlarmViewModel viewModel;
     private LifecycleOwner parentLifecycleOwner;
 
-    AlarmListAdapter(@NonNull AlarmDataSet _alarmDataSet,
-                     @NonNull AlarmViewModel _viewModel,
-                     @NonNull LifecycleOwner _parentLifecycleOwner) {
-        alarmDataSet = _alarmDataSet;
-        viewModel = _viewModel;
-        parentLifecycleOwner = _parentLifecycleOwner;
+    AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
+                     @NonNull AlarmViewModel viewModel,
+                     @NonNull LifecycleOwner parentLifecycleOwner) {
+        this.alarmDataSet = alarmDataSet;
+        this.viewModel = viewModel;
+        this.parentLifecycleOwner = parentLifecycleOwner;
     }
 
     @NonNull
@@ -53,6 +53,6 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     @Override
     public int getItemCount() { return alarmDataSet.size(); }
 
-    void setAlarmDataSet(AlarmDataSet _alarmDataSet) { alarmDataSet = _alarmDataSet; }
+    void setAlarmDataSet(AlarmDataSet alarmDataSet) { this.alarmDataSet = alarmDataSet; }
     AlarmDataSet getAlarmDataSet() { return alarmDataSet; }
 }

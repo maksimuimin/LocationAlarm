@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
             AlarmViewModel alarmViewModel = ViewModelProviders
                     .of(Objects.requireNonNull(this)) //Shared with MapFragment
                     .get(AlarmViewModel.class);
-            alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true);
+            alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true, 0, 0,2000);
             LiveData<Alarm> alarmLiveData = alarmViewModel.getAlarmLiveDataByPosition(0);
             if (alarmLiveData != null) {
                 Alarm alarm = alarmLiveData.getValue();

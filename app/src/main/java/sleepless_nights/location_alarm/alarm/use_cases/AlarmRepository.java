@@ -47,8 +47,10 @@ public class AlarmRepository {
         return dataSet.getAlarmLiveDataByPosition(pos);
     }
 
-    public void newAlarm(String name, String address, boolean isActive) {
-        Alarm alarm = new Alarm(getNewAlarmId(), name, address, isActive);
+    public void newAlarm(String name, String address, boolean isActive,
+                         double latitude, double longitude, float radius) {
+        Alarm alarm = new Alarm(getNewAlarmId(), name, address, isActive,
+                latitude, longitude, radius);
         AlarmDataSet dataSet = dataSetLiveData.getValue();
         if (dataSet == null) {
             dataSet = new AlarmDataSet();

@@ -64,9 +64,9 @@ public class AlarmDataSet {
         private final AlarmDataSet oldDataSet;
         private final AlarmDataSet newDataSet;
 
-        AlarmDataSetDiffUtilCallback(AlarmDataSet _oldDataSet, AlarmDataSet _newDataSet) {
-            oldDataSet = _oldDataSet;
-            newDataSet = _newDataSet;
+        AlarmDataSetDiffUtilCallback(AlarmDataSet oldDataSet, AlarmDataSet newDataSet) {
+            this.oldDataSet = oldDataSet;
+            this.newDataSet = newDataSet;
         }
 
         @Override
