@@ -50,7 +50,8 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
                 return;
             }
 
-            viewModel.changeAlarm(alarm.getId(), null, null, isChecked);
+            alarm.setIsActive(isChecked);
+            viewModel.updateAlarm(alarm);
         });
 
         alarmObserver = alarm -> {

@@ -68,15 +68,14 @@ public class AlarmRepository {
         dataSetLiveData.postValue(dataSet);
     }
 
-    public void changeAlarm(int id, @Nullable String name,
-                            @Nullable String address, @Nullable Boolean isActive) {
+    public void updateAlarm(Alarm alarm) {
         AlarmDataSet dataSet = dataSetLiveData.getValue();
         if (dataSet == null) {
             Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
             return;
         }
 
-        dataSet.changeAlarm(id, name, address, isActive);
+        dataSet.updateAlarm(alarm);
         // Since we are using array of LiveData in AlarmDataSet we don't need to update
         // whole dataSetLiveData directly, so we will not trigger heavy mechanism with diff utils
     }

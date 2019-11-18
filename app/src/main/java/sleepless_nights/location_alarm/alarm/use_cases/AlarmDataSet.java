@@ -42,23 +42,12 @@ public class AlarmDataSet {
         dataSet.remove(id);
     }
 
-    void changeAlarm(int id, @Nullable String name,
-                     @Nullable String address, @Nullable Boolean isActive) {
-        MutableLiveData<Alarm> alarmLiveData = dataSet.get(id, null);
+    void updateAlarm(Alarm alarm) {
+        MutableLiveData<Alarm> alarmLiveData = dataSet.get(alarm.getId(), null);
         if (alarmLiveData == null) {
-            Log.e(TAG, "Requested change of not existing alarm");
+            Log.e(TAG, "Requested update of not existing alarm");
             return;
         }
-
-        Alarm alarm = dataSet.get(id).getValue();
-        if (alarm == null) {
-            Log.wtf(TAG, "dataSet contains LiveData to null Alarm");
-            return;
-        }
-
-        if (name != null) alarm.setName(name);
-        if (address != null) alarm.setAddress(address);
-        if (isActive != null) alarm.setIsActive(isActive);
         alarmLiveData.postValue(alarm);
     }
 

@@ -48,8 +48,7 @@ public class AlarmViewModel extends AndroidViewModel {
         AlarmRepository.getInstance().deleteAlarm(id);
     }
 
-    public void changeAlarm(int id, @Nullable String name,
-                            @Nullable String address, @Nullable Boolean isActive) {
-        AlarmRepository.getInstance().changeAlarm(id, name, address, isActive);
+    public void updateAlarm(Alarm alarm) {
+        AlarmRepository.getInstance().updateAlarm(alarm);
     }
 }

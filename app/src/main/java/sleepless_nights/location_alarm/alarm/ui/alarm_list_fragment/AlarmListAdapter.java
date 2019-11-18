@@ -42,7 +42,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
-        LiveData<Alarm> alarmLiveData = alarmDataSet.getAlarmLiveDataByPosition(position);
+        LiveData<Alarm> alarmLiveData = viewModel.getAlarmLiveDataByPosition(position);
         if (alarmLiveData == null) {
             Log.wtf(TAG, "Trying to bindViewHolder with null LiveData");
             return;
