@@ -27,6 +27,26 @@ public class AlarmRepository {
     @NonNull
     public LiveData<AlarmDataSet> getDataSetLiveData() { return dataSetLiveData; }
 
+    @Nullable
+    public LiveData<Alarm> getAlarmLiveDataById(int id) {
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            Log.wtf(TAG, "AlarmRepository contains dataSetLiveData with null AlarmDataSet");
+            return null;
+        }
+        return dataSet.getAlarmLiveDataById(id);
+    }
+
+    @Nullable
+    public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            Log.wtf(TAG, "AlarmRepository contains dataSetLiveData with null AlarmDataSet");
+            return null;
+        }
+        return dataSet.getAlarmLiveDataByPosition(pos);
+    }
+
     public void newAlarm(String name, String address, boolean isActive) {
         Alarm alarm = new Alarm(getNewAlarmId(), name, address, isActive);
         AlarmDataSet dataSet = dataSetLiveData.getValue();

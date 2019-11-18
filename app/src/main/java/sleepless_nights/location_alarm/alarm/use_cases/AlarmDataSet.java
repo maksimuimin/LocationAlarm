@@ -14,12 +14,6 @@ import sleepless_nights.location_alarm.alarm.Alarm;
 import java.util.ArrayList;
 
 public class AlarmDataSet {
-    // AlarmDataSet is representation of AlarmRepository in RAM
-    // It may be used directly for read-only operations
-    // All data changes must be performed via AlarmRepository since it is responsible for
-    //   long-time data storing
-    // If we need to change data representation without data changes (different sorting, for example)
-    //   it must be performed on AlarmDataSet level
     private static final String TAG = "AlarmDataSet";
     private SparseArray<MutableLiveData<Alarm>> dataSet = new SparseArray<>();
 
@@ -31,12 +25,12 @@ public class AlarmDataSet {
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataById(int id) {
+    LiveData<Alarm> getAlarmLiveDataById(int id) {
         return dataSet.get(id, null);
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
+    LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
         return dataSet.get(dataSet.keyAt(pos), null);
     }
 

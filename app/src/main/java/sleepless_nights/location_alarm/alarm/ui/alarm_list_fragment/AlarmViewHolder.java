@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 class AlarmViewHolder extends RecyclerView.ViewHolder {
     private static final String TAG = "AlarmViewHolder";

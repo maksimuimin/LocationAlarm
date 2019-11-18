@@ -1,4 +1,4 @@
-package sleepless_nights.location_alarm;
+package sleepless_nights.location_alarm.alarm.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
@@ -8,7 +8,7 @@ import android.os.Bundle;
 import sleepless_nights.location_alarm.R;
 
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
-import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 import java.util.Objects;
 
