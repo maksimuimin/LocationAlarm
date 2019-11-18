@@ -4,7 +4,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.locationalarm"
+        applicationId "sleepless_nights.location_alarm"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1

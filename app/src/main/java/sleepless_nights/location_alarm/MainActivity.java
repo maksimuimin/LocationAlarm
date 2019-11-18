@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 
-import com.locationalarm.R;
+import sleepless_nights.location_alarm.R;
 
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
