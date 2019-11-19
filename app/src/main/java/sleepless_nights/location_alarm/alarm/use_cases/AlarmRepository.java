@@ -17,8 +17,8 @@ public class AlarmRepository {
     private MutableLiveData<AlarmDataSet> dataSetLiveData = new MutableLiveData<>();
 
     private AlarmRepository() {
-        AlarmDataSet alarms = loadDataSet();
-        dataSetLiveData.setValue(alarms);
+        dataSetLiveData.setValue(new AlarmDataSet());
+        loadDataSet();
     }
 
     @NonNull
@@ -87,9 +87,9 @@ public class AlarmRepository {
         return 0;
     }
 
-    private AlarmDataSet loadDataSet() {
+    private void loadDataSet() {
         //TODO load data from DB
         ArrayList<Alarm> alarms = new ArrayList<>();
-        return new AlarmDataSet(alarms);
+        dataSetLiveData.postValue(new AlarmDataSet(alarms));
     }
 }

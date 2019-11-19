@@ -11,14 +11,14 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class AlarmDataSet {
     private static final String TAG = "AlarmDataSet";
     private SparseArray<MutableLiveData<Alarm>> dataSet = new SparseArray<>();
 
     AlarmDataSet() {}
-    AlarmDataSet(@NonNull ArrayList<Alarm> alarms) {
+    AlarmDataSet(@NonNull List<Alarm> alarms) {
         for (Alarm alarm : alarms) {
             dataSet.put(alarm.getId(), new MutableLiveData<>(alarm));
         }
