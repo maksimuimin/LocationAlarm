@@ -16,6 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".alarm.ui.alarm_service.AlarmService" >
+            <intent-filter>
+                <action android:name="${applicationId}.dreate_alarm"/>
+                <action android:name="${applicationId}.update_alarm"/>
+                <action android:name="${applicationId}.delete_alarm"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

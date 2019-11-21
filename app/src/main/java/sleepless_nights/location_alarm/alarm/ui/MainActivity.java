@@ -1,7 +1,6 @@
 package sleepless_nights.location_alarm.alarm.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
@@ -32,17 +31,14 @@ public class MainActivity extends AppCompatActivity {
             AlarmViewModel alarmViewModel = ViewModelProviders
                     .of(Objects.requireNonNull(this)) //Shared with MapFragment
                     .get(AlarmViewModel.class);
-            alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true, 0, 0,2000);
-            LiveData<Alarm> alarmLiveData = alarmViewModel.getAlarmLiveDataByPosition(0);
-            if (alarmLiveData != null) {
-                Alarm alarm = alarmLiveData.getValue();
-                if (alarm == null) {
-                    Log.wtf("MainActivity", "got LiveData of null Alarm");
-                    return;
-                }
-                alarm.setName("MyNewName");
-                alarmViewModel.updateAlarm(alarm);
+            alarmViewModel.createAlarm("MyAlarm1", "MyAddress", true, 0, 0,2000);
+            Alarm alarm = alarmViewModel.getAlarmByPosition(0);
+            if (alarm == null) {
+                Log.wtf("MainActivity", "got null Alarm");
+                return;
             }
+            alarm.setName("MyNewName");
+            alarmViewModel.updateAlarm(alarm);
         }
     }
 }

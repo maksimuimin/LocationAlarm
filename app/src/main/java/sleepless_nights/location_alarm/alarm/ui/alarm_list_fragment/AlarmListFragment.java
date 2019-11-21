@@ -5,7 +5,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -50,14 +49,13 @@ public class AlarmListFragment extends Fragment {
             return;
         }
 
-        final LifecycleOwner lifecycleOwner = getViewLifecycleOwner();
         final LinearLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
-        final AlarmListAdapter adapter = new AlarmListAdapter(alarmDataSet, alarmViewModel, lifecycleOwner);
+        final AlarmListAdapter adapter = new AlarmListAdapter(alarmDataSet, alarmViewModel);
         final RecyclerView listView = view.findViewById(R.id.alarm_list);
         listView.setAdapter(adapter);
         listView.setLayoutManager(layoutManager);
 
-        alarmViewModel.getLiveData().observe(lifecycleOwner, updAlarmDataSet -> {
+        alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), updAlarmDataSet -> {
             AlarmDataSet oldDataSet = adapter.getAlarmDataSet();
             adapter.setAlarmDataSet(updAlarmDataSet);
             updAlarmDataSet.diffFrom(oldDataSet).dispatchUpdatesTo(adapter);
