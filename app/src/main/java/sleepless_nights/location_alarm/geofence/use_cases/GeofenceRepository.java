@@ -38,7 +38,7 @@ public class GeofenceRepository {
     }
 
     @Nullable
-    public Integer getAlarmIdByGeofenceId(String geofenceId) {
+    Integer getAlarmIdByGeofenceId(String geofenceId) {
         CustomGeofence geofence = geofenceMap.get(geofenceId);
         if (geofence == null) return null;
         return geofence.getAlarmId();

@@ -3,18 +3,24 @@ package sleepless_nights.location_alarm.alarm.ui.alarm_service;
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ListUpdateCallback;
 
 import java.util.Locale;
 
+import sleepless_nights.location_alarm.BuildConfig;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
 import sleepless_nights.location_alarm.geofence.use_cases.GeofenceRepository;
 
 public class AlarmService extends IntentService {
+    public static final String ACTION_DO_ALARM = BuildConfig.APPLICATION_ID + ".do_alarm";
+    public static final String ACTION_TOO_MANY_GEOFENCES = BuildConfig.APPLICATION_ID + ".too_many_geofences";
+    public static final String INTENT_EXTRA_ALARM_ID = "AlarmID";
+
     private static final String TAG = "AlarmService";
     private static int ID = 0;
 
@@ -24,6 +30,7 @@ public class AlarmService extends IntentService {
         super(String.format(Locale.getDefault(), "%s-%d", TAG, ID));
         ID++;
         Log.d(TAG, "instanceCreated");
+        this.setIntentRedelivery(false); //We don't need to restart service if it get killed in background
 
         activeAlarmsDataSet = AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().getValue();
         if (activeAlarmsDataSet == null) {
@@ -64,7 +71,7 @@ public class AlarmService extends IntentService {
 
                 @Override
                 public void onChanged(int position, int count, @Nullable Object payload) {
-                    //TODO fix notification
+                    //TODO update notification
                 }
             });
 
@@ -80,14 +87,52 @@ public class AlarmService extends IntentService {
     }
 
     @Override
-    public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
-        return START_STICKY;
-        //We don't need to restart service if it get killed in the background
+    protected void onHandleIntent(@Nullable Intent intent) {
+        if (intent == null) {
+            Log.wtf(TAG, "handling null intent");
+            return;
+        }
+
+        String action = intent.getAction();
+        if (action ==null) {
+            Log.wtf(TAG, "handling intent with null action");
+            return;
+        }
+
+        switch (action) {
+            case ACTION_DO_ALARM: {
+                int alarmId = intent.getIntExtra(INTENT_EXTRA_ALARM_ID, -1);
+                if (alarmId == -1) {
+                    Log.wtf(TAG, "ACTION_DO_ALARM intent does not contain INTENT_EXTRA_ALARM_ID");
+                    return;
+                }
+                handleActionDoAlarm(alarmId);
+                break;
+            }
+            case ACTION_TOO_MANY_GEOFENCES: {
+                handleActionTooManyGeofences();
+                break;
+            }
+            default: {
+                Log.wtf(TAG, "intent contains unknown action: " + action);
+            }
+        }
     }
 
-    @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
-        //TODO handle intents from GeofenceBroadcastReceiver
-        Log.wtf(TAG, "onHandleIntent: " + (intent == null ? "null" : intent.toString()));
+    private void handleActionDoAlarm(int alarmId) {
+        //TODO start alarming activity
+        Alarm triggeredAlarm = AlarmRepository.getInstance().getAlarmById(alarmId);
+        if (triggeredAlarm == null) {
+            Log.wtf(TAG, "Triggered null alarm");
+            return;
+        }
+        Toast.makeText(getApplicationContext(),
+                "Triggered alarm " + triggeredAlarm.getName(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleActionTooManyGeofences() {
+        //TODO notify user
+        Toast.makeText(getApplicationContext(),
+                "Too many geofences", Toast.LENGTH_SHORT).show();
     }
 }

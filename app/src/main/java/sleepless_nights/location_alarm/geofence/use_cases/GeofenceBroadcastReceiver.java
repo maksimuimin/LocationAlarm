@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
@@ -13,7 +12,7 @@ import com.google.android.gms.location.GeofencingEvent;
 import java.util.List;
 import java.util.Locale;
 
-import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
+import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
 import sleepless_nights.location_alarm.geofence.CustomGeofence;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
@@ -23,17 +22,9 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
-            switch (geofencingEvent.getErrorCode()) {
-                case GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES: {
-                    //TODO notify AlarmService
-                    break;
-                }
-                default: {
-                    String errorMessage = getErrorString(geofencingEvent.getErrorCode());
-                    Log.e(TAG, errorMessage);
-                    //TODO handle error
-                }
-            }
+            String errorMessage = getErrorString(geofencingEvent.getErrorCode());
+            Log.e(TAG, errorMessage);
+            //TODO handle error
             return;
         }
 
@@ -76,10 +67,8 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void doAlarm(Context context, int alarmId) {
-        //TODO develop
-        //TODO send intent to service
-        Toast.makeText(context,
-                "Triggered alarm " + AlarmRepository.getInstance().getAlarmById(alarmId),
-                Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(AlarmService.ACTION_DO_ALARM);
+        intent.putExtra(AlarmService.INTENT_EXTRA_ALARM_ID, alarmId);
+        context.getApplicationContext().startService(intent);
     }
 }
