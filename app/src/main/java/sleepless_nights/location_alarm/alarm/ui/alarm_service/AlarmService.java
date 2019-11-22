@@ -40,7 +40,7 @@ public class AlarmService extends IntentService {
             Log.wtf(TAG, "activeAlarmDataSetLiveData contains null AlarmDataSet");
             activeAlarmsDataSet = new AlarmDataSet();
         }
-        notification = new AlarmServiceNotification();
+        notification = new AlarmServiceNotification(getApplicationContext(), activeAlarmsDataSet.size());
 
         AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().observeForever(updAlarmDataSet -> {
             updAlarmDataSet.diffFrom(activeAlarmsDataSet).dispatchUpdatesTo(new ListUpdateCallback() {
@@ -82,11 +82,11 @@ public class AlarmService extends IntentService {
             if (activeAlarmsDataSet.isEmpty() && !updAlarmDataSet.isEmpty()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     startForeground(AlarmServiceNotification.NOTIFICATION_ID,
-                            notification,
+                            notification.getNotification(),
                             ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
                 } else {
                     startForeground(AlarmServiceNotification.NOTIFICATION_ID,
-                            notification);
+                            notification.getNotification());
                 }
             }
             if (!activeAlarmsDataSet.isEmpty() && updAlarmDataSet.isEmpty()) {
