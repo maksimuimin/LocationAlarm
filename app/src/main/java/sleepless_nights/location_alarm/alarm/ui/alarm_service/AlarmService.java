@@ -1,6 +1,8 @@
 package sleepless_nights.location_alarm.alarm.ui.alarm_service;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
@@ -8,6 +10,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.ListUpdateCallback;
 
 import java.util.Locale;
@@ -23,11 +26,14 @@ public class AlarmService extends IntentService {
     public static final String ACTION_TOO_MANY_GEOFENCES = BuildConfig.APPLICATION_ID + ".too_many_geofences";
     public static final String INTENT_EXTRA_ALARM_ID = "AlarmID";
 
+    private static final int NOTIFICATION_ID = 1;
+    private static final String NOTIFICATION_CHANNEL = "Active alarms";
+
     private static final String TAG = "AlarmService";
     private static int ID = 0;
 
     private AlarmDataSet activeAlarmsDataSet;
-    private AlarmServiceNotification notification;
+    private NotificationManager notificationManager;
 
     public AlarmService() {
         super(String.format(Locale.getDefault(), "%s-%d", TAG, ID));
@@ -40,7 +46,7 @@ public class AlarmService extends IntentService {
             Log.wtf(TAG, "activeAlarmDataSetLiveData contains null AlarmDataSet");
             activeAlarmsDataSet = new AlarmDataSet();
         }
-        notification = new AlarmServiceNotification(getApplicationContext(), activeAlarmsDataSet.size());
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().observeForever(updAlarmDataSet -> {
             updAlarmDataSet.diffFrom(activeAlarmsDataSet).dispatchUpdatesTo(new ListUpdateCallback() {
@@ -74,23 +80,21 @@ public class AlarmService extends IntentService {
                 public void onMoved(int fromPosition, int toPosition) {}
 
                 @Override
-                public void onChanged(int position, int count, @Nullable Object payload) {
-                    //TODO update notification
-                }
+                public void onChanged(int position, int count, @Nullable Object payload) {}
             });
 
             if (activeAlarmsDataSet.isEmpty() && !updAlarmDataSet.isEmpty()) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(AlarmServiceNotification.NOTIFICATION_ID,
-                            notification.getNotification(),
+                    startForeground(NOTIFICATION_ID,
+                            buildNotification(updAlarmDataSet.size()),
                             ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
                 } else {
-                    startForeground(AlarmServiceNotification.NOTIFICATION_ID,
-                            notification.getNotification());
+                    startForeground(NOTIFICATION_ID, buildNotification(updAlarmDataSet.size()));
                 }
-            }
-            if (!activeAlarmsDataSet.isEmpty() && updAlarmDataSet.isEmpty()) {
+            } else if (!activeAlarmsDataSet.isEmpty() && updAlarmDataSet.isEmpty()) {
                 stopForeground(true); //Removing notification
+            } else if (updAlarmDataSet.size() != activeAlarmsDataSet.size()) {
+                notificationManager.notify(NOTIFICATION_ID, buildNotification(updAlarmDataSet.size()));
             }
 
             activeAlarmsDataSet = updAlarmDataSet;
@@ -131,6 +135,14 @@ public class AlarmService extends IntentService {
         }
     }
 
+    private Notification buildNotification(int alarmsCount) {
+        String content = String.format(Locale.getDefault(), "Active alarms: %d", alarmsCount);
+        return new NotificationCompat.Builder(getApplicationContext(),NOTIFICATION_CHANNEL)
+                .setContentTitle("LocationAlarm")
+                .setContentText(content)
+                .build();
+    }
+
     private void handleActionDoAlarm(int alarmId) {
         //TODO start alarming activity
         Alarm triggeredAlarm = AlarmRepository.getInstance().getAlarmById(alarmId);
@@ -143,7 +155,7 @@ public class AlarmService extends IntentService {
     }
 
     private void handleActionTooManyGeofences() {
-        //TODO notify user
+        //TODO develop
         Toast.makeText(getApplicationContext(),
                 "Too many geofences", Toast.LENGTH_SHORT).show();
     }
