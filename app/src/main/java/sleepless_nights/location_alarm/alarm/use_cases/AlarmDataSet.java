@@ -6,9 +6,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
-import sleepless_nights.location_alarm.alarm.Alarm;
-
 import java.util.List;
+
+import sleepless_nights.location_alarm.alarm.Alarm;
 
 public class AlarmDataSet {
     private SparseArray<Alarm> dataSet = new SparseArray<>();
@@ -26,7 +26,7 @@ public class AlarmDataSet {
     }
 
     @Nullable
-    Alarm getAlarmByPosition(int pos) {
+    public Alarm getAlarmByPosition(int pos) {
         return dataSet.get(dataSet.keyAt(pos), null);
     }
 
@@ -45,9 +45,9 @@ public class AlarmDataSet {
         dataSet.put(alarm.getId(), alarm);
     }
 
-    public int size() {
-        return dataSet.size();
-    }
+    public int size() { return dataSet.size(); }
+
+    public boolean isEmpty() { return dataSet.size() == 0; }
 
     @NonNull
     public DiffUtil.DiffResult diffFrom(AlarmDataSet oldDataSet) {

@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.ListUpdateCallback;
 
 import java.util.Locale;
 
+import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
+import sleepless_nights.location_alarm.geofence.use_cases.GeofenceRepository;
 
 public class AlarmService extends IntentService {
     private static final String TAG = "AlarmService";
@@ -33,12 +35,28 @@ public class AlarmService extends IntentService {
             updAlarmDataSet.diffFrom(activeAlarmsDataSet).dispatchUpdatesTo(new ListUpdateCallback() {
                 @Override
                 public void onInserted(int position, int count) {
-                    //TODO create geofence
+                    for (int i = position; i < count; i++) {
+                        Alarm alarm = updAlarmDataSet.getAlarmByPosition(i);
+                        if (alarm == null) {
+                            Log.wtf(TAG, "updAlarmDataSet doesn't contain inserted alarm");
+                            continue;
+                        }
+                        GeofenceRepository.getInstance(getApplicationContext())
+                                .createGeofence(alarm);
+                    }
                 }
 
                 @Override
                 public void onRemoved(int position, int count) {
-                    //TODO delete geofence
+                    for (int i = position; i < count; i++) {
+                        Alarm alarm = activeAlarmsDataSet.getAlarmByPosition(position);
+                        if (alarm == null) {
+                            Log.wtf(TAG, "activeAlarmsDataSet doesn't contain inserted alarm");
+                            continue;
+                        }
+                        GeofenceRepository.getInstance(getApplicationContext())
+                                .deleteGeofence(alarm);
+                    }
                 }
 
                 @Override
@@ -49,10 +67,15 @@ public class AlarmService extends IntentService {
                     //TODO fix notification
                 }
             });
+
+            if (activeAlarmsDataSet.isEmpty() && !updAlarmDataSet.isEmpty()) {
+                //TODO start foreground
+            }
+            if (!activeAlarmsDataSet.isEmpty() && updAlarmDataSet.isEmpty()) {
+                //TODO stop foreground
+            }
             activeAlarmsDataSet = updAlarmDataSet;
             // We can do it in ListUpdateCallback if copy will be too slow
-
-            //TODO subscribe on geofencing API events
         });
     }
 
@@ -64,6 +87,7 @@ public class AlarmService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        //TODO handle intents from GeofenceBroadcastReceiver
         Log.wtf(TAG, "onHandleIntent: " + (intent == null ? "null" : intent.toString()));
     }
 }
