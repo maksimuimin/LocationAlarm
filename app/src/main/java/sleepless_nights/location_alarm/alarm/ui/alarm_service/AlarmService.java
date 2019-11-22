@@ -2,6 +2,8 @@ package sleepless_nights.location_alarm.alarm.ui.alarm_service;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ public class AlarmService extends IntentService {
     private static int ID = 0;
 
     private AlarmDataSet activeAlarmsDataSet;
+    private AlarmServiceNotification notification;
 
     public AlarmService() {
         super(String.format(Locale.getDefault(), "%s-%d", TAG, ID));
@@ -37,6 +40,7 @@ public class AlarmService extends IntentService {
             Log.wtf(TAG, "activeAlarmDataSetLiveData contains null AlarmDataSet");
             activeAlarmsDataSet = new AlarmDataSet();
         }
+        notification = new AlarmServiceNotification();
 
         AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().observeForever(updAlarmDataSet -> {
             updAlarmDataSet.diffFrom(activeAlarmsDataSet).dispatchUpdatesTo(new ListUpdateCallback() {
@@ -76,11 +80,19 @@ public class AlarmService extends IntentService {
             });
 
             if (activeAlarmsDataSet.isEmpty() && !updAlarmDataSet.isEmpty()) {
-                //TODO start foreground
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(AlarmServiceNotification.NOTIFICATION_ID,
+                            notification,
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+                } else {
+                    startForeground(AlarmServiceNotification.NOTIFICATION_ID,
+                            notification);
+                }
             }
             if (!activeAlarmsDataSet.isEmpty() && updAlarmDataSet.isEmpty()) {
-                //TODO stop foreground
+                stopForeground(true); //Removing notification
             }
+
             activeAlarmsDataSet = updAlarmDataSet;
             // We can do it in ListUpdateCallback if copy will be too slow
         });
