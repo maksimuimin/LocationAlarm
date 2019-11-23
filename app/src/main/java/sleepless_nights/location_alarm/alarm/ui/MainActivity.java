@@ -44,8 +44,7 @@ public class MainActivity extends AppCompatActivity {
             AlarmViewModel alarmViewModel = ViewModelProviders
                     .of(Objects.requireNonNull(this)) //Shared with MapFragment
                     .get(AlarmViewModel.class);
-            alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true, 0, 0,2000);
-            LiveData<Alarm> alarmLiveData = alarmViewModel.getAlarmLiveDataByPosition(0);
+            LiveData<Alarm> alarmLiveData = alarmViewModel.newAlarm();  alarmViewModel.getAlarmLiveDataByPosition(0);
             if (alarmLiveData != null) {
                 Alarm alarm = alarmLiveData.getValue();
                 if (alarm == null) {
@@ -53,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 alarm.setName("MyNewName");
+                alarm.setAddress("MyAddress");
+                alarm.setLatitude(55.751244);
+                alarm.setLongitude(37.618423);
+                alarm.setRadius(2000);
                 alarmViewModel.updateAlarm(alarm);
             }
         }

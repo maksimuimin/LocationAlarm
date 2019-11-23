@@ -40,14 +40,13 @@ public class AlarmViewModel extends AndroidViewModel {
         return AlarmRepository.getInstance().getAlarmLiveDataById(id);
     }
 
-    public void addAlarm(String name, String address, boolean isActive,
-                         double latitude, double longitude, float radius) {
-        AlarmRepository.getInstance().newAlarm(name, address, isActive,
-                latitude, longitude, radius);
+    public LiveData<Alarm> newAlarm() {
+        Alarm alarm = AlarmRepository.getInstance().newAlarm();
+        return AlarmRepository.getInstance().getAlarmLiveDataById(alarm.getId());
     }
 
-    public void removeAlarm(int id) {
-        AlarmRepository.getInstance().deleteAlarm(id);
+    public void removeAlaram(Alarm alarm) {
+        AlarmRepository.getInstance().removeAlarm(alarm);
     }
 
     public void updateAlarm(Alarm alarm) {

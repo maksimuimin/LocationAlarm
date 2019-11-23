@@ -9,18 +9,6 @@ public class Alarm {
     private double longitude;
     private float radius;
 
-
-    public Alarm(int id, String name, String address, Boolean isActive,
-                 double latitude, double longitude, float radius) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.isActive = isActive;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.radius = radius;
-    }
-
     public int getId() { return id; }
 
     public void setName(String name) { this.name = name; }

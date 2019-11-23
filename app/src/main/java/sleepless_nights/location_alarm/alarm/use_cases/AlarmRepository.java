@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import sleepless_nights.location_alarm.alarm.Alarm;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AlarmRepository {
     private static final String TAG = "AlarmRepository";
@@ -17,66 +18,54 @@ public class AlarmRepository {
     private MutableLiveData<AlarmDataSet> dataSetLiveData = new MutableLiveData<>();
 
     private AlarmRepository() {
-        dataSetLiveData.setValue(new AlarmDataSet());
         loadDataSet();
     }
 
     @NonNull
-    public static AlarmRepository getInstance() { return instance; }
+    public static AlarmRepository getInstance() {
+        return instance;
+    }
 
     @NonNull
-    public LiveData<AlarmDataSet> getDataSetLiveData() { return dataSetLiveData; }
+    public LiveData<AlarmDataSet> getDataSetLiveData() {
+        return dataSetLiveData;
+    }
+
+    @NonNull
+    AlarmDataSet getDataSet() {
+        if (dataSetLiveData.getValue() == null) {
+            Log.wtf(TAG, "AlarmRepository contains dataSetLiveData with null AlarmDataSet");
+            loadDataSet();
+        }
+        return dataSetLiveData.getValue();
+    }
 
     @Nullable
     public LiveData<Alarm> getAlarmLiveDataById(int id) {
-        AlarmDataSet dataSet = dataSetLiveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "AlarmRepository contains dataSetLiveData with null AlarmDataSet");
-            return null;
-        }
-        return dataSet.getAlarmLiveDataById(id);
+        return getDataSet().getAlarmLiveDataById(id);
     }
 
     @Nullable
     public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
-        AlarmDataSet dataSet = dataSetLiveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "AlarmRepository contains dataSetLiveData with null AlarmDataSet");
-            return null;
-        }
-        return dataSet.getAlarmLiveDataByPosition(pos);
+        return getDataSet().getAlarmLiveDataByPosition(pos);
     }
 
-    public void newAlarm(String name, String address, boolean isActive,
-                         double latitude, double longitude, float radius) {
-        Alarm alarm = new Alarm(getNewAlarmId(), name, address, isActive,
-                latitude, longitude, radius);
-        AlarmDataSet dataSet = dataSetLiveData.getValue();
-        if (dataSet == null) {
-            dataSet = new AlarmDataSet();
-        }
+    public Alarm newAlarm() {
+        AlarmDataSet dataSet = getDataSet();
+        Alarm alarm = new Alarm();
         dataSet.addAlarm(alarm);
         dataSetLiveData.postValue(dataSet);
+        return alarm;
     }
 
-    public void deleteAlarm(int id) {
-        AlarmDataSet dataSet = dataSetLiveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
-            return;
-        }
-
-        dataSet.removeAlarm(id);
+    public void removeAlarm(Alarm alarm) {
+        AlarmDataSet dataSet = getDataSet();
+        dataSet.removeAlarm(alarm);
         dataSetLiveData.postValue(dataSet);
     }
 
     public void updateAlarm(Alarm alarm) {
-        AlarmDataSet dataSet = dataSetLiveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
-            return;
-        }
-
+        AlarmDataSet dataSet = getDataSet();
         dataSet.updateAlarm(alarm);
         // Since we are using array of LiveData in AlarmDataSet we don't need to update
         // whole dataSetLiveData directly, so we will not trigger heavy mechanism with diff utils
@@ -88,8 +77,7 @@ public class AlarmRepository {
     }
 
     private void loadDataSet() {
-        //TODO load data from DB
-        ArrayList<Alarm> alarms = new ArrayList<>();
+        List<Alarm> alarms = new ArrayList<>();
         dataSetLiveData.postValue(new AlarmDataSet(alarms));
     }
 }

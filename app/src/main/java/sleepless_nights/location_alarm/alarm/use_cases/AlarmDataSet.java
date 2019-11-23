@@ -17,8 +17,7 @@ public class AlarmDataSet {
     private static final String TAG = "AlarmDataSet";
     private SparseArray<MutableLiveData<Alarm>> dataSet = new SparseArray<>();
 
-    AlarmDataSet() {}
-    AlarmDataSet(@NonNull List<Alarm> alarms) {
+    AlarmDataSet(@NonNull List<? extends Alarm> alarms) {
         for (Alarm alarm : alarms) {
             dataSet.put(alarm.getId(), new MutableLiveData<>(alarm));
         }
@@ -38,8 +37,8 @@ public class AlarmDataSet {
         dataSet.put(alarm.getId(), new MutableLiveData<>(alarm));
     }
 
-    void removeAlarm(int id) {
-        dataSet.remove(id);
+    void removeAlarm(Alarm alarm) {
+        dataSet.remove(alarm.getId());
     }
 
     void updateAlarm(Alarm alarm) {
