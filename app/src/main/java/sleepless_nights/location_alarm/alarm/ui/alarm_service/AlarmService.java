@@ -2,6 +2,7 @@ package sleepless_nights.location_alarm.alarm.ui.alarm_service;
 
 import android.app.IntentService;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
@@ -27,28 +28,46 @@ public class AlarmService extends IntentService {
     public static final String INTENT_EXTRA_ALARM_ID = "AlarmID";
 
     private static final int NOTIFICATION_ID = 1;
-    private static final String NOTIFICATION_CHANNEL = "Active alarms";
+    private static final String NOTIFICATION_CHANNEL_ID = "Active alarms";
 
     private static final String TAG = "AlarmService";
     private static int ID = 0;
 
     private AlarmDataSet activeAlarmsDataSet;
     private NotificationManager notificationManager;
+    private boolean runningInForeground = false;
 
     public AlarmService() {
         super(String.format(Locale.getDefault(), "%s-%d", TAG, ID));
         ID++;
         Log.d(TAG, "instanceCreated");
         this.setIntentRedelivery(false); //We don't need to restart service if it get killed in background
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
 
         activeAlarmsDataSet = AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().getValue();
         if (activeAlarmsDataSet == null) {
             Log.wtf(TAG, "activeAlarmDataSetLiveData contains null AlarmDataSet");
             activeAlarmsDataSet = new AlarmDataSet();
         }
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    "Active alarms", //TODO move to string constants
+                    NotificationManager.IMPORTANCE_HIGH);
+            channel.setDescription("Main channel"); //TODO describe
+            channel.enableVibration(false);
+            notificationManager.createNotificationChannel(channel);
+        }
 
         AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().observeForever(updAlarmDataSet -> {
+            Log.d(TAG, String.format(Locale.getDefault(),
+                    "activeAlarmsDataSet updated activeAlarmsDataSet.size(): %d, runningInForeground: %b",
+                    activeAlarmsDataSet.size(), runningInForeground));
             updAlarmDataSet.diffFrom(activeAlarmsDataSet).dispatchUpdatesTo(new ListUpdateCallback() {
                 @Override
                 public void onInserted(int position, int count) {
@@ -83,22 +102,15 @@ public class AlarmService extends IntentService {
                 public void onChanged(int position, int count, @Nullable Object payload) {}
             });
 
-            if (activeAlarmsDataSet.isEmpty() && !updAlarmDataSet.isEmpty()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(NOTIFICATION_ID,
-                            buildNotification(updAlarmDataSet.size()),
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
-                } else {
-                    startForeground(NOTIFICATION_ID, buildNotification(updAlarmDataSet.size()));
-                }
-            } else if (!activeAlarmsDataSet.isEmpty() && updAlarmDataSet.isEmpty()) {
-                stopForeground(true); //Removing notification
-            } else if (updAlarmDataSet.size() != activeAlarmsDataSet.size()) {
-                notificationManager.notify(NOTIFICATION_ID, buildNotification(updAlarmDataSet.size()));
-            }
+            activeAlarmsDataSet = updAlarmDataSet;// We can do it in ListUpdateCallback if copy will be too slow
 
-            activeAlarmsDataSet = updAlarmDataSet;
-            // We can do it in ListUpdateCallback if copy will be too slow
+            if (!runningInForeground && !activeAlarmsDataSet.isEmpty()) {
+                becomeForeground(buildNotification(updAlarmDataSet.size()));
+            } else if (runningInForeground && activeAlarmsDataSet.isEmpty()) {
+                becomeBackground();
+            } else if (runningInForeground) {
+                updateNotification();
+            }
         });
     }
 
@@ -136,11 +148,36 @@ public class AlarmService extends IntentService {
     }
 
     private Notification buildNotification(int alarmsCount) {
+        //TODO develop
         String content = String.format(Locale.getDefault(), "Active alarms: %d", alarmsCount);
-        return new NotificationCompat.Builder(getApplicationContext(),NOTIFICATION_CHANNEL)
+        return new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("LocationAlarm")
                 .setContentText(content)
+                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .build();
+    }
+
+    private void becomeForeground(Notification notification) {
+        Log.d(TAG, "becoming foreground");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
+        } else {
+            startForeground(NOTIFICATION_ID, notification);
+        }
+        runningInForeground = true;
+    }
+
+    private void becomeBackground() {
+        Log.d(TAG, "becoming background");
+        stopForeground(true); //Removing notification
+        runningInForeground = false;
+    }
+
+    private void updateNotification() {
+        Log.d(TAG, "updating notification");
+        notificationManager.notify(NOTIFICATION_ID, buildNotification(activeAlarmsDataSet.size()));
     }
 
     private void handleActionDoAlarm(int alarmId) {
