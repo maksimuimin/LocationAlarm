@@ -36,6 +36,7 @@ public class AlarmService extends IntentService {
     private AlarmDataSet activeAlarmsDataSet;
     private NotificationManager notificationManager;
     private boolean runningInForeground = false;
+    private boolean started = false;
 
     public AlarmService() {
         super(String.format(Locale.getDefault(), "%s-%d", TAG, ID));
@@ -68,6 +69,10 @@ public class AlarmService extends IntentService {
             Log.d(TAG, String.format(Locale.getDefault(),
                     "activeAlarmsDataSet updated activeAlarmsDataSet.size(): %d, runningInForeground: %b",
                     activeAlarmsDataSet.size(), runningInForeground));
+            if (!started) {
+                activeAlarmsDataSet = updAlarmDataSet;
+                return;
+            }
             updAlarmDataSet.diffFrom(activeAlarmsDataSet).dispatchUpdatesTo(new ListUpdateCallback() {
                 @Override
                 public void onInserted(int position, int count) {
@@ -123,7 +128,12 @@ public class AlarmService extends IntentService {
 
         String action = intent.getAction();
         if (action ==null) {
-            Log.wtf(TAG, "handling intent with null action");
+            if (started) {
+                Log.wtf(TAG, "handling intent with null action");
+            } else {
+                Log.d(TAG, "starting the service");
+                onStart();
+            }
             return;
         }
 
@@ -145,6 +155,13 @@ public class AlarmService extends IntentService {
                 Log.wtf(TAG, "intent contains unknown action: " + action);
             }
         }
+    }
+
+    private void onStart() {
+        if (!activeAlarmsDataSet.isEmpty()) {
+            becomeForeground(buildNotification(activeAlarmsDataSet.size()));
+        }
+        started = true;
     }
 
     private Notification buildNotification(int alarmsCount) {

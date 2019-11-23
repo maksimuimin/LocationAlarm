@@ -7,12 +7,13 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import sleepless_nights.location_alarm.alarm.Alarm;
-
 import java.util.ArrayList;
+
+import sleepless_nights.location_alarm.alarm.Alarm;
 
 public class AlarmRepository {
     private static final String TAG = "AlarmRepository";
+    private static int ID_SOURCE = 0;
     private static AlarmRepository instance = new AlarmRepository();
     private MutableLiveData<AlarmDataSet> dataSetLiveData = new MutableLiveData<>();
     private MutableLiveData<AlarmDataSet> activeAlarmsDataSetLiveData = new MutableLiveData<>();
@@ -117,7 +118,8 @@ public class AlarmRepository {
 
     private int getNewAlarmId() {
         //TODO develop
-        return 0;
+        ID_SOURCE++;
+        return ID_SOURCE;
     }
 
     private void loadDataSet() {

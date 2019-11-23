@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,7 +15,6 @@ import androidx.lifecycle.ViewModelProviders;
 import java.util.Objects;
 
 import sleepless_nights.location_alarm.R;
-import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
@@ -40,13 +38,7 @@ public class MainActivity extends AppCompatActivity {
                     .of(Objects.requireNonNull(this)) //Shared with MapFragment
                     .get(AlarmViewModel.class);
             alarmViewModel.createAlarm("MyAlarm1", "MyAddress", true, 0, 0,2000);
-            Alarm alarm = alarmViewModel.getAlarmByPosition(0);
-            if (alarm == null) {
-                Log.wtf("MainActivity", "got null Alarm");
-                return;
-            }
-            alarm.setName("MyNewName");
-            alarmViewModel.updateAlarm(alarm);
+            //alarmViewModel.createAlarm("MyAlarm2", "MyAddress", true, 0, 0,2000);
         }
     }
 
