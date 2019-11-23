@@ -161,7 +161,7 @@ public class AlarmService extends IntentService {
         if (!activeAlarmsDataSet.isEmpty()) {
             becomeForeground(buildNotification(activeAlarmsDataSet.size()));
         }
-        started = true;
+        //started = true; //TODO uncomment
     }
 
     private Notification buildNotification(int alarmsCount) {
