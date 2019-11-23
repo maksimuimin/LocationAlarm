@@ -1,4 +1,4 @@
-package com.example.locationalarm;
+package sleepless_nights.location_alarm.alarm.ui.map_fragment;
 
 import android.app.Activity;
 import android.location.Location;
@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import sleepless_nights.location_alarm.R;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String INDEX = "INDEX";

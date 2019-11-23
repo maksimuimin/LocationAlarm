@@ -1,4 +1,4 @@
-package com.example.locationalarm;
+package sleepless_nights.location_alarm;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,13 +19,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         checkGeoLocPermission();
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragment_container, MapFragment.create())
-                    .commit();
-        }
+
     }
+
+    /**
+     * permission
+     * */
 
     private void checkGeoLocPermission() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
