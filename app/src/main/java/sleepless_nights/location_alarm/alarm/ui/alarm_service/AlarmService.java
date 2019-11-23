@@ -175,6 +175,12 @@ public class AlarmService extends IntentService {
     }
 
     private void becomeForeground(Notification notification) {
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.notify(NOTIFICATION_ID, notification);
+        }
+
         Log.d(TAG, "becoming foreground");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(NOTIFICATION_ID,
