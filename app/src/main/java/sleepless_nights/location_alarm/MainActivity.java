@@ -1,14 +1,22 @@
 package sleepless_nights.location_alarm;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProviders;
+
+import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
+import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+
+import java.util.Objects;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,6 +28,19 @@ public class MainActivity extends AppCompatActivity {
         checkGeoLocPermission();
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.fragment_container, AlarmListFragment.newInstance())
+                    .commit();
+
+            //TODO delete
+            AlarmViewModel alarmViewModel = ViewModelProviders
+                    .of(Objects.requireNonNull(this)) //Shared with MapFragment
+                    .get(AlarmViewModel.class);
+            alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true);
+            alarmViewModel.changeAlarm(0, "MyNewName", null, null);
+        }
     }
 
     /**
