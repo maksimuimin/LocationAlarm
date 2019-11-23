@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
-import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private static final String TAG = "AlarmListAdapter";
@@ -21,12 +21,12 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private AlarmViewModel viewModel;
     private LifecycleOwner parentLifecycleOwner;
 
-    AlarmListAdapter(@NonNull AlarmDataSet _alarmDataSet,
-                     @NonNull AlarmViewModel _viewModel,
-                     @NonNull LifecycleOwner _parentLifecycleOwner) {
-        alarmDataSet = _alarmDataSet;
-        viewModel = _viewModel;
-        parentLifecycleOwner = _parentLifecycleOwner;
+    AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
+                     @NonNull AlarmViewModel viewModel,
+                     @NonNull LifecycleOwner parentLifecycleOwner) {
+        this.alarmDataSet = alarmDataSet;
+        this.viewModel = viewModel;
+        this.parentLifecycleOwner = parentLifecycleOwner;
     }
 
     @NonNull
@@ -42,7 +42,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
-        LiveData<Alarm> alarmLiveData = alarmDataSet.getAlarmLiveDataByPosition(position);
+        LiveData<Alarm> alarmLiveData = viewModel.getAlarmLiveDataByPosition(position);
         if (alarmLiveData == null) {
             Log.wtf(TAG, "Trying to bindViewHolder with null LiveData");
             return;
@@ -53,6 +53,6 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     @Override
     public int getItemCount() { return alarmDataSet.size(); }
 
-    void setAlarmDataSet(AlarmDataSet _alarmDataSet) { alarmDataSet = _alarmDataSet; }
+    void setAlarmDataSet(AlarmDataSet alarmDataSet) { this.alarmDataSet = alarmDataSet; }
     AlarmDataSet getAlarmDataSet() { return alarmDataSet; }
 }

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 class AlarmViewHolder extends RecyclerView.ViewHolder {
     private static final String TAG = "AlarmViewHolder";
@@ -22,17 +22,15 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
     private final TextView addressView;
     private final Switch switchAlarmView;
 
-    private final AlarmViewModel viewModel;
     private final LifecycleOwner parentLifecycleOwner;
     private final Observer<Alarm> alarmObserver;
     private LiveData<Alarm> alarmLiveData = null;
 
     AlarmViewHolder(@NonNull View itemView,
-                    @NonNull AlarmViewModel _viewModel,
-                    @NonNull LifecycleOwner _parentLifecycleOwner) {
+                    @NonNull AlarmViewModel viewModel,
+                    @NonNull LifecycleOwner parentLifecycleOwner) {
         super(itemView);
-        viewModel = _viewModel;
-        parentLifecycleOwner = _parentLifecycleOwner;
+        this.parentLifecycleOwner = parentLifecycleOwner;
 
         alarmNameView = itemView.findViewById(R.id.name);
         addressView = itemView.findViewById(R.id.address);
@@ -50,7 +48,8 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
                 return;
             }
 
-            viewModel.changeAlarm(alarm.getId(), null, null, isChecked);
+            alarm.setIsActive(isChecked);
+            viewModel.updateAlarm(alarm);
         });
 
         alarmObserver = alarm -> {
@@ -63,17 +62,17 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         };
     }
 
-    void setAlarmLiveData(@NonNull LiveData<Alarm> _alarmLiveData) {
-        Alarm alarm = _alarmLiveData.getValue();
+    void setAlarmLiveData(@NonNull LiveData<Alarm> alarmLiveData) {
+        Alarm alarm = alarmLiveData.getValue();
         if (alarm == null) {
             Log.wtf(TAG, "Trying to setAlarmLiveData with LiveData to null Alarm");
             return;
         }
 
-        if (alarmLiveData != null) {
+        if (this.alarmLiveData != null) {
             alarmLiveData.removeObserver(alarmObserver);
         }
-        alarmLiveData = _alarmLiveData;
+        this.alarmLiveData = alarmLiveData;
 
         alarmNameView.setText(alarm.getName());
         addressView.setText(alarm.getAddress());

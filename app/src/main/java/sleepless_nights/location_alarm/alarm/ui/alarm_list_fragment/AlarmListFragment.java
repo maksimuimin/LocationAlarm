@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
-import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 import java.util.Objects;
 

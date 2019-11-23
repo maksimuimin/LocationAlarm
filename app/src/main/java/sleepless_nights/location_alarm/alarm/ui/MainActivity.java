@@ -1,4 +1,4 @@
-package sleepless_nights.location_alarm;
+package sleepless_nights.location_alarm.alarm.ui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -9,11 +9,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.os.Bundle;
+import android.util.Log;
+
 import sleepless_nights.location_alarm.R;
+
+import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
-import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
+import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 import java.util.Objects;
 
@@ -38,8 +44,17 @@ public class MainActivity extends AppCompatActivity {
             AlarmViewModel alarmViewModel = ViewModelProviders
                     .of(Objects.requireNonNull(this)) //Shared with MapFragment
                     .get(AlarmViewModel.class);
-            alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true);
-            alarmViewModel.changeAlarm(0, "MyNewName", null, null);
+            alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true, 0, 0,2000);
+            LiveData<Alarm> alarmLiveData = alarmViewModel.getAlarmLiveDataByPosition(0);
+            if (alarmLiveData != null) {
+                Alarm alarm = alarmLiveData.getValue();
+                if (alarm == null) {
+                    Log.wtf("MainActivity", "got LiveData of null Alarm");
+                    return;
+                }
+                alarm.setName("MyNewName");
+                alarmViewModel.updateAlarm(alarm);
+            }
         }
     }
 

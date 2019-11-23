@@ -11,32 +11,26 @@ import androidx.recyclerview.widget.DiffUtil;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class AlarmDataSet {
-    // AlarmDataSet is representation of AlarmRepository in RAM
-    // It may be used directly for read-only operations
-    // All data changes must be performed via AlarmRepository since it is responsible for
-    //   long-time data storing
-    // If we need to change data representation without data changes (different sorting, for example)
-    //   it must be performed on AlarmDataSet level
     private static final String TAG = "AlarmDataSet";
     private SparseArray<MutableLiveData<Alarm>> dataSet = new SparseArray<>();
 
     AlarmDataSet() {}
-    AlarmDataSet(@NonNull ArrayList<Alarm> alarms) {
+    AlarmDataSet(@NonNull List<Alarm> alarms) {
         for (Alarm alarm : alarms) {
             dataSet.put(alarm.getId(), new MutableLiveData<>(alarm));
         }
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataById(int id) {
+    LiveData<Alarm> getAlarmLiveDataById(int id) {
         return dataSet.get(id, null);
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
+    LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
         return dataSet.get(dataSet.keyAt(pos), null);
     }
 
@@ -48,23 +42,12 @@ public class AlarmDataSet {
         dataSet.remove(id);
     }
 
-    void changeAlarm(int id, @Nullable String name,
-                     @Nullable String address, @Nullable Boolean isActive) {
-        MutableLiveData<Alarm> alarmLiveData = dataSet.get(id, null);
+    void updateAlarm(Alarm alarm) {
+        MutableLiveData<Alarm> alarmLiveData = dataSet.get(alarm.getId(), null);
         if (alarmLiveData == null) {
-            Log.e(TAG, "Requested change of not existing alarm");
+            Log.e(TAG, "Requested update of not existing alarm");
             return;
         }
-
-        Alarm alarm = dataSet.get(id).getValue();
-        if (alarm == null) {
-            Log.wtf(TAG, "dataSet contains LiveData to null Alarm");
-            return;
-        }
-
-        if (name != null) alarm.setName(name);
-        if (address != null) alarm.setAddress(address);
-        if (isActive != null) alarm.setIsActive(isActive);
         alarmLiveData.postValue(alarm);
     }
 
@@ -81,9 +64,9 @@ public class AlarmDataSet {
         private final AlarmDataSet oldDataSet;
         private final AlarmDataSet newDataSet;
 
-        AlarmDataSetDiffUtilCallback(AlarmDataSet _oldDataSet, AlarmDataSet _newDataSet) {
-            oldDataSet = _oldDataSet;
-            newDataSet = _newDataSet;
+        AlarmDataSetDiffUtilCallback(AlarmDataSet oldDataSet, AlarmDataSet newDataSet) {
+            this.oldDataSet = oldDataSet;
+            this.newDataSet = newDataSet;
         }
 
         @Override
