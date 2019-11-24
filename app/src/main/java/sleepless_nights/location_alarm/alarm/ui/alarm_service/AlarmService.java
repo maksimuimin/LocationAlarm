@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.ListUpdateCallback;
 import java.util.Locale;
 
 import sleepless_nights.location_alarm.BuildConfig;
+import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
@@ -39,7 +40,6 @@ public class AlarmService extends IntentService {
     private NotificationManager notificationManager;
     private boolean runningInForeground = false;
     private boolean started = false;
-    private int startForegroundRequestId = 0;
 
     public AlarmService() {
         super(String.format(Locale.getDefault(), "%s-%d", TAG, ID));
@@ -61,9 +61,9 @@ public class AlarmService extends IntentService {
         notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                    "Active alarms", //TODO move to string constants
+                    getString(R.string.main_notification_channel),
                     NotificationManager.IMPORTANCE_HIGH);
-            channel.setDescription("Main channel"); //TODO describe
+            channel.setDescription(getString(R.string.main_notification_channel_description));
             channel.enableVibration(false);
             notificationManager.createNotificationChannel(channel);
         }
@@ -164,7 +164,7 @@ public class AlarmService extends IntentService {
         if (!activeAlarmsDataSet.isEmpty()) {
             becomeForeground(buildNotification(activeAlarmsDataSet.size()));
         }
-        started = true; //TODO uncomment
+        started = true;
     }
 
     private Notification buildNotification(int alarmsCount) {

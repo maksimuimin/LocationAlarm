@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">LocationAlarm</string>
     <string name="error_str">Error</string>
+    <string name="main_notification_channel">Active alarms</string>
+    <string name="main_notification_channel_description">
+        This channel is used for notifying about state of active alarms and quick access to them
+    </string>
 </resources>
