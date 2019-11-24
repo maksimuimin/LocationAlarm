@@ -212,6 +212,8 @@ public class AlarmService extends IntentService {
         }
         Toast.makeText(getApplicationContext(),
                 "Triggered alarm " + triggeredAlarm.getName(), Toast.LENGTH_SHORT).show();
+        triggeredAlarm.setIsActive(false);
+        AlarmRepository.getInstance().updateAlarm(triggeredAlarm);
     }
 
     private void handleActionTooManyGeofences() {
