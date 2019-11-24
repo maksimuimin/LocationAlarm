@@ -26,6 +26,7 @@ public class AlarmEntityAdapter {
         res.latitude = alarm.getLatitude();
         res.longitude = alarm.getLongitude();
         res.active = alarm.isActive();
+        res.address = alarm.getAddress();
         return res;
     }
 
