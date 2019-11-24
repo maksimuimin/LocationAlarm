@@ -9,19 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModelProviders;
-
-import android.os.Bundle;
-import android.util.Log;
-
 import sleepless_nights.location_alarm.R;
-
-import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
-import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
-
-import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -39,25 +28,6 @@ public class MainActivity extends AppCompatActivity {
                     .beginTransaction()
                     .add(R.id.fragment_container, AlarmListFragment.newInstance())
                     .commit();
-
-            //TODO delete
-            AlarmViewModel alarmViewModel = ViewModelProviders
-                    .of(Objects.requireNonNull(this)) //Shared with MapFragment
-                    .get(AlarmViewModel.class);
-            LiveData<Alarm> alarmLiveData = alarmViewModel.newAlarm();  alarmViewModel.getAlarmLiveDataByPosition(0);
-            if (alarmLiveData != null) {
-                Alarm alarm = alarmLiveData.getValue();
-                if (alarm == null) {
-                    Log.wtf("MainActivity", "got LiveData of null Alarm");
-                    return;
-                }
-                alarm.setName("MyNewName");
-                alarm.setAddress("MyAddress");
-                alarm.setLatitude(55.751244);
-                alarm.setLongitude(37.618423);
-                alarm.setRadius(2000);
-                alarmViewModel.updateAlarm(alarm);
-            }
         }
     }
 

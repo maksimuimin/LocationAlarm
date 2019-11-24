@@ -48,7 +48,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
                 return;
             }
 
-            alarm.setIsActive(isChecked);
+            alarm.setActive(isChecked);
             viewModel.updateAlarm(alarm);
         });
 
@@ -58,7 +58,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
             }
             alarmNameView.setText(alarm.getName());
             addressView.setText(alarm.getAddress());
-            switchAlarmView.setChecked(alarm.getIsActive());
+            switchAlarmView.setChecked(alarm.isActive());
         };
     }
 
@@ -76,7 +76,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
 
         alarmNameView.setText(alarm.getName());
         addressView.setText(alarm.getAddress());
-        switchAlarmView.setChecked(alarm.getIsActive());
+        switchAlarmView.setChecked(alarm.isActive());
 
         alarmLiveData.observe(parentLifecycleOwner, alarmObserver);
     }

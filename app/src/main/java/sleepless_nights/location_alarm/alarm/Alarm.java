@@ -4,38 +4,76 @@ public class Alarm {
     private int id;
     private String name;
     private String address;
-    private Boolean isActive;
+    private boolean active;
     private double latitude;
     private double longitude;
     private float radius;
 
-    public int getId() { return id; }
 
-    public void setName(String name) { this.name = name; }
-    public String getName() { return this.name; }
+    public int getId() {
+        return id;
+    }
+    public Alarm setId(int id) {
+        this.id = id;
+        return this;
+    }
 
-    public void setAddress(String address) { this.address = address; }
-    public String getAddress() { return this.address; }
+    public String getName() {
+        return name;
+    }
+    public Alarm setName(String name) {
+        this.name = name;
+        return this;
+    }
 
-    public void setIsActive(boolean isActive) { this.isActive = isActive; }
-    public boolean getIsActive() { return this.isActive; }
+    public String getAddress() {
+        return address;
+    }
+    public Alarm setAddress(String address) {
+        this.address = address;
+        return this;
+    }
 
-    public void setLatitude(double latitude) { this.latitude = latitude; }
-    public double getLatitude() { return latitude; }
+    public boolean isActive() {
+        return active;
+    }
+    public Alarm setActive(boolean active) {
+        this.active = active;
+        return this;
+    }
 
-    public void setLongitude(double longitude) { this.longitude = longitude; }
-    public double getLongitude() { return longitude; }
+    public double getLatitude() {
+        return latitude;
+    }
+    public Alarm setLatitude(double latitude) {
+        this.latitude = latitude;
+        return this;
+    }
 
-    public void setRadius(float radius) { this.radius = radius; }
-    public float getRadius() { return radius; }
+    public double getLongitude() {
+        return longitude;
+    }
+    public Alarm setLongitude(double longitude) {
+        this.longitude = longitude;
+        return this;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+    public Alarm setRadius(float radius) {
+        this.radius = radius;
+        return this;
+    }
 
     public boolean equals(Alarm alarm) {
         return id == alarm.id &&
                 name.equals(alarm.name) &&
                 address.equals(alarm.address) &&
-                isActive == alarm.isActive &&
+                active == alarm.active &&
                 latitude == alarm.latitude &&
                 longitude == alarm.longitude &&
                 radius == alarm.radius;
     }
+
 }

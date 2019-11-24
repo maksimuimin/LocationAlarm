@@ -19,7 +19,8 @@ public class AlarmViewModel extends AndroidViewModel {
 
     public AlarmViewModel(@NonNull Application application) {
         super(application);
-        final LiveData<AlarmDataSet> repoLiveData = AlarmRepository.getInstance().getDataSetLiveData();
+        final LiveData<AlarmDataSet> repoLiveData =
+                AlarmRepository.getInstance(getApplication().getApplicationContext()).getDataSetLiveData();
         liveData.setValue(repoLiveData.getValue());
         liveData.addSource(repoLiveData, alarmDataSet -> {
             Log.d(TAG, "dataSet updated from repository");
@@ -27,29 +28,33 @@ public class AlarmViewModel extends AndroidViewModel {
         });
     }
 
+    private AlarmRepository getAlarmRepository() {
+        return AlarmRepository.getInstance(getApplication().getApplicationContext());
+    }
+
     @NonNull
     public LiveData<AlarmDataSet> getLiveData() { return liveData; }
 
     @Nullable
     public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
-        return AlarmRepository.getInstance().getAlarmLiveDataByPosition(pos);
+        return getAlarmRepository().getAlarmLiveDataByPosition(pos);
     }
 
     @Nullable
     public LiveData<Alarm> getAlarmLiveDataById(int id) {
-        return AlarmRepository.getInstance().getAlarmLiveDataById(id);
+        return getAlarmRepository().getAlarmLiveDataById(id);
     }
 
     public LiveData<Alarm> newAlarm() {
-        Alarm alarm = AlarmRepository.getInstance().newAlarm();
-        return AlarmRepository.getInstance().getAlarmLiveDataById(alarm.getId());
+        Alarm alarm = AlarmRepository.getInstance(getApplication().getApplicationContext()).newAlarm();
+        return getAlarmRepository().getAlarmLiveDataById(alarm.getId());
     }
 
     public void removeAlaram(Alarm alarm) {
-        AlarmRepository.getInstance().removeAlarm(alarm);
+        getAlarmRepository().removeAlarm(alarm);
     }
 
     public void updateAlarm(Alarm alarm) {
-        AlarmRepository.getInstance().updateAlarm(alarm);
+        getAlarmRepository().updateAlarm(alarm);
     }
 }
