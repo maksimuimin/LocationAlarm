@@ -7,4 +7,5 @@
     <dimen name="secondaryTextHeight">20dp</dimen>
     <dimen name="secondaryTextSize">14sp</dimen>
     <dimen name="barHeight">56dp</dimen>
+    <dimen name="elevation">10dp</dimen>
 </resources>

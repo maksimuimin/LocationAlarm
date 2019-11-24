@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:tools="http://schemas.android.com/tools"
+<menu
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/app_bar_fav"
-        android:icon="@drawable/ic_add_24"
-        android:title="Something"
+        android:icon="@drawable/ic_alarm_24"
+        android:title="@string/alarms"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/app_bar_search"
-        android:icon="@drawable/ic_menu_24"
-        android:title="Search"
+        android:icon="@drawable/ic_map_24"
+        android:title="@string/map"
         app:showAsAction="ifRoom"/>
 </menu>
