@@ -50,8 +50,11 @@ public class AlarmViewModel extends AndroidViewModel {
         return getAlarmRepository().getAlarmLiveDataById(alarm.getId());
     }
 
-    public void removeAlaram(Alarm alarm) {
-        getAlarmRepository().removeAlarm(alarm);
+    public void removeAlarm(LiveData<Alarm> alarmLiveData) {
+        Alarm alarm;
+        if (alarmLiveData !=null && (alarm = alarmLiveData.getValue()) != null) {
+            getAlarmRepository().removeAlarm(alarm);
+        }
     }
 
     public void updateAlarm(Alarm alarm) {

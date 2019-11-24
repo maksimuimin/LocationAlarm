@@ -10,10 +10,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
+import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Router.Callback {
 
     private static final int GEO_LOC_PERMISSION_REQUEST = 1;
 
@@ -23,12 +25,17 @@ public class MainActivity extends AppCompatActivity {
         checkGeoLocPermission();
         setContentView(R.layout.activity_main);
 
+        Router.setCallback(this);
+
         if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragment_container, AlarmListFragment.newInstance())
-                    .commit();
+            Router.showAlarms();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Router.removeCallback(this);
     }
 
     /**
@@ -59,6 +66,37 @@ public class MainActivity extends AppCompatActivity {
                 //или отобрабражать фрагмент с требованием пермишона и кнопкой на перезапрос
             }
         }
+    }
+
+
+    /**
+     * Router
+     * */
+
+    @Override
+    public void showAlarms() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container,  AlarmListFragment.newInstance())
+                .commit();
+    }
+
+    @Override
+    public void showAlarmCreation() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, MapFragment.create())
+                .addToBackStack("0")
+                .commit();
+    }
+
+    @Override
+    public void showAlarmDetails(Alarm alarm) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, MapFragment.create(alarm))
+                .addToBackStack("0")
+                .commit();
     }
 
 }

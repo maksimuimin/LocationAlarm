@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.ui.Router;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
@@ -62,6 +63,10 @@ public class AlarmListFragment extends Fragment {
             adapter.setAlarmDataSet(updAlarmDataSet);
             updAlarmDataSet.diffFrom(oldDataSet).dispatchUpdatesTo(adapter);
         });
+
+        view.findViewById(R.id.create_alarm_button).setOnClickListener(v ->
+                Router.showAlarmCreation()
+        );
     }
 
     @Override

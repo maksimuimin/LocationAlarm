@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">LocationAlarm</string>
     <string name="error_str">Error</string>
+
+    <string name="placeholder">Placeholder</string>
+
+    <string name="add_alarm">+</string>
+
+    <string name="name">Name</string>
+    <string name="address">Address</string>
+    <string name="latitude_longitude_separator"> X </string>
+    <string name="save">Save</string>
+    <string name="create">Create</string>
 </resources>

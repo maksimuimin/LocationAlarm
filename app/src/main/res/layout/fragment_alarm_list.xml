@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment">
@@ -8,8 +9,16 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/alarm_list"
         android:orientation="horizontal"
+        android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp">
     </androidx.recyclerview.widget.RecyclerView>
 
-</FrameLayout>
+    <Button
+        android:id="@+id/create_alarm_button"
+        android:text="@string/add_alarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+
+</LinearLayout>

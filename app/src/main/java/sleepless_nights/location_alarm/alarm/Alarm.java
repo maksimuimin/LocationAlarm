@@ -2,8 +2,8 @@ package sleepless_nights.location_alarm.alarm;
 
 public class Alarm {
     private int id;
-    private String name;
-    private String address;
+    private String name = "";
+    private String address = "";
     private boolean active;
     private double latitude;
     private double longitude;
