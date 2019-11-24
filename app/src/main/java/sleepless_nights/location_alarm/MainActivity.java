@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 
-import sleepless_nights.location_alarm.R;
-
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.view_models.alarm_view_model.AlarmViewModel;
 
@@ -35,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
             alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true);
             alarmViewModel.changeAlarm(0, "MyNewName", null, null);
 
-            Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
-            setSupportActionBar(myToolbar);
+            Toolbar customToolBar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(customToolBar);
         }
     }
 
