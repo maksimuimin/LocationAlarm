@@ -1,9 +1,12 @@
 package sleepless_nights.location_alarm;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import sleepless_nights.location_alarm.R;
 
@@ -31,6 +34,16 @@ public class MainActivity extends AppCompatActivity {
                     .get(AlarmViewModel.class);
             alarmViewModel.addAlarm("MyAlarm1", "MyAddress", true);
             alarmViewModel.changeAlarm(0, "MyNewName", null, null);
+
+            Toolbar myToolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(myToolbar);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.toolbar, menu);
+        return true;
     }
 }

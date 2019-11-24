@@ -6,4 +6,5 @@
     <dimen name="primaryTextSize">16sp</dimen>
     <dimen name="secondaryTextHeight">20dp</dimen>
     <dimen name="secondaryTextSize">14sp</dimen>
+    <dimen name="barHeight">56dp</dimen>
 </resources>
