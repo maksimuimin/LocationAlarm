@@ -10,6 +10,7 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.ListUpdateCallback;
@@ -28,6 +29,7 @@ public class AlarmService extends IntentService {
     public static final String INTENT_EXTRA_ALARM_ID = "AlarmID";
 
     private static final int NOTIFICATION_ID = 1;
+    private static final int FOREGROUND_ID = 2;
     private static final String NOTIFICATION_CHANNEL_ID = "Active alarms";
 
     private static final String TAG = "AlarmService";
@@ -37,6 +39,7 @@ public class AlarmService extends IntentService {
     private NotificationManager notificationManager;
     private boolean runningInForeground = false;
     private boolean started = false;
+    private int startForegroundRequestId = 0;
 
     public AlarmService() {
         super(String.format(Locale.getDefault(), "%s-%d", TAG, ID));
@@ -161,40 +164,37 @@ public class AlarmService extends IntentService {
         if (!activeAlarmsDataSet.isEmpty()) {
             becomeForeground(buildNotification(activeAlarmsDataSet.size()));
         }
-        //started = true; //TODO uncomment
+        started = true; //TODO uncomment
     }
 
     private Notification buildNotification(int alarmsCount) {
         //TODO develop
         String content = String.format(Locale.getDefault(), "Active alarms: %d", alarmsCount);
-        return new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL_ID)
+        return new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("LocationAlarm")
                 .setContentText(content)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
+                .setOngoing(true)
                 .build();
     }
 
-    private void becomeForeground(Notification notification) {
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.notify(NOTIFICATION_ID, notification);
-        }
-
+    private void becomeForeground(@NonNull Notification notification) {
         Log.d(TAG, "becoming foreground");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(NOTIFICATION_ID,
+            startForeground(FOREGROUND_ID,
                     notification,
                     ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION);
         } else {
-            startForeground(NOTIFICATION_ID, notification);
+            startForeground(FOREGROUND_ID, notification);
         }
+        notificationManager.notify(NOTIFICATION_ID, buildNotification(activeAlarmsDataSet.size()));
         runningInForeground = true;
     }
 
     private void becomeBackground() {
         Log.d(TAG, "becoming background");
         stopForeground(true); //Removing notification
+        notificationManager.cancel(NOTIFICATION_ID);
         runningInForeground = false;
     }
 
