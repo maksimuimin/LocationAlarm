@@ -1,76 +1,53 @@
 package sleepless_nights.location_alarm.alarm.use_cases;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.DiffUtil;
+
+import java.util.List;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
-import java.util.ArrayList;
-
 public class AlarmDataSet {
-    // AlarmDataSet is representation of AlarmRepository in RAM
-    // It may be used directly for read-only operations
-    // All data changes must be performed via AlarmRepository since it is responsible for
-    //   long-time data storing
-    // If we need to change data representation without data changes (different sorting, for example)
-    //   it must be performed on AlarmDataSet level
-    private static final String TAG = "AlarmDataSet";
-    private SparseArray<MutableLiveData<Alarm>> dataSet = new SparseArray<>();
+    private SparseArray<Alarm> dataSet = new SparseArray<>();
 
-    AlarmDataSet() {}
-    AlarmDataSet(@NonNull ArrayList<Alarm> alarms) {
+    public AlarmDataSet() {}
+    AlarmDataSet(@NonNull List<Alarm> alarms) {
         for (Alarm alarm : alarms) {
-            dataSet.put(alarm.getId(), new MutableLiveData<>(alarm));
+            dataSet.put(alarm.getId(), alarm);
         }
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataById(int id) {
+    Alarm getAlarmById(int id) {
         return dataSet.get(id, null);
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
+    public Alarm getAlarmByPosition(int pos) {
         return dataSet.get(dataSet.keyAt(pos), null);
     }
 
-    void addAlarm(@NonNull Alarm alarm) {
-        dataSet.put(alarm.getId(), new MutableLiveData<>(alarm));
+    void createAlarm(@NonNull Alarm alarm) {
+        dataSet.put(alarm.getId(), alarm);
     }
 
-    void removeAlarm(int id) {
+    void deleteAlarm(int id) {
         dataSet.remove(id);
     }
 
-    void changeAlarm(int id, @Nullable String name,
-                     @Nullable String address, @Nullable Boolean isActive) {
-        MutableLiveData<Alarm> alarmLiveData = dataSet.get(id, null);
-        if (alarmLiveData == null) {
-            Log.e(TAG, "Requested change of not existing alarm");
+    void updateAlarm(@NonNull Alarm alarm) {
+        if (dataSet.get(alarm.getId(), null) == null) {
             return;
         }
-
-        Alarm alarm = dataSet.get(id).getValue();
-        if (alarm == null) {
-            Log.wtf(TAG, "dataSet contains LiveData to null Alarm");
-            return;
-        }
-
-        if (name != null) alarm.setName(name);
-        if (address != null) alarm.setAddress(address);
-        if (isActive != null) alarm.setIsActive(isActive);
-        alarmLiveData.postValue(alarm);
+        dataSet.put(alarm.getId(), alarm);
     }
 
-    public int size() {
-        return dataSet.size();
-    }
+    public int size() { return dataSet.size(); }
+
+    public boolean isEmpty() { return dataSet.size() == 0; }
 
     @NonNull
     public DiffUtil.DiffResult diffFrom(AlarmDataSet oldDataSet) {
@@ -81,9 +58,9 @@ public class AlarmDataSet {
         private final AlarmDataSet oldDataSet;
         private final AlarmDataSet newDataSet;
 
-        AlarmDataSetDiffUtilCallback(AlarmDataSet _oldDataSet, AlarmDataSet _newDataSet) {
-            oldDataSet = _oldDataSet;
-            newDataSet = _newDataSet;
+        AlarmDataSetDiffUtilCallback(AlarmDataSet oldDataSet, AlarmDataSet newDataSet) {
+            this.oldDataSet = oldDataSet;
+            this.newDataSet = newDataSet;
         }
 
         @Override
@@ -98,36 +75,22 @@ public class AlarmDataSet {
 
         @Override
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            LiveData<Alarm> oldItem = oldDataSet.getAlarmLiveDataByPosition(oldItemPosition);
-            LiveData<Alarm> newItem = newDataSet.getAlarmLiveDataByPosition(newItemPosition);
-            if(oldItem == null || newItem == null) {
+            Alarm oldAlarm = oldDataSet.getAlarmByPosition(oldItemPosition);
+            Alarm newAlarm = newDataSet.getAlarmByPosition(newItemPosition);
+            if(oldAlarm == null || newAlarm == null) {
                 return false;
             }
-
-            Alarm oldAlarm = oldItem.getValue();
-            Alarm newAalrm = newItem.getValue();
-            if (oldAlarm == null || newAalrm == null) {
-                return false;
-            }
-
-            return oldAlarm.getId() == newAalrm.getId();
+            return newAlarm.getId() == oldAlarm.getId();
         }
 
         @Override
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            LiveData<Alarm> oldItem = oldDataSet.getAlarmLiveDataByPosition(oldItemPosition);
-            LiveData<Alarm> newItem = newDataSet.getAlarmLiveDataByPosition(newItemPosition);
-            if(oldItem == null || newItem == null) {
+            Alarm oldAlarm = oldDataSet.getAlarmByPosition(oldItemPosition);
+            Alarm newAlarm = newDataSet.getAlarmByPosition(newItemPosition);
+            if(oldAlarm == null || newAlarm == null) {
                 return false;
             }
-
-            Alarm oldAlarm = oldItem.getValue();
-            Alarm newAalrm = newItem.getValue();
-            if (oldAlarm == null || newAalrm == null) {
-                return false;
-            }
-
-            return oldAlarm.equals(newAalrm);
+            return oldAlarm.equals(newAlarm);
         }
     }
 }

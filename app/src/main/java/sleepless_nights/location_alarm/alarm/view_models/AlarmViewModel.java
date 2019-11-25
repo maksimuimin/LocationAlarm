@@ -1,4 +1,4 @@
-package sleepless_nights.location_alarm.alarm.view_models.alarm_view_model;
+package sleepless_nights.location_alarm.alarm.view_models;
 
 import android.app.Application;
 import android.util.Log;
@@ -31,37 +31,26 @@ public class AlarmViewModel extends AndroidViewModel {
     public LiveData<AlarmDataSet> getLiveData() { return liveData; }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
-        AlarmDataSet dataSet = liveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "liveData contains null DataSet");
-            return null;
-        }
-
-        return dataSet.getAlarmLiveDataByPosition(pos);
+    public Alarm getAlarmByPosition(int pos) {
+        return AlarmRepository.getInstance().getAlarmByPosition(pos);
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataById(int id) {
-        AlarmDataSet dataSet = liveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "liveData contains null DataSet");
-            return null;
-        }
-
-        return dataSet.getAlarmLiveDataById(id);
+    public Alarm getAlarmLiveDataById(int id) {
+        return AlarmRepository.getInstance().getAlarmById(id);
     }
 
-    public void addAlarm(String name, String address, boolean isActive) {
-        AlarmRepository.getInstance().newAlarm(name, address, isActive);
+    public void createAlarm(String name, String address, boolean isActive,
+                            double latitude, double longitude, float radius) {
+        AlarmRepository.getInstance().createAlarm(name, address, isActive,
+                latitude, longitude, radius);
     }
 
-    public void removeAlarm(int id) {
+    public void deleteAlarm(int id) {
         AlarmRepository.getInstance().deleteAlarm(id);
     }
 
-    public void changeAlarm(int id, @Nullable String name,
-                            @Nullable String address, @Nullable Boolean isActive) {
-        AlarmRepository.getInstance().changeAlarm(id, name, address, isActive);
+    public void updateAlarm(Alarm alarm) {
+        AlarmRepository.getInstance().updateAlarm(alarm);
     }
 }
