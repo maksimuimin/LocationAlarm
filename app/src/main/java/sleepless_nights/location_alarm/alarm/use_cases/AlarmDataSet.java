@@ -1,5 +1,6 @@
 package sleepless_nights.location_alarm.alarm.use_cases;
 
+import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
@@ -7,18 +8,40 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
 import java.util.List;
+import java.util.Locale;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
 public class AlarmDataSet {
+    private static final String TAG = "AlarmDataSet";
     private SparseArray<Alarm> dataSet = new SparseArray<>();
 
     public AlarmDataSet() {}
+
+    private AlarmDataSet(AlarmDataSet alarmDataSet) {
+        Log.d(TAG, String.format(Locale.getDefault(),
+                "on copy, new alarmDataSet size: %d, old alarmDataSet size: %d",
+                this.size(), alarmDataSet.size()));
+        this.dataSet = new SparseArray<>(alarmDataSet.size());
+        for (int i = 0; i < alarmDataSet.size(); i++) {
+            Alarm alarm = alarmDataSet.getAlarmByPosition(i);
+            if (alarm == null) {
+                Log.wtf(TAG, String.format(Locale.getDefault(),
+                        "got null Alarm on position %d while making a copy", i));
+                continue;
+            }
+            this.dataSet.put(alarm.getId(), new Alarm(alarm));
+        }
+    }
+
     AlarmDataSet(@NonNull List<Alarm> alarms) {
         for (Alarm alarm : alarms) {
             dataSet.put(alarm.getId(), alarm);
         }
     }
+
+    @NonNull
+    public AlarmDataSet makeCopy() { return new AlarmDataSet(this); }
 
     @Nullable
     Alarm getAlarmById(int id) {

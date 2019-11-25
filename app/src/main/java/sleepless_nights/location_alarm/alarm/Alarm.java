@@ -1,5 +1,7 @@
 package sleepless_nights.location_alarm.alarm;
 
+import androidx.annotation.NonNull;
+
 public class Alarm {
     private int id;
     private String name;
@@ -20,17 +22,20 @@ public class Alarm {
         this.radius = radius;
     }
   
-    public int getId() {
-        return id;
+    public Alarm(@NonNull Alarm alarm) {
+        this.id = alarm.id;
+        this.name = alarm.name;
+        this.address = alarm.address;
+        this.isActive = alarm.isActive;
+        this.latitude = alarm.latitude;
+        this.longitude = alarm.longitude;
+        this.radius = alarm.radius;
     }
 
-    public String getName() {
-        return name;
-    }
-    public Alarm setName(String name) {
-        this.name = name;
-        return this;
-    }
+    public int getId() { return id; }
+
+    public void setName(String name) { this.name = name; }
+    public String getName() { return this.name; }
 
     public String getAddress() {
         return address;
