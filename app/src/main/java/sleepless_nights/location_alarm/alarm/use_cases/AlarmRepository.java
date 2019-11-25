@@ -8,6 +8,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
+import java.util.Locale;
+import java.util.Objects;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
@@ -55,6 +57,7 @@ public class AlarmRepository {
 
     public void createAlarm(String name, String address, boolean isActive,
                             double latitude, double longitude, float radius) {
+        Log.d(TAG, "creating new alarm");
         Alarm alarm = new Alarm(getNewAlarmId(), name, address, isActive,
                 latitude, longitude, radius);
 
@@ -65,7 +68,13 @@ public class AlarmRepository {
         }
         dataSet.createAlarm(alarm);
         dataSetLiveData.postValue(dataSet);
-        if (!alarm.getIsActive()) return;
+        if (!alarm.getIsActive()) {
+            Log.d(TAG, String.format(Locale.getDefault(),
+                    "dataSet size: %d, activeAlarmsDataSet size: %d",
+                    dataSetLiveData.getValue().size(),
+                    Objects.requireNonNull(activeAlarmsDataSetLiveData.getValue()).size()));
+            return;
+        }
 
         AlarmDataSet activeAlarmsDataSet = activeAlarmsDataSetLiveData.getValue();
         if (activeAlarmsDataSet == null) {
@@ -74,6 +83,9 @@ public class AlarmRepository {
         }
         activeAlarmsDataSet.createAlarm(alarm);
         activeAlarmsDataSetLiveData.postValue(activeAlarmsDataSet);
+        Log.d(TAG, String.format(Locale.getDefault(),
+                "dataSet size: %d, activeAlarmsDataSet size: %d",
+                dataSetLiveData.getValue().size(), activeAlarmsDataSetLiveData.getValue().size()));
     }
 
     public void deleteAlarm(int id) {

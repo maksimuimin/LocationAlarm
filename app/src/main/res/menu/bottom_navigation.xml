@@ -4,13 +4,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/app_bar_fav"
+        android:id="@+id/app_bar_alarm_list_tab"
         android:icon="@drawable/ic_alarm_24"
         android:title="@string/alarms"
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/app_bar_search"
+        android:id="@+id/app_bar_map_tab"
         android:icon="@drawable/ic_map_24"
         android:title="@string/map"
         app:showAsAction="ifRoom"/>

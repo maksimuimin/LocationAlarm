@@ -5,8 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +18,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Objects;
 
@@ -23,7 +29,9 @@ import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private static final int GEO_LOC_PERMISSION_REQUEST = 1;
+    private MenuTabState tabState = MenuTabState.TAB_ALARM_LIST;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,15 +44,43 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.fragment_container, AlarmListFragment.newInstance())
                     .commit();
 
-            Toolbar customToolBar = (Toolbar) findViewById(R.id.toolbar);
+            Toolbar customToolBar = findViewById(R.id.toolbar);
             setSupportActionBar(customToolBar);
 
-            //TODO delete
+            View alarmListTabBtn = findViewById(R.id.app_bar_alarm_list_tab);
+            alarmListTabBtn.setOnClickListener(v -> {
+                if (tabState == MenuTabState.TAB_ALARM_LIST) return;
+                tabState = MenuTabState.TAB_ALARM_LIST;
+                Toast.makeText(this, "switched to alarm list tab", Toast.LENGTH_SHORT).show();
+            });
+
+            View mapTabBtn = findViewById(R.id.app_bar_map_tab);
+            mapTabBtn.setOnClickListener(v -> {
+                if (tabState == MenuTabState.TAB_MAP) return;
+                tabState = MenuTabState.TAB_MAP;
+                Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
+            });
+
             AlarmViewModel alarmViewModel = ViewModelProviders
                     .of(Objects.requireNonNull(this)) //Shared with MapFragment
                     .get(AlarmViewModel.class);
-            alarmViewModel.createAlarm("MyAlarm1", "MyAddress", true, 0, 0,2000);
-            //alarmViewModel.createAlarm("MyAlarm2", "MyAddress", true, 0, 0,2000);
+            FloatingActionButton fab = findViewById(R.id.floating_button);
+            fab.setOnClickListener(v -> {
+               switch (tabState) {
+                   case TAB_ALARM_LIST: {
+                       alarmViewModel.createAlarm("MyAlarm", "MyAddress", true, 0, 0,2000);
+                       break;
+                   }
+                   case TAB_MAP: {
+                       Toast.makeText(this, "MapTab's FAB is on click", Toast.LENGTH_SHORT).show();
+                       break;
+                   }
+                   default: {
+                       Log.wtf(TAG, "Got unknown tabState: " + tabState.toString());
+                   }
+               }
+            });
+
         }
     }
 
@@ -61,6 +97,15 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.toolbar, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.settingsBtn) {
+            Toast.makeText(this, "settingsBtn is on click", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void checkGeoLocPermission() {
@@ -88,5 +133,10 @@ public class MainActivity extends AppCompatActivity {
                 //или отобрабражать фрагмент с требованием пермишона и кнопкой на перезапрос
             }
         }
+    }
+
+    private enum MenuTabState {
+        TAB_ALARM_LIST,
+        TAB_MAP
     }
 }

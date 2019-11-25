@@ -1,6 +1,10 @@
 package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,19 +14,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import java.util.Locale;
+import java.util.Objects;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
-import java.util.Objects;
-
 public class AlarmListFragment extends Fragment {
     private static final String TAG = "AlarmListFragment";
+    private AlarmListAdapter alarmListAdapter;
 
     public static AlarmListFragment newInstance() { return new AlarmListFragment(); }
 
@@ -50,15 +51,17 @@ public class AlarmListFragment extends Fragment {
         }
 
         final LinearLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
-        final AlarmListAdapter adapter = new AlarmListAdapter(alarmDataSet, alarmViewModel);
+        alarmListAdapter = new AlarmListAdapter(alarmDataSet, alarmViewModel);
         final RecyclerView listView = view.findViewById(R.id.alarm_list);
-        listView.setAdapter(adapter);
+        listView.setAdapter(alarmListAdapter);
         listView.setLayoutManager(layoutManager);
 
         alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), updAlarmDataSet -> {
-            AlarmDataSet oldDataSet = adapter.getAlarmDataSet();
-            adapter.setAlarmDataSet(updAlarmDataSet);
-            updAlarmDataSet.diffFrom(oldDataSet).dispatchUpdatesTo(adapter);
+            Log.d(TAG, String.format(Locale.getDefault(),
+                    "dataSet updated, updAlarmDataSet size: %d", updAlarmDataSet.size()));
+            AlarmDataSet oldDataSet = alarmListAdapter.getAlarmDataSet();
+            alarmListAdapter.setAlarmDataSet(updAlarmDataSet);
+            updAlarmDataSet.diffFrom(oldDataSet).dispatchUpdatesTo(alarmListAdapter);
         });
     }
 
