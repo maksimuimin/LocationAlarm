@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.ui.Router;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 class AlarmViewHolder extends RecyclerView.ViewHolder {
@@ -27,12 +26,6 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         addressView = itemView.findViewById(R.id.address);
         switchAlarmView = itemView.findViewById(R.id.switch_alarm);
 
-        alarmNameView.setOnClickListener(v -> {
-            Alarm alarm;
-            if (alarmLiveData != null && (alarm = alarmLiveData.getValue()) != null) {
-                Router.showAlarmDetails(alarm);
-            }
-        });
         switchAlarmView.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
             alarm.setIsActive(isChecked);

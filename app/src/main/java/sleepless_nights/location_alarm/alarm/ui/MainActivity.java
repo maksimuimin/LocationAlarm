@@ -24,10 +24,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.Objects;
 
 import sleepless_nights.location_alarm.R;
-import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
-import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MainActivity extends AppCompatActivity {
