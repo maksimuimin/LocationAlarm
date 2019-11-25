@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">LocationAlarm</string>
     <string name="error_str">Error</string>
+    <string name="settings">Settings</string>
+    <string name="alarms">Alarms</string>
+    <string name="map">Map</string>
 </resources>
