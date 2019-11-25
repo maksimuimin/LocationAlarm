@@ -75,37 +75,37 @@ public class AlarmRepository {
     public void createAlarm(String name, String address, boolean isActive,
                             double latitude, double longitude, float radius) {
         Log.d(TAG, "creating new alarm");
-        Alarm alarm = new Alarm(0, name, address, isActive,
-                latitude, longitude, radius);
-  
-        executor.execute(() -> alarmDao.create(AlarmEntityAdapter.adapt(alarm)));
-        //TODO wait for alarm id creation?
+        executor.execute(() -> {
+            Alarm alarm = new Alarm(0, name, address, isActive,
+                    latitude, longitude, radius);
+            alarmDao.create(AlarmEntityAdapter.adapt(alarm));
 
-        AlarmDataSet dataSet = dataSetLiveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "dataSetLiveData contains null AlarmDataSet");
-            dataSet = new AlarmDataSet();
-        }
-        dataSet.createAlarm(alarm);
-        dataSetLiveData.postValue(dataSet);
-        if (!alarm.getIsActive()) {
+            AlarmDataSet dataSet = dataSetLiveData.getValue();
+            if (dataSet == null) {
+                Log.wtf(TAG, "dataSetLiveData contains null AlarmDataSet");
+                dataSet = new AlarmDataSet();
+            }
+            dataSet.createAlarm(alarm);
+            dataSetLiveData.postValue(dataSet);
+            if (!alarm.getIsActive()) {
+                Log.d(TAG, String.format(Locale.getDefault(),
+                        "dataSet size: %d, activeAlarmsDataSet size: %d",
+                        dataSetLiveData.getValue().size(),
+                        Objects.requireNonNull(activeAlarmsDataSetLiveData.getValue()).size()));
+                return;
+            }
+
+            AlarmDataSet activeAlarmsDataSet = activeAlarmsDataSetLiveData.getValue();
+            if (activeAlarmsDataSet == null) {
+                Log.wtf(TAG, "activeAlarmsDataSetLiveData contains null AlarmDataSet");
+                activeAlarmsDataSet = new AlarmDataSet();
+            }
+            activeAlarmsDataSet.createAlarm(alarm);
+            activeAlarmsDataSetLiveData.postValue(activeAlarmsDataSet);
             Log.d(TAG, String.format(Locale.getDefault(),
                     "dataSet size: %d, activeAlarmsDataSet size: %d",
-                    dataSetLiveData.getValue().size(),
-                    Objects.requireNonNull(activeAlarmsDataSetLiveData.getValue()).size()));
-            return;
-        }
-
-        AlarmDataSet activeAlarmsDataSet = activeAlarmsDataSetLiveData.getValue();
-        if (activeAlarmsDataSet == null) {
-            Log.wtf(TAG, "activeAlarmsDataSetLiveData contains null AlarmDataSet");
-            activeAlarmsDataSet = new AlarmDataSet();
-        }
-        activeAlarmsDataSet.createAlarm(alarm);
-        activeAlarmsDataSetLiveData.postValue(activeAlarmsDataSet);
-        Log.d(TAG, String.format(Locale.getDefault(),
-                "dataSet size: %d, activeAlarmsDataSet size: %d",
-                dataSetLiveData.getValue().size(), activeAlarmsDataSetLiveData.getValue().size()));
+                    dataSetLiveData.getValue().size(), activeAlarmsDataSetLiveData.getValue().size()));
+        });
     }
 
     public void deleteAlarm(Alarm alarm) {
@@ -114,23 +114,25 @@ public class AlarmRepository {
             return;
         }
 
-        executor.execute(() -> alarmDao.delete(AlarmEntityAdapter.adapt(alarm)));
+        executor.execute(() -> {
+            alarmDao.delete(AlarmEntityAdapter.adapt(alarm));
 
-        AlarmDataSet dataSet = dataSetLiveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
-            return;
-        }
-        dataSet.deleteAlarm(alarm);
-        dataSetLiveData.postValue(dataSet);
+            AlarmDataSet dataSet = dataSetLiveData.getValue();
+            if (dataSet == null) {
+                Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
+                return;
+            }
+            dataSet.deleteAlarm(alarm);
+            dataSetLiveData.postValue(dataSet);
 
-        AlarmDataSet activeAlarmDataSet = activeAlarmsDataSetLiveData.getValue();
-        if (activeAlarmDataSet == null) {
-            Log.wtf(TAG, "activeAlarmsDataSetLiveData contains LiveData with null DataSet");
-            return;
-        }
-        activeAlarmDataSet.deleteAlarm(alarm);
-        activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
+            AlarmDataSet activeAlarmDataSet = activeAlarmsDataSetLiveData.getValue();
+            if (activeAlarmDataSet == null) {
+                Log.wtf(TAG, "activeAlarmsDataSetLiveData contains LiveData with null DataSet");
+                return;
+            }
+            activeAlarmDataSet.deleteAlarm(alarm);
+            activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
+        });
     }
 
     public void updateAlarm(Alarm alarm) {
@@ -139,27 +141,29 @@ public class AlarmRepository {
             return;
         }
 
-        executor.execute(() -> alarmDao.update(AlarmEntityAdapter.adapt(alarm)));
+        executor.execute(() -> {
+            alarmDao.update(AlarmEntityAdapter.adapt(alarm));
 
-        AlarmDataSet dataSet = dataSetLiveData.getValue();
-        if (dataSet == null) {
-            Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
-            return;
-        }
-        dataSet.updateAlarm(alarm);
-        dataSetLiveData.postValue(dataSet);
+            AlarmDataSet dataSet = dataSetLiveData.getValue();
+            if (dataSet == null) {
+                Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
+                return;
+            }
+            dataSet.updateAlarm(alarm);
+            dataSetLiveData.postValue(dataSet);
 
-        AlarmDataSet activeAlarmDataSet = activeAlarmsDataSetLiveData.getValue();
-        if (activeAlarmDataSet == null) {
-            Log.wtf(TAG, "activeAlarmsDataSetLiveData contains LiveData with null DataSet");
-            return;
-        }
-        if (alarm.getIsActive()) {
-            activeAlarmDataSet.createAlarm(alarm);
-        } else {
-            activeAlarmDataSet.deleteAlarm(alarm);
-        }
-        activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
+            AlarmDataSet activeAlarmDataSet = activeAlarmsDataSetLiveData.getValue();
+            if (activeAlarmDataSet == null) {
+                Log.wtf(TAG, "activeAlarmsDataSetLiveData contains LiveData with null DataSet");
+                return;
+            }
+            if (alarm.getIsActive()) {
+                activeAlarmDataSet.createAlarm(alarm);
+            } else {
+                activeAlarmDataSet.deleteAlarm(alarm);
+            }
+            activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
+        });
     }
 
     private void loadDataSet() {
