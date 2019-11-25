@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
@@ -33,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.fragment_container, AlarmListFragment.newInstance())
                     .commit();
 
+            Toolbar customToolBar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(customToolBar);
+
             //TODO delete
             AlarmViewModel alarmViewModel = ViewModelProviders
                     .of(Objects.requireNonNull(this)) //Shared with MapFragment
@@ -48,6 +54,13 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), AlarmService.class);
         startService(intent); //starting service on process creation
         //Alarm service handles its background/foreground state on its own
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.toolbar, menu);
+        return true;
     }
 
     private void checkGeoLocPermission() {
