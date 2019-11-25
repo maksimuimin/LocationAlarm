@@ -19,8 +19,7 @@ public class AlarmViewModel extends AndroidViewModel {
 
     public AlarmViewModel(@NonNull Application application) {
         super(application);
-        final LiveData<AlarmDataSet> repoLiveData =
-                AlarmRepository.getInstance(getApplication().getApplicationContext()).getDataSetLiveData();
+        final LiveData<AlarmDataSet> repoLiveData = AlarmRepository.getInstance().getDataSetLiveData();
         liveData.setValue(repoLiveData.getValue());
         liveData.addSource(repoLiveData, alarmDataSet -> {
             Log.d(TAG, "dataSet updated from repository");
@@ -28,36 +27,30 @@ public class AlarmViewModel extends AndroidViewModel {
         });
     }
 
-    private AlarmRepository getAlarmRepository() {
-        return AlarmRepository.getInstance(getApplication().getApplicationContext());
-    }
-
     @NonNull
     public LiveData<AlarmDataSet> getLiveData() { return liveData; }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
-        return getAlarmRepository().getAlarmLiveDataByPosition(pos);
+    public Alarm getAlarmByPosition(int pos) {
+        return AlarmRepository.getInstance().getAlarmByPosition(pos);
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataById(int id) {
-        return getAlarmRepository().getAlarmLiveDataById(id);
+    public Alarm getAlarmLiveDataById(int id) {
+        return AlarmRepository.getInstance().getAlarmById(id);
     }
 
-    public LiveData<Alarm> newAlarm() {
-        Alarm alarm = AlarmRepository.getInstance(getApplication().getApplicationContext()).newAlarm();
-        return getAlarmRepository().getAlarmLiveDataById(alarm.getId());
+    public void createAlarm(String name, String address, boolean isActive,
+                            double latitude, double longitude, float radius) {
+        AlarmRepository.getInstance().createAlarm(name, address, isActive,
+                latitude, longitude, radius);
     }
 
-    public void removeAlarm(LiveData<Alarm> alarmLiveData) {
-        Alarm alarm;
-        if (alarmLiveData !=null && (alarm = alarmLiveData.getValue()) != null) {
-            getAlarmRepository().removeAlarm(alarm);
-        }
+    public void deleteAlarm(int id) {
+        AlarmRepository.getInstance().deleteAlarm(id);
     }
 
     public void updateAlarm(Alarm alarm) {
-        getAlarmRepository().updateAlarm(alarm);
+        AlarmRepository.getInstance().updateAlarm(alarm);
     }
 }

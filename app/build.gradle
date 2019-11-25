@@ -35,6 +35,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.1.0'
 
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
     implementation "androidx.room:room-runtime:2.2.2"

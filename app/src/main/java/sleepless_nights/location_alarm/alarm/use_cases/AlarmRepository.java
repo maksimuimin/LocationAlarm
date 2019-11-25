@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+
 import androidx.room.Room;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDao;
@@ -16,20 +17,25 @@ import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmEntityAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class AlarmRepository {
     private static final String TAG = "AlarmRepository";
-    private static AlarmRepository instance;
-
-    private MutableLiveData<AlarmDataSet> dataSetLiveData;
+    private static int ID_SOURCE = 0;
+    private static AlarmRepository instance = new AlarmRepository();
+    private MutableLiveData<AlarmDataSet> dataSetLiveData = new MutableLiveData<>();
+    private MutableLiveData<AlarmDataSet> activeAlarmsDataSetLiveData = new MutableLiveData<>();
+    
     private AlarmDao alarmDao;
-
     private final Executor executor = Executors.newSingleThreadExecutor();
 
     private AlarmRepository(Context applicationContext) {
-        dataSetLiveData = new MutableLiveData<>(new AlarmDataSet(new ArrayList<>()));
+        dataSetLiveData.setValue(new AlarmDataSet());
+        activeAlarmsDataSetLiveData.setValue(new AlarmDataSet());
+        loadDataSet();
         alarmDao = Room
                 .databaseBuilder(applicationContext, AlarmDb.class, "alarm-database")
                 .build()
@@ -52,101 +58,115 @@ public class AlarmRepository {
     }
 
     @NonNull
-    AlarmDataSet getDataSet() {
-        if (dataSetLiveData.getValue() == null) {
+    public LiveData<AlarmDataSet> getActiveAlarmsDataSetLiveData() { return activeAlarmsDataSetLiveData; }
+
+    @Nullable
+    public Alarm getAlarmById(int id) {
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
             Log.wtf(TAG, "AlarmRepository contains dataSetLiveData with null AlarmDataSet");
-            loadDataSet();
+            return null;
         }
-        return dataSetLiveData.getValue();
+        return dataSet.getAlarmById(id);
     }
 
     @Nullable
-    public LiveData<Alarm> getAlarmLiveDataById(int id) {
-        return getDataSet().getAlarmLiveDataById(id);
+    public Alarm getAlarmByPosition(int pos) {
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            Log.wtf(TAG, "AlarmRepository contains dataSetLiveData with null AlarmDataSet");
+            return null;
+        }
+        return dataSet.getAlarmByPosition(pos);
     }
 
-    @Nullable
-    public LiveData<Alarm> getAlarmLiveDataByPosition(int pos) {
-        return getDataSet().getAlarmLiveDataByPosition(pos);
-    }
-
-    public Alarm newAlarm() {
-        Alarm alarm = new Alarm();
-
+    public void createAlarm(String name, String address, boolean isActive,
+                            double latitude, double longitude, float radius) {
+        Log.d(TAG, "creating new alarm");
+        Alarm alarm = new Alarm(getNewAlarmId(), name, address, isActive,
+                latitude, longitude, radius);
+  
         executor.execute(() -> alarmDao.add(AlarmEntityAdapter.adapt(alarm)));
-
-        AlarmDataSet dataSet = getDataSet();
-        dataSet.addAlarm(alarm);
+  
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            Log.wtf(TAG, "dataSetLiveData contains null AlarmDataSet");
+            dataSet = new AlarmDataSet();
+        }
+        dataSet.createAlarm(alarm);
         dataSetLiveData.postValue(dataSet);
+        if (!alarm.getIsActive()) {
+            Log.d(TAG, String.format(Locale.getDefault(),
+                    "dataSet size: %d, activeAlarmsDataSet size: %d",
+                    dataSetLiveData.getValue().size(),
+                    Objects.requireNonNull(activeAlarmsDataSetLiveData.getValue()).size()));
+            return;
+        }
 
-        return alarm;
+        AlarmDataSet activeAlarmsDataSet = activeAlarmsDataSetLiveData.getValue();
+        if (activeAlarmsDataSet == null) {
+            Log.wtf(TAG, "activeAlarmsDataSetLiveData contains null AlarmDataSet");
+            activeAlarmsDataSet = new AlarmDataSet();
+        }
+        activeAlarmsDataSet.createAlarm(alarm);
+        activeAlarmsDataSetLiveData.postValue(activeAlarmsDataSet);
+        Log.d(TAG, String.format(Locale.getDefault(),
+                "dataSet size: %d, activeAlarmsDataSet size: %d",
+                dataSetLiveData.getValue().size(), activeAlarmsDataSetLiveData.getValue().size()));
     }
 
-    public void removeAlarm(Alarm alarm) {
+    public void deleteAlarm(int id) {
         executor.execute(() -> alarmDao.remove(AlarmEntityAdapter.adapt(alarm)));
-
-        AlarmDataSet dataSet = getDataSet();
-        dataSet.removeAlarm(alarm);
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
+            return;
+        }
+        dataSet.deleteAlarm(id);
         dataSetLiveData.postValue(dataSet);
+
+        AlarmDataSet activeAlarmDataSet = activeAlarmsDataSetLiveData.getValue();
+        if (activeAlarmDataSet == null) {
+            Log.wtf(TAG, "activeAlarmsDataSetLiveData contains LiveData with null DataSet");
+            return;
+        }
+        activeAlarmDataSet.deleteAlarm(id);
+        activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
     }
 
     public void updateAlarm(Alarm alarm) {
         executor.execute(() -> alarmDao.update(AlarmEntityAdapter.adapt(alarm)));
-
-        AlarmDataSet dataSet = getDataSet();
+        AlarmDataSet dataSet = dataSetLiveData.getValue();
+        if (dataSet == null) {
+            Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
+            return;
+        }
         dataSet.updateAlarm(alarm);
-        // Since we are using array of LiveData in AlarmDataSet we don't need to update
-        // whole dataSetLiveData directly, so we will not trigger heavy mechanism with diff utils
+        dataSetLiveData.postValue(dataSet);
+
+        AlarmDataSet activeAlarmDataSet = activeAlarmsDataSetLiveData.getValue();
+        if (activeAlarmDataSet == null) {
+            Log.wtf(TAG, "activeAlarmsDataSetLiveData contains LiveData with null DataSet");
+            return;
+        }
+        if (alarm.getIsActive()) {
+            activeAlarmDataSet.createAlarm(alarm);
+        } else {
+            activeAlarmDataSet.deleteAlarm(alarm.getId());
+        }
+        activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
+    }
+
+    private int getNewAlarmId() {
+        //TODO develop
+        ID_SOURCE++;
+        return ID_SOURCE;
     }
 
     private void loadDataSet() {
         executor.execute(() -> {
             List<Alarm> alarms = AlarmEntityAdapter.adaptAlarmEntities(alarmDao.getAll());
             dataSetLiveData.postValue(new AlarmDataSet(alarms));
-        });
-    }
-
-
-    /**
-     * todo delete this later
-     * */
-    @Deprecated
-    private void loadTestData() {
-        executor.execute(() -> {
-            if (alarmDao.getAll().isEmpty()) {
-
-                Alarm alarm1 = new Alarm()
-                        .setName("Moscow").setAddress("0th kilometer")
-                        .setLatitude(55.751244).setLongitude(37.618423)
-                        .setRadius(2000)
-                        .setActive(true);
-                Alarm alarm2 = new Alarm()
-                        .setName("Smolensk").setAddress("Smolensk center")
-                        .setLatitude(54.7818).setLongitude(32.0401)
-                        .setRadius(2000)
-                        .setActive(true);
-                Alarm alarm3 = new Alarm()
-                        .setName("Vladimir").setAddress("Somewhere in Vladimir")
-                        .setLatitude(56.143063).setLongitude(40.410934)
-                        .setRadius(2000)
-                        .setActive(true);
-                Alarm alarm4 = new Alarm()
-                        .setName("Vladivostok").setAddress("Kilometers away, but not many")
-                        .setLatitude(43.10562).setLongitude(131.87353)
-                        .setRadius(2000)
-                        .setActive(false);
-                Alarm alarm5 = new Alarm()
-                        .setName("Los Angeles").setAddress("LA CA USA")
-                        .setLatitude(34.052235).setLongitude(-118.243683)
-                        .setRadius(2000)
-                        .setActive(false);
-
-                alarmDao.add(AlarmEntityAdapter.adapt(alarm1));
-                alarmDao.add(AlarmEntityAdapter.adapt(alarm2));
-                alarmDao.add(AlarmEntityAdapter.adapt(alarm3));
-                alarmDao.add(AlarmEntityAdapter.adapt(alarm4));
-                alarmDao.add(AlarmEntityAdapter.adapt(alarm5));
-            }
         });
     }
 
