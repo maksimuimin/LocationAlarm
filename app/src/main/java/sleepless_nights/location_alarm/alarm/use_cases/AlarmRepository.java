@@ -45,7 +45,6 @@ public class AlarmRepository {
     public static AlarmRepository getInstance(Context applicationContext) {
         if (instance == null) {
             instance = new AlarmRepository(applicationContext);
-            instance.loadTestData();
             instance.loadDataSet();
         }
         return instance;
@@ -114,14 +113,20 @@ public class AlarmRepository {
                 dataSetLiveData.getValue().size(), activeAlarmsDataSetLiveData.getValue().size()));
     }
 
-    public void deleteAlarm(int id) {
+    public void deleteAlarm(Alarm alarm) {
+        if (alarm == null) {
+            Log.wtf(TAG, "trying to delete null alarm");
+            return;
+        }
+
         executor.execute(() -> alarmDao.remove(AlarmEntityAdapter.adapt(alarm)));
+
         AlarmDataSet dataSet = dataSetLiveData.getValue();
         if (dataSet == null) {
             Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
             return;
         }
-        dataSet.deleteAlarm(id);
+        dataSet.deleteAlarm(alarm);
         dataSetLiveData.postValue(dataSet);
 
         AlarmDataSet activeAlarmDataSet = activeAlarmsDataSetLiveData.getValue();
@@ -129,11 +134,16 @@ public class AlarmRepository {
             Log.wtf(TAG, "activeAlarmsDataSetLiveData contains LiveData with null DataSet");
             return;
         }
-        activeAlarmDataSet.deleteAlarm(id);
+        activeAlarmDataSet.deleteAlarm(alarm);
         activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
     }
 
     public void updateAlarm(Alarm alarm) {
+        if (alarm == null) {
+            Log.wtf(TAG, "trying to update null alarm");
+            return;
+        }
+
         executor.execute(() -> alarmDao.update(AlarmEntityAdapter.adapt(alarm)));
         AlarmDataSet dataSet = dataSetLiveData.getValue();
         if (dataSet == null) {
@@ -151,7 +161,7 @@ public class AlarmRepository {
         if (alarm.getIsActive()) {
             activeAlarmDataSet.createAlarm(alarm);
         } else {
-            activeAlarmDataSet.deleteAlarm(alarm.getId());
+            activeAlarmDataSet.deleteAlarm(alarm);
         }
         activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
     }

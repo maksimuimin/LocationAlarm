@@ -34,8 +34,8 @@ public class AlarmDataSet {
         dataSet.put(alarm.getId(), alarm);
     }
 
-    void deleteAlarm(int id) {
-        dataSet.remove(id);
+    void deleteAlarm(@NonNull Alarm alarm) {
+        dataSet.remove(alarm.getId());
     }
 
     void updateAlarm(@NonNull Alarm alarm) {

@@ -46,8 +46,8 @@ public class AlarmViewModel extends AndroidViewModel {
                 latitude, longitude, radius);
     }
 
-    public void deleteAlarm(int id) {
-        AlarmRepository.getInstance().deleteAlarm(id);
+    public void deleteAlarm(Alarm alarm) {
+        AlarmRepository.getInstance().deleteAlarm(alarm);
     }
 
     public void updateAlarm(Alarm alarm) {
