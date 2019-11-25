@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import sleepless_nights.location_alarm.R;
@@ -17,11 +19,14 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private static final String TAG = "AlarmListAdapter";
     private AlarmDataSet alarmDataSet;
     private AlarmViewModel viewModel;
+    private LifecycleOwner parentLifecycleOwner;
 
     AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
-                     @NonNull AlarmViewModel viewModel) {
+                     @NonNull AlarmViewModel viewModel,
+                     @NonNull LifecycleOwner parentLifecycleOwner) {
         this.alarmDataSet = alarmDataSet;
         this.viewModel = viewModel;
+        this.parentLifecycleOwner = parentLifecycleOwner;
     }
 
     @NonNull
@@ -31,18 +36,18 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
                 .from(parent.getContext())
                 .inflate(R.layout.alarm_item, parent, false);
 
-        return new AlarmViewHolder(view, viewModel);
+        return new AlarmViewHolder(view, viewModel, parentLifecycleOwner);
     }
 
 
     @Override
     public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
-        Alarm alarm = viewModel.getAlarmByPosition(position);
-        if (alarm == null) {
-            Log.wtf(TAG, "Trying to bindViewHolder with null Alarm");
+        LiveData<Alarm> alarmLiveData = viewModel.getAlarmLiveDataByPosition(position);
+        if (alarmLiveData == null) {
+            Log.wtf(TAG, "Trying to bindViewHolder with null LiveData");
             return;
         }
-        holder.setAlarm(alarm);
+        holder.setAlarmLiveData(alarmLiveData);
     }
 
     @Override

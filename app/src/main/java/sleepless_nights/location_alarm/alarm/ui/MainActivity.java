@@ -1,113 +1,46 @@
 package sleepless_nights.location_alarm.alarm.ui;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProviders;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.Objects;
-
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
-import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
 import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
-import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+
+public class MainActivity extends AppCompatActivity implements Router.Callback {
+
     private static final int GEO_LOC_PERMISSION_REQUEST = 1;
-    private MenuTabState tabState = MenuTabState.TAB_ALARM_LIST;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         checkGeoLocPermission();
         setContentView(R.layout.activity_main);
+
+        Router.setCallback(this);
+
         if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragment_container, AlarmListFragment.newInstance())
-                    .commit();
-
-            Toolbar customToolBar = findViewById(R.id.toolbar);
-            setSupportActionBar(customToolBar);
-
-            View alarmListTabBtn = findViewById(R.id.app_bar_alarm_list_tab);
-            alarmListTabBtn.setOnClickListener(v -> {
-                if (tabState == MenuTabState.TAB_ALARM_LIST) return;
-                tabState = MenuTabState.TAB_ALARM_LIST;
-                Toast.makeText(this, "switched to alarm list tab", Toast.LENGTH_SHORT).show();
-            });
-
-            View mapTabBtn = findViewById(R.id.app_bar_map_tab);
-            mapTabBtn.setOnClickListener(v -> {
-                if (tabState == MenuTabState.TAB_MAP) return;
-                tabState = MenuTabState.TAB_MAP;
-                Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
-            });
-
-            AlarmViewModel alarmViewModel = ViewModelProviders
-                    .of(Objects.requireNonNull(this)) //Shared with MapFragment
-                    .get(AlarmViewModel.class);
-            FloatingActionButton fab = findViewById(R.id.floating_button);
-            fab.setOnClickListener(v -> {
-               switch (tabState) {
-                   case TAB_ALARM_LIST: {
-                       alarmViewModel.createAlarm("MyAlarm", "MyAddress", true, 0, 0,2000);
-                       break;
-                   }
-                   case TAB_MAP: {
-                       Toast.makeText(this, "MapTab's FAB is on click", Toast.LENGTH_SHORT).show();
-                       break;
-                   }
-                   default: {
-                       Log.wtf(TAG, "Got unknown tabState: " + tabState.toString());
-                   }
-               }
-            });
+            Router.showAlarms();
         }
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(getApplicationContext(), AlarmService.class);
-        startService(intent); //starting service on process creation
-        //Alarm service handles its background/foreground state on its own
+    protected void onDestroy() {
+        super.onDestroy();
+        Router.removeCallback(this);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.toolbar, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.settingsBtn) {
-            Toast.makeText(this, "settingsBtn is on click", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    /**
+     * permission
+     * */
 
     private void checkGeoLocPermission() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
@@ -122,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
                 );
             }
         }
-        //TODO request ACCESS_BACKGROUND_LOCATION for API 29+
     }
 
     @Override
@@ -136,8 +68,35 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private enum MenuTabState {
-        TAB_ALARM_LIST,
-        TAB_MAP
+
+    /**
+     * Router
+     * */
+
+    @Override
+    public void showAlarms() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container,  AlarmListFragment.newInstance())
+                .commit();
     }
+
+    @Override
+    public void showAlarmCreation() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, MapFragment.create())
+                .addToBackStack("0")
+                .commit();
+    }
+
+    @Override
+    public void showAlarmDetails(Alarm alarm) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, MapFragment.create(alarm))
+                .addToBackStack("0")
+                .commit();
+    }
+
 }
