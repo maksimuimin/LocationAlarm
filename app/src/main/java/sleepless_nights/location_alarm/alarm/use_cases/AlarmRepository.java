@@ -31,11 +31,12 @@ public class AlarmRepository {
     public AlarmRepository(Context context) {
         dataSetLiveData.setValue(new AlarmDataSet());
         activeAlarmsDataSetLiveData.setValue(new AlarmDataSet());
-        loadDataSet();
         alarmDao = Room
-                .databaseBuilder(context, AlarmDb.class, "alarm-database")
+                .databaseBuilder(context, AlarmDb.class, AlarmDb.DB_NAME)
+                .addMigrations(AlarmDb.MIGRATION_1_2)
                 .build()
                 .alarmDao();
+        loadDataSet();
     }
 
     @NonNull
