@@ -51,15 +51,17 @@ public class AlarmListFragment extends Fragment {
         }
 
         final LinearLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
-        alarmListAdapter = new AlarmListAdapter(alarmDataSet, alarmViewModel);
+        alarmListAdapter = new AlarmListAdapter(alarmDataSet.makeCopy(), alarmViewModel);
         final RecyclerView listView = view.findViewById(R.id.alarm_list);
         listView.setAdapter(alarmListAdapter);
         listView.setLayoutManager(layoutManager);
 
         alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), updAlarmDataSet -> {
-            Log.d(TAG, String.format(Locale.getDefault(),
-                    "dataSet updated, updAlarmDataSet size: %d", updAlarmDataSet.size()));
             AlarmDataSet oldDataSet = alarmListAdapter.getAlarmDataSet();
+            updAlarmDataSet = updAlarmDataSet.makeCopy();
+            Log.d(TAG, String.format(Locale.getDefault(),
+                    "dataSet updated, oldDataSet size: %d, updAlarmDataSet size: %d",
+                    oldDataSet.size(), updAlarmDataSet.size()));
             alarmListAdapter.setAlarmDataSet(updAlarmDataSet);
             updAlarmDataSet.diffFrom(oldDataSet).dispatchUpdatesTo(alarmListAdapter);
         });
