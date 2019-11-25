@@ -4,12 +4,12 @@ public class Alarm {
     private int id;
     private String name;
     private String address;
-    private Boolean isActive;
+    private boolean isActive;
     private double latitude;
     private double longitude;
     private float radius;
 
-    public Alarm(int id, String name, String address, Boolean isActive,
+    public Alarm(int id, String name, String address, boolean isActive,
                  double latitude, double longitude, float radius) {
         this.id = id;
         this.name = name;

@@ -23,7 +23,6 @@ import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmEntityAdapter;
 
 public class AlarmRepository {
     private static final String TAG = "AlarmRepository";
-    private static int ID_SOURCE = 0;
     private MutableLiveData<AlarmDataSet> dataSetLiveData = new MutableLiveData<>();
     private MutableLiveData<AlarmDataSet> activeAlarmsDataSetLiveData = new MutableLiveData<>();
     private AlarmDao alarmDao;
@@ -75,11 +74,12 @@ public class AlarmRepository {
     public void createAlarm(String name, String address, boolean isActive,
                             double latitude, double longitude, float radius) {
         Log.d(TAG, "creating new alarm");
-        Alarm alarm = new Alarm(getNewAlarmId(), name, address, isActive,
+        Alarm alarm = new Alarm(0, name, address, isActive,
                 latitude, longitude, radius);
   
-        executor.execute(() -> alarmDao.add(AlarmEntityAdapter.adapt(alarm)));
-  
+        executor.execute(() -> alarmDao.create(AlarmEntityAdapter.adapt(alarm)));
+        //TODO wait for alarm id creation?
+
         AlarmDataSet dataSet = dataSetLiveData.getValue();
         if (dataSet == null) {
             Log.wtf(TAG, "dataSetLiveData contains null AlarmDataSet");
@@ -113,7 +113,7 @@ public class AlarmRepository {
             return;
         }
 
-        executor.execute(() -> alarmDao.remove(AlarmEntityAdapter.adapt(alarm)));
+        executor.execute(() -> alarmDao.delete(AlarmEntityAdapter.adapt(alarm)));
 
         AlarmDataSet dataSet = dataSetLiveData.getValue();
         if (dataSet == null) {
@@ -139,6 +139,7 @@ public class AlarmRepository {
         }
 
         executor.execute(() -> alarmDao.update(AlarmEntityAdapter.adapt(alarm)));
+
         AlarmDataSet dataSet = dataSetLiveData.getValue();
         if (dataSet == null) {
             Log.wtf(TAG, "dataSetLiveData contains LiveData with null DataSet");
@@ -158,12 +159,6 @@ public class AlarmRepository {
             activeAlarmDataSet.deleteAlarm(alarm);
         }
         activeAlarmsDataSetLiveData.postValue(activeAlarmDataSet);
-    }
-
-    private int getNewAlarmId() {
-        //TODO develop
-        ID_SOURCE++;
-        return ID_SOURCE;
     }
 
     private void loadDataSet() {

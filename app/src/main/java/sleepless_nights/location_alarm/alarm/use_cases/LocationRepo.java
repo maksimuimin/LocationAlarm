@@ -6,6 +6,7 @@ import android.location.Location;
 import com.google.android.gms.location.LocationServices;
 
 public class LocationRepo {
+    //TODO move to a different package?
 
     public interface Callback {
         void onLocationGot(Location location);
