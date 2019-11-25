@@ -7,13 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
-
 import androidx.room.Room;
-import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDao;
-import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDb;
-import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmEntityAdapter;
 
 import java.util.List;
 import java.util.Locale;
@@ -21,33 +15,33 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import sleepless_nights.LocationAlarmApplication;
+import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDao;
+import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDb;
+import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmEntityAdapter;
+
 public class AlarmRepository {
     private static final String TAG = "AlarmRepository";
     private static int ID_SOURCE = 0;
-    private static AlarmRepository instance = new AlarmRepository();
     private MutableLiveData<AlarmDataSet> dataSetLiveData = new MutableLiveData<>();
     private MutableLiveData<AlarmDataSet> activeAlarmsDataSetLiveData = new MutableLiveData<>();
-    
     private AlarmDao alarmDao;
     private final Executor executor = Executors.newSingleThreadExecutor();
 
-    private AlarmRepository(Context applicationContext) {
+    public AlarmRepository(Context context) {
         dataSetLiveData.setValue(new AlarmDataSet());
         activeAlarmsDataSetLiveData.setValue(new AlarmDataSet());
         loadDataSet();
         alarmDao = Room
-                .databaseBuilder(applicationContext, AlarmDb.class, "alarm-database")
+                .databaseBuilder(context, AlarmDb.class, "alarm-database")
                 .build()
                 .alarmDao();
     }
 
     @NonNull
-    public static AlarmRepository getInstance(Context applicationContext) {
-        if (instance == null) {
-            instance = new AlarmRepository(applicationContext);
-            instance.loadDataSet();
-        }
-        return instance;
+    public static AlarmRepository getInstance(Context context) {
+        return LocationAlarmApplication.from(context).getAlarmRepository();
     }
 
     @NonNull

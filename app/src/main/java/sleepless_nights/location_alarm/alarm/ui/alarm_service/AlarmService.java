@@ -52,7 +52,7 @@ public class AlarmService extends IntentService {
     public void onCreate() {
         super.onCreate();
 
-        activeAlarmsDataSet = AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().getValue();
+        activeAlarmsDataSet = AlarmRepository.getInstance(this).getActiveAlarmsDataSetLiveData().getValue();
         if (activeAlarmsDataSet == null) {
             Log.wtf(TAG, "activeAlarmDataSetLiveData contains null AlarmDataSet");
             activeAlarmsDataSet = new AlarmDataSet();
@@ -68,7 +68,7 @@ public class AlarmService extends IntentService {
             notificationManager.createNotificationChannel(channel);
         }
 
-        AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().observeForever(updAlarmDataSet -> {
+        AlarmRepository.getInstance(this).getActiveAlarmsDataSetLiveData().observeForever(updAlarmDataSet -> {
             Log.d(TAG, String.format(Locale.getDefault(),
                     "activeAlarmsDataSet updated activeAlarmsDataSet.size(): %d, runningInForeground: %b",
                     activeAlarmsDataSet.size(), runningInForeground));
@@ -205,7 +205,7 @@ public class AlarmService extends IntentService {
 
     private void handleActionDoAlarm(int alarmId) {
         //TODO start alarming activity
-        Alarm triggeredAlarm = AlarmRepository.getInstance().getAlarmById(alarmId);
+        Alarm triggeredAlarm = AlarmRepository.getInstance(this).getAlarmById(alarmId);
         if (triggeredAlarm == null) {
             Log.wtf(TAG, "Triggered null alarm");
             return;
@@ -213,7 +213,7 @@ public class AlarmService extends IntentService {
         Toast.makeText(getApplicationContext(),
                 "Triggered alarm " + triggeredAlarm.getName(), Toast.LENGTH_SHORT).show();
         triggeredAlarm.setIsActive(false);
-        AlarmRepository.getInstance().updateAlarm(triggeredAlarm);
+        AlarmRepository.getInstance(this).updateAlarm(triggeredAlarm);
     }
 
     private void handleActionTooManyGeofences() {
