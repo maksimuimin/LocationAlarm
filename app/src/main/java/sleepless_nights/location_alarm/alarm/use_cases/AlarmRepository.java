@@ -15,7 +15,6 @@ import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDao;
 import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDb;
 import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmEntityAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;

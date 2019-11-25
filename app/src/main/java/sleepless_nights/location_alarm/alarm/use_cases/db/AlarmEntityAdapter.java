@@ -9,24 +9,25 @@ public class AlarmEntityAdapter {
 
 
     public static Alarm adapt(AlarmEntity alarmEntity) {
-        Alarm res = new Alarm();
-        res.setId(alarmEntity.id);
-        res.setName(alarmEntity.name);
-        res.setLatitude(alarmEntity.latitude);
-        res.setLongitude(alarmEntity.longitude);
-        res.setActive(alarmEntity.active);
-        res.setAddress(alarmEntity.address);
-        return res;
+        return new Alarm(
+                alarmEntity.id,
+                alarmEntity.name,
+                alarmEntity.address,
+                alarmEntity.active,
+                alarmEntity.latitude,
+                alarmEntity.longitude,
+                alarmEntity.radius);
     }
 
     public static AlarmEntity adapt(Alarm alarm) {
         AlarmEntity res = new AlarmEntity();
         res.id = alarm.getId();
         res.name = alarm.getName();
+        res.address = alarm.getAddress();
+        res.active = alarm.getIsActive();
         res.latitude = alarm.getLatitude();
         res.longitude = alarm.getLongitude();
-        res.active = alarm.isActive();
-        res.address = alarm.getAddress();
+        res.radius = alarm.getRadius();
         return res;
     }
 

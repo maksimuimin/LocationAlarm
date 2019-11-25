@@ -10,12 +10,13 @@ public class AlarmEntity {
 
     public String name;
 
+    public String address;
+
+    public boolean active;
+
     public double latitude;
 
     public double longitude;
 
-    public boolean active;
-
-    public String address;
-
+    public float radius;
 }
