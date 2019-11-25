@@ -14,11 +14,4 @@
         android:layout_height="0dp">
     </androidx.recyclerview.widget.RecyclerView>
 
-    <Button
-        android:id="@+id/create_alarm_button"
-        android:text="@string/add_alarm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
-
 </LinearLayout>
