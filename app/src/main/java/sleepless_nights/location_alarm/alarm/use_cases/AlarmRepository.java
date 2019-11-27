@@ -33,7 +33,6 @@ public class AlarmRepository {
         activeAlarmsDataSetLiveData.setValue(new AlarmDataSet());
         alarmDao = Room
                 .databaseBuilder(context, AlarmDb.class, AlarmDb.DB_NAME)
-                .addMigrations(AlarmDb.MIGRATION_1_2)
                 .build()
                 .alarmDao();
         loadDataSet();
