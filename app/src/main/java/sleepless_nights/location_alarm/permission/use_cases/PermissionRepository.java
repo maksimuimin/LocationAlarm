@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 import sleepless_nights.LocationAlarmApplication;
+import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.permission.Permission;
 
 public class PermissionRepository {
@@ -36,12 +37,12 @@ public class PermissionRepository {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             Objects.requireNonNull(permissionsMap.get(Permission.Group.MUST_HAVE))
                     .add(new Permission(Manifest.permission.ACCESS_FINE_LOCATION,
-                    "just because"));
+                            context.getString(R.string.location_permission_description)));
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Objects.requireNonNull(permissionsMap.get(Permission.Group.MUST_HAVE))
                     .add(new Permission(Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                    ""));
+                            context.getString(R.string.location_permission_description)));
         }
     }
 
@@ -71,7 +72,7 @@ public class PermissionRepository {
         return notGrantedPermissions.isEmpty() ? null : notGrantedPermissions;
     }
 
-    public int newPermissionsRequest(Activity activity, List<Permission> permissions) {
+    public int newPermissionsRequest(@NonNull Activity activity, @NonNull List<Permission> permissions) {
         String[] manifestPermissions = new String[permissions.size()];
         for (int i = 0; i < permissions.size(); i++) {
             manifestPermissions[i] = permissions.get(i).getPermission();
