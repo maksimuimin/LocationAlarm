@@ -1,9 +1,7 @@
 package sleepless_nights.location_alarm.alarm.ui;
 
-import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,8 +13,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -27,17 +23,21 @@ import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
+import sleepless_nights.location_alarm.permission.Permission;
+import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private static final int GEO_LOC_PERMISSION_REQUEST = 1;
+    private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID;
     private MenuTabState tabState = MenuTabState.TAB_ALARM_LIST;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        checkGeoLocPermission();
+        MUST_HAVE_PERMISSIONS_REQUEST_ID = PermissionRepository.getInstance(this)
+                .requirePermissionsByGroup(this, Permission.Group.MUST_HAVE);
         setContentView(R.layout.activity_main);
+
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -107,29 +107,17 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkGeoLocPermission() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(
-                    getApplicationContext(),
-                    Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                        this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        GEO_LOC_PERMISSION_REQUEST
-                );
-            }
-        }
-        //TODO request ACCESS_BACKGROUND_LOCATION for API 29+
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == GEO_LOC_PERMISSION_REQUEST) {
-            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                //todo выходить из приложения требуя пермишон
-                //или отобрабражать фрагмент с требованием пермишона и кнопкой на перезапрос
+        if (requestCode == MUST_HAVE_PERMISSIONS_REQUEST_ID) {
+            if (grantResults.length == 0) {
+                Log.wtf(TAG, "got grantResults with 0 length");
+            }
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    //TODO start permission activity
+                }
             }
         }
     }

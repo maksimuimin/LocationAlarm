@@ -1,0 +1,93 @@
+package sleepless_nights.location_alarm.permission.use_cases;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
+import sleepless_nights.LocationAlarmApplication;
+import sleepless_nights.location_alarm.permission.Permission;
+
+public class PermissionRepository {
+    private static final String TAG = "PermissionRepository";
+    private HashMap<Permission.Group, List<Permission>> permissionsMap;
+    private int permissionRequestIdSource = 0;
+    private Context context;
+
+    public PermissionRepository(Context context) {
+        this.context = context;
+        permissionsMap = new HashMap<>();
+        for (Permission.Group group : Permission.Group.values()) {
+            permissionsMap.put(group, new ArrayList<>());
+        }
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            Objects.requireNonNull(permissionsMap.get(Permission.Group.MUST_HAVE))
+                    .add(new Permission(Manifest.permission.ACCESS_FINE_LOCATION,
+                    "just because"));
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Objects.requireNonNull(permissionsMap.get(Permission.Group.MUST_HAVE))
+                    .add(new Permission(Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    ""));
+        }
+    }
+
+    @NonNull
+    public static PermissionRepository getInstance(Context context) {
+        return LocationAlarmApplication.from(context).getPermissionRepository();
+    }
+
+    @Nullable
+    public Integer requirePermissionsByGroup(Activity activity, Permission.Group group) {
+        List<Permission> notGrantedPermissions = getNotGrantedPermissionsByGroup(group);
+        if (notGrantedPermissions == null) return null;
+        return newPermissionsRequest(activity, notGrantedPermissions);
+    }
+
+    @Nullable
+    public List<Permission> getNotGrantedPermissionsByGroup(Permission.Group group) {
+        List<Permission> permissions = permissionsMap.get(group);
+        if (permissions == null) {
+            Log.wtf(TAG, "Required unknown group of permissions: " + group.toString());
+            return null;
+        }
+        ArrayList<Permission> notGrantedPermissions = new ArrayList<>();
+        for (Permission permission : permissions) {
+            if (!isPermissionGranted(permission)) notGrantedPermissions.add(permission);
+        }
+        return notGrantedPermissions.isEmpty() ? null : notGrantedPermissions;
+    }
+
+    public int newPermissionsRequest(Activity activity, List<Permission> permissions) {
+        String[] manifestPermissions = new String[permissions.size()];
+        for (int i = 0; i < permissions.size(); i++) {
+            manifestPermissions[i] = permissions.get(i).getPermission();
+        }
+        int permissionRequestId = getPermissionRequestId();
+        ActivityCompat.requestPermissions(activity, manifestPermissions, permissionRequestId);
+        return permissionRequestId;
+    }
+
+    private boolean isPermissionGranted(Permission permission) {
+        return ContextCompat.checkSelfPermission(
+                context.getApplicationContext(),
+                permission.getPermission()) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private synchronized int getPermissionRequestId() {
+        return permissionRequestIdSource++;
+    }
+}
