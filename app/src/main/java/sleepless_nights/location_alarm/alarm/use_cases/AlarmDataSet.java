@@ -44,12 +44,15 @@ public class AlarmDataSet {
     public AlarmDataSet makeCopy() { return new AlarmDataSet(this); }
 
     @Nullable
-    Alarm getAlarmById(int id) {
+    public Alarm getAlarmById(int id) {
         return dataSet.get(id, null);
     }
 
     @Nullable
     public Alarm getAlarmByPosition(int pos) {
+        if (pos >= dataSet.size()) {
+            return null;
+        }
         return dataSet.get(dataSet.keyAt(pos), null);
     }
 
