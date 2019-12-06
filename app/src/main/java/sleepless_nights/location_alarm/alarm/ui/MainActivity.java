@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
@@ -28,7 +29,7 @@ import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID;
+    private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
     private MenuTabState tabState = MenuTabState.TAB_ALARM_LIST;
 
     @Override
@@ -116,7 +117,17 @@ public class MainActivity extends AppCompatActivity {
             }
             for (int grantResult : grantResults) {
                 if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                    //TODO start permission activity
+                    Log.e(TAG, "Not enough permissions, exiting");
+                    new AlertDialog.Builder(this)
+                            .setTitle(R.string.not_enough_permissions_dialog_title)
+                            .setMessage(R.string.not_enough_permissions_dialog_message)
+                            .setCancelable(false)
+                            .setPositiveButton(R.string.dialog_positive_button,
+                                    ((dialog, which) -> {
+                                        finishAndRemoveTask();
+                                        System.exit(0);
+                                    }))
+                            .show();
                 }
             }
         }
