@@ -17,7 +17,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -56,6 +58,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private long id;
     private List<Marker> markers;
     private Marker movingMarker;
+    private Map<Marker, Long> markerToId;
 
     private GoogleMap googleMap;
 
@@ -146,6 +149,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
         this.modeSwitched = true;
         this.markers = new ArrayList<>();
+        this.markerToId = new HashMap<>();
 
         SupportMapFragment googleMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         if (googleMapFragment == null) {
@@ -191,6 +195,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 alarm.setLongitude(latLng.longitude);
                 alarmViewModel.updateAlarm(alarm);
             }
+        });
+
+        googleMap.setOnMarkerClickListener(marker -> {
+            if (marker != null) {
+                Long id = markerToId.get(marker);
+                if (id != null) {
+                    Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
+                    if (alarm != null) {
+                        alarm.setIsActive(!alarm.getIsActive());
+                        alarmViewModel.updateAlarm(alarm);
+                        return true;
+                    }
+                }
+            }
+            return false;
         });
 
         refresh();
@@ -252,15 +271,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void addMarker(GoogleMap googleMap, Alarm alarm) {
-        addMarker(googleMap, alarm.getLatitude(), alarm.getLongitude(), alarm.getIsActive() ? ON_HUE : OFF_HUE);
+        Marker res = addMarker(
+                googleMap, alarm.getLatitude(), alarm.getLongitude(),
+                alarm.getIsActive() ? ON_HUE : OFF_HUE
+        );
+        markerToId.put(res, alarm.getId());
     }
 
-    private void addMarker(GoogleMap googleMap, double latitude, double longitude, float hue) {
+    private Marker addMarker(GoogleMap googleMap, double latitude, double longitude, float hue) {
         LatLng latLng = new LatLng(latitude, longitude);
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.defaultMarker(hue));
-        markers.add(googleMap.addMarker(markerOptions));
+        Marker res = googleMap.addMarker(markerOptions);
+        markers.add(res);
+        return res;
     }
 
     private void clearMarkers() {
@@ -268,6 +293,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             marker.remove();
         }
         markers.clear();
+        markerToId.clear();
     }
 
 }
