@@ -2,7 +2,7 @@ package sleepless_nights.location_alarm.geofence.use_cases;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.SparseArray;
+import android.util.LongSparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,13 +21,13 @@ import sleepless_nights.location_alarm.geofence.CustomGeofence;
 public class GeofenceRepository {
     private static final String TAG = "GeofenceRepository";
     private HashMap<String, CustomGeofence> geofenceMap;
-    private SparseArray<String> alarmIdToGeofenceIdMap;
+    private LongSparseArray<String> alarmIdToGeofenceIdMap;
     private Context context;
     private GeofencingClient geofencingClient;
 
     public GeofenceRepository(Context context) {
         geofenceMap = new HashMap<>();
-        alarmIdToGeofenceIdMap = new SparseArray<>();
+        alarmIdToGeofenceIdMap = new LongSparseArray<>();
         this.context = context;
         geofencingClient = LocationServices.getGeofencingClient(context);
     }
@@ -38,7 +38,7 @@ public class GeofenceRepository {
     }
 
     @Nullable
-    Integer getAlarmIdByGeofenceId(String geofenceId) {
+    Long getAlarmIdByGeofenceId(String geofenceId) {
         CustomGeofence geofence = geofenceMap.get(geofenceId);
         if (geofence == null) return null;
         return geofence.getAlarmId();

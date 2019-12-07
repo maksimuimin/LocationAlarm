@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "alarm")
 public class AlarmEntity {
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    public long id;
 
     public String name;
 
