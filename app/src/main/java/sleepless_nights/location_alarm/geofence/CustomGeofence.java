@@ -34,6 +34,7 @@ public class CustomGeofence {
                         alarm.getRadius()
                 )
                 .setTransitionTypes(GEOFENCE_TRANSITION_TYPES)
+                .setExpirationDuration(0)
                 .build();
         this.context = context;
     }
