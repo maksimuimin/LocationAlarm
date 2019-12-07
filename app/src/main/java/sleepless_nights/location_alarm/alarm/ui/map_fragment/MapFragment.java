@@ -32,6 +32,8 @@ import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final float STD_ZOOM = 10.0f;
 
+    private static final String MODE = "mode";
+
     public enum Mode {
         CURRENT_LOC, SHOW_ALL //SHOW
     }
@@ -50,12 +52,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
 
     /**
+     * factory methods
+     * */
+
+    public static MapFragment newCurrentLoc() {
+        Bundle arguments = new Bundle();
+        arguments.putString(MODE, Mode.CURRENT_LOC.name());
+        return createWithArguments(arguments);
+    }
+
+    public static MapFragment newShowAll() {
+        Bundle arguments = new Bundle();
+        arguments.putString(MODE, Mode.SHOW_ALL.name());
+        return createWithArguments(arguments);
+    }
+
+    private static MapFragment createWithArguments(Bundle arguments) {
+        MapFragment res = new MapFragment();
+        res.setArguments(arguments);
+        return res;
+    }
+
+    /**
      * API
      */
-
-    public static MapFragment newInstance() {
-        return new MapFragment();
-    }
 
     public void currentLoc() {
         mode = Mode.CURRENT_LOC;
@@ -87,18 +107,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         this.alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
-        this.mode = Mode.CURRENT_LOC;
-        this.markers = new ArrayList<>();
-        SupportMapFragment googleMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        //fixme можно оптимизировать
+        alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> refresh());
 
+        Bundle arguments = getArguments();
+        if (arguments != null && arguments.getString(MODE) != null) {
+            this.mode = Mode.valueOf(arguments.getString(MODE));
+        } else {
+            this.mode = Mode.SHOW_ALL;
+        }
+        this.markers = new ArrayList<>();
+
+        SupportMapFragment googleMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         if (googleMapFragment == null) {
             Log.wtf("MAP", "Google map fragment not found");
             return res;
         }
-
-        //fixme можно оптимизировать
-        alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> refresh());
-
         googleMapFragment.getMapAsync(this);
         return res;
     }

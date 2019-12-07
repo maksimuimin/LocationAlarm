@@ -26,6 +26,7 @@ import java.util.Objects;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
+import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.fragment_container, AlarmListFragment.newInstance())
+                    .replace(R.id.fragment_container, AlarmListFragment.newInstance())
                     .commit();
 
             Toolbar customToolBar = findViewById(R.id.toolbar);
@@ -51,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
             alarmListTabBtn.setOnClickListener(v -> {
                 if (tabState == MenuTabState.TAB_ALARM_LIST) return;
                 tabState = MenuTabState.TAB_ALARM_LIST;
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                        .commit();
                 Toast.makeText(this, "switched to alarm list tab", Toast.LENGTH_SHORT).show();
             });
 
@@ -58,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
             mapTabBtn.setOnClickListener(v -> {
                 if (tabState == MenuTabState.TAB_MAP) return;
                 tabState = MenuTabState.TAB_MAP;
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, MapFragment.newShowAll())
+                        .commit();
                 Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
             });
 
