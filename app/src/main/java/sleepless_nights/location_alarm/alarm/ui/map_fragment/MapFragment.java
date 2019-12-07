@@ -100,7 +100,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void show(long id) {
-        clearMarkers();
         alarm = alarmViewModel.getAlarmLiveDataById(id);
         mode = Mode.SHOW;
         refresh();
@@ -137,7 +136,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         } else {
-            this.mode = Mode.SHOW_ALL;
+            this.mode = Mode.CURRENT_LOC;
         }
         this.markers = new ArrayList<>();
 
