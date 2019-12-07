@@ -13,6 +13,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -34,6 +35,7 @@ import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final float STD_ZOOM = 10.0f;
+    private static final int STD_PADDING = 80;
     private static final float OFF_HUE = BitmapDescriptorFactory.HUE_AZURE;
     private static final float ON_HUE = BitmapDescriptorFactory.HUE_RED;
     private static final float SELF_HUE = BitmapDescriptorFactory.HUE_VIOLET;
@@ -250,6 +252,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             for (Alarm alarm : alarmDataSet) {
                 addMarker(googleMap, alarm);
             }
+            zoomAtAll();
         } else if ((mode == Mode.SHOW || mode == Mode.EDIT)) {
             Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
             if (alarm == null) {
@@ -262,6 +265,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
         modeSwitched = false;
+    }
+
+    private void zoomAtAll() {
+        LatLngBounds.Builder builder = LatLngBounds.builder();
+        for (Marker marker : markers) {
+            builder.include(marker.getPosition());
+        }
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), STD_PADDING));
+        Log.d("MAP", "moving camera around all alarms");
     }
 
     private void zoomAt(double latitude, double longitude) {
