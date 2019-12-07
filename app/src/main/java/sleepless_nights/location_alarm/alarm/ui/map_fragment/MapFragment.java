@@ -11,6 +11,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -31,6 +32,9 @@ import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final float STD_ZOOM = 10.0f;
+    private static final float OFF_HUE = BitmapDescriptorFactory.HUE_AZURE;
+    private static final float ON_HUE = BitmapDescriptorFactory.HUE_RED;
+    private static final float SELF_HUE = BitmapDescriptorFactory.HUE_VIOLET;
 
     private static final String MODE = "mode";
 
@@ -155,7 +159,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         clearMarkers();
         if (mode == Mode.CURRENT_LOC) {
             LocationRepo.getCurrentLocation(activity, location -> {
-                addMarker(googleMap, location.getLatitude(), location.getLongitude());
+                addMarker(googleMap, location.getLatitude(), location.getLongitude(), SELF_HUE);
                 zoomAt(location.getLatitude(), location.getLongitude());
             });
         } else if (mode == Mode.SHOW_ALL /*|| mode == Mode.SHOW*/) {
@@ -177,14 +181,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void addMarker(GoogleMap googleMap, Alarm alarm) {
-        addMarker(googleMap, alarm.getLatitude(), alarm.getLongitude());
+        addMarker(googleMap, alarm.getLatitude(), alarm.getLongitude(), alarm.getIsActive() ? ON_HUE : OFF_HUE);
     }
 
-    private void addMarker(GoogleMap googleMap, double latitude, double longitude) {
+    private void addMarker(GoogleMap googleMap, double latitude, double longitude, float hue) {
         LatLng latLng = new LatLng(latitude, longitude);
-        markers.add(
-                googleMap.addMarker(new MarkerOptions().position(latLng))
-        );
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.defaultMarker(hue));
+        markers.add(googleMap.addMarker(markerOptions));
     }
 
     private void clearMarkers() {
