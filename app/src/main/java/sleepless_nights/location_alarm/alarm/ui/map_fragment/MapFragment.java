@@ -42,9 +42,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private Activity activity;
     private AlarmViewModel alarmViewModel;
+//    private Alarm alarm;
 
     private Mode mode;
-    private List<Alarm> alarms;
     private List<Marker> markers;
 
     private GoogleMap googleMap;
@@ -58,26 +58,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void currentLoc() {
-        clear();
         mode = Mode.CURRENT_LOC;
         refresh();
     }
 
 //    public void show(int id) {
-//        clear();
+//        clearMarkers();
 //        alarms.add(alarmViewModel.getAlarmLiveDataById(id));
 //        mode = Mode.SHOW;
 //        refresh();
 //    }
 
     public void showAll() {
-        clear();
-        AlarmDataSet alarmDataSet = alarmViewModel.getLiveData().getValue();
-        if (alarmDataSet == null) {
-            Log.wtf("MAP", "Got empty live data oa alarm data set");
-            return;
-        }
-        getAllAlarms(alarmDataSet);
         mode = Mode.SHOW_ALL;
         refresh();
     }
@@ -96,7 +88,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
         this.mode = Mode.CURRENT_LOC;
-        this.alarms = new ArrayList<>();
         this.markers = new ArrayList<>();
         SupportMapFragment googleMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
 
@@ -105,13 +96,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             return res;
         }
 
-        alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> {
-            if (mode == Mode.SHOW_ALL) {
-                clear();
-                getAllAlarms(alarmDataSet);
-                refresh();
-            }
-        });
+        //fixme можно оптимизировать
+        alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> refresh());
 
         googleMapFragment.getMapAsync(this);
         return res;
@@ -137,25 +123,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             Log.wtf("MAP", "Map created with no activity");
         }
 
+        clearMarkers();
         if (mode == Mode.CURRENT_LOC) {
             LocationRepo.getCurrentLocation(activity, location -> {
                 addMarker(googleMap, location.getLatitude(), location.getLongitude());
                 zoomAt(location.getLatitude(), location.getLongitude());
             });
         } else if (mode == Mode.SHOW_ALL /*|| mode == Mode.SHOW*/) {
-            for (Alarm alarm : alarms) {
+            AlarmDataSet alarmDataSet = alarmViewModel.getLiveData().getValue();
+            if (alarmDataSet == null) {
+                Log.wtf("MAP", "AlarmDataSet LiveData is empty");
+                return;
+            }
+            for (Alarm alarm : alarmDataSet) {
                 addMarker(googleMap, alarm);
             }
-        }
-    }
-
-    private void getAllAlarms(AlarmDataSet alarmDataSet) {
-        for (int i = 0; ; i++) {
-            Alarm alarm = alarmDataSet.getAlarmByPosition(i);
-            if (alarm == null) {
-                break;
-            }
-            alarms.add(alarm);
         }
     }
 
@@ -176,11 +158,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         );
     }
 
-    private void clear() {
-        alarms.clear();
+    private void clearMarkers() {
         for (Marker marker : markers) {
             marker.remove();
         }
+        markers.clear();
     }
 
 }
