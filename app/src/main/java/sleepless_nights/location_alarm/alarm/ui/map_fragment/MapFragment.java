@@ -151,7 +151,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         this.markers = new ArrayList<>();
         this.markerToId = new HashMap<>();
 
-        SupportMapFragment googleMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        SupportMapFragment googleMapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         if (googleMapFragment == null) {
             Log.wtf("MAP", "Google map fragment not found");
             return res;

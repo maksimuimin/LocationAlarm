@@ -18,9 +18,13 @@ import java.util.Locale;
 import java.util.Objects;
 
 import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.ui.Router;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
+/**
+ * contract: only used by activity implementing {@link Router} interface
+ * */
 public class AlarmListFragment extends Fragment {
     private static final String TAG = "AlarmListFragment";
     private AlarmListAdapter alarmListAdapter;
@@ -51,7 +55,7 @@ public class AlarmListFragment extends Fragment {
         }
 
         final LinearLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
-        alarmListAdapter = new AlarmListAdapter(alarmDataSet.clone(), alarmViewModel);
+        alarmListAdapter = new AlarmListAdapter(alarmDataSet.clone(), alarmViewModel, (Router) getActivity());
         final RecyclerView listView = view.findViewById(R.id.alarm_list);
         listView.setAdapter(alarmListAdapter);
         listView.setLayoutManager(layoutManager);

@@ -29,7 +29,7 @@ import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
 import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Router {
     private static final String TAG = "MainActivity";
     private static final int GEO_LOC_PERMISSION_REQUEST = 1;
     private MenuTabState tabState = MenuTabState.TAB_ALARM_LIST;
@@ -40,10 +40,7 @@ public class MainActivity extends AppCompatActivity {
         checkGeoLocPermission();
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.fragment_container, AlarmListFragment.newInstance())
-                    .commit();
+            showAlarmList();
 
             Toolbar customToolBar = findViewById(R.id.toolbar);
             setSupportActionBar(customToolBar);
@@ -52,9 +49,7 @@ public class MainActivity extends AppCompatActivity {
             alarmListTabBtn.setOnClickListener(v -> {
                 if (tabState == MenuTabState.TAB_ALARM_LIST) return;
                 tabState = MenuTabState.TAB_ALARM_LIST;
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, AlarmListFragment.newInstance())
-                        .commit();
+                showAlarmList();
                 Toast.makeText(this, "switched to alarm list tab", Toast.LENGTH_SHORT).show();
             });
 
@@ -62,9 +57,7 @@ public class MainActivity extends AppCompatActivity {
             mapTabBtn.setOnClickListener(v -> {
                 if (tabState == MenuTabState.TAB_MAP) return;
                 tabState = MenuTabState.TAB_MAP;
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, MapFragment.newShowAll())
-                        .commit();
+                showAllAlarms();
                 Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
             });
 
@@ -145,4 +138,45 @@ public class MainActivity extends AppCompatActivity {
         TAB_ALARM_LIST,
         TAB_MAP
     }
+
+    /**
+     * Router implementation
+     * */
+
+    @Override
+    public void showAlarmList() {
+        tabState = MenuTabState.TAB_ALARM_LIST;
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                .commit();
+    }
+
+    @Override
+    public void showAllAlarms() {
+        tabState = MenuTabState.TAB_MAP;
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, MapFragment.newShowAll())
+                .commit();
+    }
+
+    @Override
+    public void showAlarm(long id) {
+        tabState = MenuTabState.TAB_MAP;
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, MapFragment.newShow(id))
+                .commit();
+    }
+
+    @Override
+    public void editAlarm(long id) {
+        tabState = MenuTabState.TAB_MAP;
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, MapFragment.newEdit(id))
+                .commit();
+    }
+
 }
