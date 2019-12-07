@@ -37,9 +37,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final float SELF_HUE = BitmapDescriptorFactory.HUE_VIOLET;
 
     private static final String MODE = "mode";
+    private static final String ID = "id";
 
     public enum Mode {
-        CURRENT_LOC, SHOW_ALL //SHOW
+        CURRENT_LOC, SHOW_ALL, SHOW
     }
 
     /**
@@ -48,7 +49,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private Activity activity;
     private AlarmViewModel alarmViewModel;
-//    private Alarm alarm;
+    private Alarm alarm;
 
     private Mode mode;
     private List<Marker> markers;
@@ -71,6 +72,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return createWithArguments(arguments);
     }
 
+    public static MapFragment newShow(long id) {
+        Bundle arguments = new Bundle();
+        arguments.putString(MODE, Mode.SHOW.name());
+        arguments.putLong(ID, id);
+        return createWithArguments(arguments);
+    }
+
     private static MapFragment createWithArguments(Bundle arguments) {
         MapFragment res = new MapFragment();
         res.setArguments(arguments);
@@ -86,15 +94,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         refresh();
     }
 
-//    public void show(int id) {
-//        clearMarkers();
-//        alarms.add(alarmViewModel.getAlarmLiveDataById(id));
-//        mode = Mode.SHOW;
-//        refresh();
-//    }
-
     public void showAll() {
         mode = Mode.SHOW_ALL;
+        refresh();
+    }
+
+    public void show(long id) {
+        clearMarkers();
+        alarm = alarmViewModel.getAlarmLiveDataById(id);
+        mode = Mode.SHOW;
         refresh();
     }
 
@@ -112,11 +120,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
         //fixme можно оптимизировать
-        alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> refresh());
+        alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> {
+            if (mode != Mode.CURRENT_LOC) {
+                refresh();
+            }
+        });
 
         Bundle arguments = getArguments();
         if (arguments != null && arguments.getString(MODE) != null) {
             this.mode = Mode.valueOf(arguments.getString(MODE));
+            if (mode == Mode.SHOW) {
+                if (arguments.getLong(ID, -1) != -1) {
+                    alarm = alarmViewModel.getAlarmLiveDataById(arguments.getLong(ID));
+                } else {
+                    Log.wtf("MAP", "No alarm found by ID");
+                }
+            }
         } else {
             this.mode = Mode.SHOW_ALL;
         }
@@ -162,7 +181,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 addMarker(googleMap, location.getLatitude(), location.getLongitude(), SELF_HUE);
                 zoomAt(location.getLatitude(), location.getLongitude());
             });
-        } else if (mode == Mode.SHOW_ALL /*|| mode == Mode.SHOW*/) {
+        } else if (mode == Mode.SHOW_ALL) {
             AlarmDataSet alarmDataSet = alarmViewModel.getLiveData().getValue();
             if (alarmDataSet == null) {
                 Log.wtf("MAP", "AlarmDataSet LiveData is empty");
@@ -171,6 +190,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             for (Alarm alarm : alarmDataSet) {
                 addMarker(googleMap, alarm);
             }
+        } else if (mode == Mode.SHOW && alarm != null) {
+            alarm = alarmViewModel.getAlarmLiveDataById(alarm.getId());
+            if (alarm == null) {
+                Log.wtf("MAP", "No alarm found while refreshing");
+                return;
+            }
+            addMarker(googleMap, alarm);
+            zoomAt(alarm.getLatitude(), alarm.getLongitude());
         }
     }
 
