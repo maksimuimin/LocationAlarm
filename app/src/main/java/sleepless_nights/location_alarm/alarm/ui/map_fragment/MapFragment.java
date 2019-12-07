@@ -40,7 +40,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String ID = "id";
 
     public enum Mode {
-        CURRENT_LOC, SHOW_ALL, SHOW
+        CURRENT_LOC, SHOW_ALL, SHOW, EDIT
     }
 
     /**
@@ -53,6 +53,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private Mode mode;
     private List<Marker> markers;
+    private boolean moving;
 
     private GoogleMap googleMap;
 
@@ -75,6 +76,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public static MapFragment newShow(long id) {
         Bundle arguments = new Bundle();
         arguments.putString(MODE, Mode.SHOW.name());
+        arguments.putLong(ID, id);
+        return createWithArguments(arguments);
+    }
+
+    public static MapFragment newEdit(long id) {
+        Bundle arguments = new Bundle();
+        arguments.putString(MODE, Mode.EDIT.name());
         arguments.putLong(ID, id);
         return createWithArguments(arguments);
     }
@@ -105,6 +113,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         refresh();
     }
 
+    public void edit(long id) {
+        alarm = alarmViewModel.getAlarmLiveDataById(id);
+        mode = Mode.EDIT;
+        refresh();
+    }
+
     /**
      * lifecycle callbacks
      * */
@@ -128,7 +142,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Bundle arguments = getArguments();
         if (arguments != null && arguments.getString(MODE) != null) {
             this.mode = Mode.valueOf(arguments.getString(MODE));
-            if (mode == Mode.SHOW) {
+            if (mode == Mode.SHOW || mode == Mode.EDIT) {
                 if (arguments.getLong(ID, -1) != -1) {
                     alarm = alarmViewModel.getAlarmLiveDataById(arguments.getLong(ID));
                 } else {
@@ -156,6 +170,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         googleMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
+
+        googleMap.setOnCameraMoveListener(() -> {
+            if (mode == Mode.EDIT) {
+                moving = true;
+            }
+        });
+
+        googleMap.setOnCameraIdleListener(() -> {
+            if (mode == Mode.EDIT && moving) {
+                moving = false;
+                if (markers.size() != 1) {
+                    Log.wtf("MAP", "editing with more than 1 marker");
+                    return;
+                }
+                if (alarm == null) {
+                    Log.wtf("MAP", "editing with out alarm");
+                    return;
+                }
+                LatLng latLng = googleMap.getCameraPosition().target;
+                alarm.setLatitude(latLng.latitude);
+                alarm.setLongitude(latLng.longitude);
+                alarmViewModel.updateAlarm(alarm);
+            }
+        });
 
         refresh();
     }
@@ -189,14 +227,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             for (Alarm alarm : alarmDataSet) {
                 addMarker(googleMap, alarm);
             }
-        } else if (mode == Mode.SHOW && alarm != null) {
+        } else if ((mode == Mode.SHOW || mode == Mode.EDIT) && alarm != null) {
             alarm = alarmViewModel.getAlarmLiveDataById(alarm.getId());
             if (alarm == null) {
                 Log.wtf("MAP", "No alarm found while refreshing");
                 return;
             }
             addMarker(googleMap, alarm);
-            zoomAt(alarm.getLatitude(), alarm.getLongitude());
+            if (mode == Mode.SHOW) {
+                zoomAt(alarm.getLatitude(), alarm.getLongitude());
+            }
         }
     }
 
