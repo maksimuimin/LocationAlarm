@@ -119,8 +119,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
 
     private void refresh() {
-        if (activity != null) {
+        if (activity == null) {
             Log.wtf("MAP", "Map created with no activity");
+            return;
+        }
+        if (googleMap == null) {
+            Log.wtf("MAP", "Map crated with no google map");
+            return;
         }
 
         clearMarkers();
