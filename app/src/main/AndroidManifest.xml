@@ -24,10 +24,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".permission.ui.PermissionActivity" />
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyABqwH1tswT2cmr2TN8LHYL5W6xhYQGvCo"/>
- 
+
         <service
             android:name=".alarm.ui.alarm_service.AlarmService"
             android:foregroundServiceType="location">
