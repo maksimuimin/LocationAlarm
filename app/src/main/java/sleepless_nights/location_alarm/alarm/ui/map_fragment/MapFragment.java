@@ -35,6 +35,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final float OFF_HUE = BitmapDescriptorFactory.HUE_AZURE;
     private static final float ON_HUE = BitmapDescriptorFactory.HUE_RED;
     private static final float SELF_HUE = BitmapDescriptorFactory.HUE_VIOLET;
+    private static final float MOVING_HUE = BitmapDescriptorFactory.HUE_GREEN;
 
     private static final String MODE = "mode";
     private static final String ID = "id";
@@ -49,11 +50,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private Activity activity;
     private AlarmViewModel alarmViewModel;
-    private Alarm alarm;
 
     private Mode mode;
+    private boolean modeSwitched;
+    private long id;
     private List<Marker> markers;
-    private boolean moving;
+    private Marker movingMarker;
 
     private GoogleMap googleMap;
 
@@ -98,25 +100,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
 
     public void currentLoc() {
-        mode = Mode.CURRENT_LOC;
-        refresh();
+        switchMode(Mode.CURRENT_LOC);
     }
 
     public void showAll() {
-        mode = Mode.SHOW_ALL;
-        refresh();
+        switchMode(Mode.SHOW);
     }
 
     public void show(long id) {
-        alarm = alarmViewModel.getAlarmLiveDataById(id);
-        mode = Mode.SHOW;
-        refresh();
+        this.id = id;
+        switchMode(Mode.SHOW);
     }
 
     public void edit(long id) {
-        alarm = alarmViewModel.getAlarmLiveDataById(id);
-        mode = Mode.EDIT;
-        refresh();
+        this.id = id;
+        switchMode(Mode.EDIT);
     }
 
     /**
@@ -142,16 +140,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Bundle arguments = getArguments();
         if (arguments != null && arguments.getString(MODE) != null) {
             this.mode = Mode.valueOf(arguments.getString(MODE));
-            if (mode == Mode.SHOW || mode == Mode.EDIT) {
-                if (arguments.getLong(ID, -1) != -1) {
-                    alarm = alarmViewModel.getAlarmLiveDataById(arguments.getLong(ID));
-                } else {
-                    Log.wtf("MAP", "No alarm found by ID");
-                }
-            }
+            this.id = arguments.getLong(ID, -1);
         } else {
             this.mode = Mode.CURRENT_LOC;
         }
+        this.modeSwitched = true;
         this.markers = new ArrayList<>();
 
         SupportMapFragment googleMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
@@ -173,17 +166,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         googleMap.setOnCameraMoveListener(() -> {
             if (mode == Mode.EDIT) {
-                moving = true;
+                if (movingMarker == null) {
+                    MarkerOptions markerOptions = new MarkerOptions()
+                            .position(googleMap.getCameraPosition().target)
+                            .alpha(0.5f)
+                            .icon(BitmapDescriptorFactory.defaultMarker(MOVING_HUE));
+                    movingMarker = googleMap.addMarker(markerOptions);
+                }
+                movingMarker.setPosition(googleMap.getCameraPosition().target);
             }
         });
 
         googleMap.setOnCameraIdleListener(() -> {
-            if (mode == Mode.EDIT && moving) {
-                moving = false;
-                if (markers.size() != 1) {
-                    Log.wtf("MAP", "editing with more than 1 marker");
-                    return;
-                }
+            if (mode == Mode.EDIT && movingMarker != null) {
+                movingMarker.remove();
+                movingMarker = null;
+                Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
                 if (alarm == null) {
                     Log.wtf("MAP", "editing with out alarm");
                     return;
@@ -201,6 +199,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     /**
      * inner abstraction
      */
+
+    private void switchMode(Mode mode) {
+        this.mode = mode;
+        this.modeSwitched = true;
+        refresh();
+    }
 
     private void refresh() {
         if (activity == null) {
@@ -227,17 +231,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             for (Alarm alarm : alarmDataSet) {
                 addMarker(googleMap, alarm);
             }
-        } else if ((mode == Mode.SHOW || mode == Mode.EDIT) && alarm != null) {
-            alarm = alarmViewModel.getAlarmLiveDataById(alarm.getId());
+        } else if ((mode == Mode.SHOW || mode == Mode.EDIT)) {
+            Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
             if (alarm == null) {
                 Log.wtf("MAP", "No alarm found while refreshing");
                 return;
             }
             addMarker(googleMap, alarm);
-            if (mode == Mode.SHOW) {
+            if (modeSwitched) {
                 zoomAt(alarm.getLatitude(), alarm.getLongitude());
             }
         }
+        modeSwitched = false;
     }
 
     private void zoomAt(double latitude, double longitude) {
