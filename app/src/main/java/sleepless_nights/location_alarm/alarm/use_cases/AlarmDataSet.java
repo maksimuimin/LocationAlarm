@@ -7,12 +7,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
-public class AlarmDataSet {
+public class AlarmDataSet implements Iterable<Alarm> {
     private static final String TAG = "AlarmDataSet";
     private SparseArray<Alarm> dataSet = new SparseArray<>();
 
@@ -41,7 +42,9 @@ public class AlarmDataSet {
     }
 
     @NonNull
-    public AlarmDataSet makeCopy() { return new AlarmDataSet(this); }
+    @Override
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
+    public AlarmDataSet clone() { return new AlarmDataSet(this); }
 
     @Nullable
     public Alarm getAlarmById(int id) {
@@ -118,5 +121,25 @@ public class AlarmDataSet {
             }
             return oldAlarm.equals(newAlarm);
         }
+    }
+
+    @NonNull
+    @Override
+    public Iterator<Alarm> iterator() {
+        return new Iterator<Alarm>() {
+            int position = 0;
+
+            @Override
+            public boolean hasNext() {
+                return position != dataSet.size();
+            }
+
+            @Override
+            public Alarm next() {
+                Alarm alarm = getAlarmByPosition(position);
+                position++;
+                return alarm;
+            }
+        };
     }
 }
