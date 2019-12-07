@@ -14,7 +14,7 @@ import com.google.android.gms.location.LocationServices;
 import java.util.HashMap;
 import java.util.Locale;
 
-import sleepless_nights.LocationAlarmApplication;
+import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.geofence.CustomGeofence;
 

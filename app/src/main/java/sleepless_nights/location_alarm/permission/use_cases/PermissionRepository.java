@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import sleepless_nights.LocationAlarmApplication;
+import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.permission.Permission;
 import sleepless_nights.location_alarm.permission.ui.PermissionDialog;

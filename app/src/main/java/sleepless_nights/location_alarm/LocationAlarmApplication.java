@@ -1,4 +1,4 @@
-package sleepless_nights;
+package sleepless_nights.location_alarm;
 
 import android.app.Application;
 import android.content.Context;
