@@ -12,6 +12,7 @@
     <string name="dialog_negative_button">Cancel</string>
     <string name="not_enough_permissions_dialog_title">Not enough permissions</string>
     <string name="not_enough_permissions_dialog_message">The application can not work without location permissions you denied. You can always fix it in Settings</string>
+    <string name="start_geofence_monitoring_error_msg">Error: unable to turn on alarm</string>
     <!-- Permissions descriptions -->
     <string name="access_fine_location_permission_description">
         create location-connected alarms
