@@ -42,6 +42,11 @@ public class AlarmViewModel extends AndroidViewModel {
         return alarmRepository.getAlarmById(id);
     }
 
+    /*
+    * TODO #4 make not read-only repository operations not void
+    *  we should return some structure which can accept onSuccess and onFailure callbacks
+    */
+
     public void createAlarm(String name, String address, boolean isActive,
                             double latitude, double longitude, float radius) {
         alarmRepository.createAlarm(name, address, isActive,

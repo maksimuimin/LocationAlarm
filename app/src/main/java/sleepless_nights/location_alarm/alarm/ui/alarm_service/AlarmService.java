@@ -218,7 +218,7 @@ public class AlarmService extends IntentService {
     }
 
     private void handleActionTooManyGeofences() {
-        //TODO develop
+        //TODO #3 develop
         Toast.makeText(getApplicationContext(),
                 "Too many geofences", Toast.LENGTH_SHORT).show();
     }
