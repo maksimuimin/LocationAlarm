@@ -30,7 +30,9 @@ import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
-    private MenuTabState tabState = MenuTabState.TAB_ALARM_LIST;
+    private MenuTabState tabState;
+    private final String TAB_STATE_NAME_BUNDLE_KEY = "tabState.name";
+    //TODO #6 optimize AlarmListFragment creations by extracting it to a field of MainActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,48 +42,79 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
+            tabState = MenuTabState.TAB_ALARM_LIST;
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.fragment_container, AlarmListFragment.newInstance())
                     .commit();
-
-            Toolbar customToolBar = findViewById(R.id.toolbar);
-            setSupportActionBar(customToolBar);
-
-            View alarmListTabBtn = findViewById(R.id.app_bar_alarm_list_tab);
-            alarmListTabBtn.setOnClickListener(v -> {
-                if (tabState == MenuTabState.TAB_ALARM_LIST) return;
-                tabState = MenuTabState.TAB_ALARM_LIST;
-                Toast.makeText(this, "switched to alarm list tab", Toast.LENGTH_SHORT).show();
-            });
-
-            View mapTabBtn = findViewById(R.id.app_bar_map_tab);
-            mapTabBtn.setOnClickListener(v -> {
-                if (tabState == MenuTabState.TAB_MAP) return;
-                tabState = MenuTabState.TAB_MAP;
-                Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
-            });
-
-            AlarmViewModel alarmViewModel = ViewModelProviders
-                    .of(Objects.requireNonNull(this)) //Shared with MapFragment
-                    .get(AlarmViewModel.class);
-            FloatingActionButton fab = findViewById(R.id.floating_button);
-            fab.setOnClickListener(v -> {
-               switch (tabState) {
-                   case TAB_ALARM_LIST: {
-                       alarmViewModel.createAlarm("MyAlarm", "MyAddress", true, 0, 0,2000);
-                       break;
-                   }
-                   case TAB_MAP: {
-                       Toast.makeText(this, "MapTab's FAB is on click", Toast.LENGTH_SHORT).show();
-                       break;
-                   }
-                   default: {
-                       Log.wtf(TAG, "Got unknown tabState: " + tabState.toString());
-                   }
-               }
-            });
+        } else {
+            tabState = MenuTabState.valueOf(savedInstanceState.getString(TAB_STATE_NAME_BUNDLE_KEY));
+            switch (tabState) {
+                case TAB_ALARM_LIST: {
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                            .commit();
+                    break;
+                }
+                case TAB_MAP: {
+                    //TODO #5 load map fragment
+                    break;
+                }
+                default: {
+                    Log.wtf(TAG, "got unknown tabState from savedInstanceState: " + tabState);
+                    tabState = MenuTabState.TAB_ALARM_LIST;
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                            .commit();
+                    break;
+                }
+            }
         }
+
+        Toolbar customToolBar = findViewById(R.id.toolbar);
+        setSupportActionBar(customToolBar);
+
+        View alarmListTabBtn = findViewById(R.id.app_bar_alarm_list_tab);
+        alarmListTabBtn.setOnClickListener(v -> {
+            if (tabState == MenuTabState.TAB_ALARM_LIST) return;
+            tabState = MenuTabState.TAB_ALARM_LIST;
+            Toast.makeText(this, "switched to alarm list tab", Toast.LENGTH_SHORT).show();
+        });
+
+        View mapTabBtn = findViewById(R.id.app_bar_map_tab);
+        mapTabBtn.setOnClickListener(v -> {
+            if (tabState == MenuTabState.TAB_MAP) return;
+            tabState = MenuTabState.TAB_MAP;
+            Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
+        });
+
+        AlarmViewModel alarmViewModel = ViewModelProviders
+                .of(Objects.requireNonNull(this)) //Shared with MapFragment
+                .get(AlarmViewModel.class);
+        FloatingActionButton fab = findViewById(R.id.floating_button);
+        fab.setOnClickListener(v -> {
+            switch (tabState) {
+                case TAB_ALARM_LIST: {
+                    alarmViewModel.createAlarm("MyAlarm", "MyAddress", true, 0, 0,2000);
+                    break;
+                }
+                case TAB_MAP: {
+                    Toast.makeText(this, "MapTab's FAB is on click", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                default: {
+                    Log.wtf(TAG, "Got unknown tabState: " + tabState.toString());
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(TAB_STATE_NAME_BUNDLE_KEY, tabState.name());
     }
 
     @Override
