@@ -14,8 +14,8 @@ public interface AlarmDao {
     @Query("SELECT * FROM alarm")
     List<AlarmEntity> getAll();
 
-    @Insert
-    void create(AlarmEntity ... alarmEntities);
+    @Insert(entity = AlarmEntity.class)
+    long[] create(AlarmEntity ... alarmEntities);
 
     @Update
     void update(AlarmEntity ... alarmEntities);

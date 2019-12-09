@@ -1,20 +1,21 @@
 package sleepless_nights.location_alarm.alarm.use_cases;
 
 import android.util.Log;
-import android.util.SparseArray;
+import android.util.LongSparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
-public class AlarmDataSet {
+public class AlarmDataSet implements Iterable<Alarm> {
     private static final String TAG = "AlarmDataSet";
-    private SparseArray<Alarm> dataSet = new SparseArray<>();
+    private LongSparseArray<Alarm> dataSet = new LongSparseArray<>();
 
     public AlarmDataSet() {}
 
@@ -22,7 +23,7 @@ public class AlarmDataSet {
         Log.d(TAG, String.format(Locale.getDefault(),
                 "on copy, new alarmDataSet size: %d, old alarmDataSet size: %d",
                 this.size(), alarmDataSet.size()));
-        this.dataSet = new SparseArray<>(alarmDataSet.size());
+        this.dataSet = new LongSparseArray<>(alarmDataSet.size());
         for (int i = 0; i < alarmDataSet.size(); i++) {
             Alarm alarm = alarmDataSet.getAlarmByPosition(i);
             if (alarm == null) {
@@ -41,10 +42,12 @@ public class AlarmDataSet {
     }
 
     @NonNull
-    public AlarmDataSet makeCopy() { return new AlarmDataSet(this); }
+    @Override
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
+    public AlarmDataSet clone() { return new AlarmDataSet(this); }
 
     @Nullable
-    Alarm getAlarmById(int id) {
+    Alarm getAlarmById(long id) {
         return dataSet.get(id, null);
     }
 
@@ -115,5 +118,25 @@ public class AlarmDataSet {
             }
             return oldAlarm.equals(newAlarm);
         }
+    }
+
+    @NonNull
+    @Override
+    public Iterator<Alarm> iterator() {
+        return new Iterator<Alarm>() {
+            int position = 0;
+
+            @Override
+            public boolean hasNext() {
+                return position != dataSet.size();
+            }
+
+            @Override
+            public Alarm next() {
+                Alarm alarm = getAlarmByPosition(position);
+                position++;
+                return alarm;
+            }
+        };
     }
 }

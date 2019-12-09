@@ -2,7 +2,8 @@ package sleepless_nights.location_alarm.geofence.use_cases;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.SparseArray;
+import android.util.LongSparseArray;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,25 +12,45 @@ import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-import sleepless_nights.LocationAlarmApplication;
+import sleepless_nights.location_alarm.LocationAlarmApplication;
+import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
 import sleepless_nights.location_alarm.geofence.CustomGeofence;
 
 public class GeofenceRepository {
     private static final String TAG = "GeofenceRepository";
     private HashMap<String, CustomGeofence> geofenceMap;
-    private SparseArray<String> alarmIdToGeofenceIdMap;
+    private LongSparseArray<String> alarmIdToGeofenceIdMap;
     private Context context;
     private GeofencingClient geofencingClient;
+    private Queue<CustomGeofence> zombieGeofenceQueue = new ArrayDeque<>();
 
     public GeofenceRepository(Context context) {
         geofenceMap = new HashMap<>();
-        alarmIdToGeofenceIdMap = new SparseArray<>();
+        alarmIdToGeofenceIdMap = new LongSparseArray<>();
         this.context = context;
         geofencingClient = LocationServices.getGeofencingClient(context);
+        Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+            if (zombieGeofenceQueue.isEmpty()) return;
+            Log.w(TAG, String.format(Locale.getDefault(), "zombieGeofenceQueue size: %d",
+                    zombieGeofenceQueue.size()));
+            for (int i = 0; i < zombieGeofenceQueue.size(); i++) {
+                CustomGeofence geofence = zombieGeofenceQueue.poll();
+                if (geofence == null) {
+                    Log.wtf(TAG, "got null zombie geofence");
+                    continue;
+                }
+                stopMonitoring(geofence);
+            }
+        }, 10, TimeUnit.SECONDS);
     }
 
     @NonNull
@@ -38,7 +59,7 @@ public class GeofenceRepository {
     }
 
     @Nullable
-    Integer getAlarmIdByGeofenceId(String geofenceId) {
+    Long getAlarmIdByGeofenceId(String geofenceId) {
         CustomGeofence geofence = geofenceMap.get(geofenceId);
         if (geofence == null) return null;
         return geofence.getAlarmId();
@@ -63,8 +84,8 @@ public class GeofenceRepository {
             Log.wtf(TAG, "Trying to delete not existing geofence");
             return;
         }
-        stopMonitoring(geofence);
         geofenceMap.remove(geofenceId);
+        stopMonitoring(geofence);
     }
 
     private void startMonitoring(@NonNull CustomGeofence geofence) {
@@ -72,11 +93,23 @@ public class GeofenceRepository {
         geofencingClient.addGeofences(req, geofence.getGeofencePendingIntent())
                 .addOnFailureListener(e -> {
                     String logMsg = String.format(Locale.getDefault(),
-                            "Got error on startMonitoring geofence with id=%s, alarmId=%d",
+                            "Got error [%s] on startMonitoring geofence with id=%s, alarmId=%d",
+                            e.getMessage(),
                             geofence.getGeofenceId(),
                             geofence.getAlarmId());
                     Log.e(TAG,logMsg);
-                    //TODO handle the error
+                    geofenceMap.remove(geofence.getGeofenceId());
+                    alarmIdToGeofenceIdMap.remove(geofence.getAlarmId());
+                    Alarm alarm = AlarmRepository.getInstance(context).getAlarmById(geofence.getAlarmId());
+                    if (alarm == null) {
+                        Log.wtf(TAG, "Alarm not found in repository");
+                        return;
+                    }
+                    alarm.setIsActive(false);
+                    AlarmRepository.getInstance(context).updateAlarm(alarm);
+                    Toast.makeText(context,
+                            context.getString(R.string.start_geofence_monitoring_error_msg)
+                                    + " " + alarm.getName(), Toast.LENGTH_LONG).show();
                 });
     }
 
@@ -84,11 +117,12 @@ public class GeofenceRepository {
         geofencingClient.removeGeofences(geofence.getGeofencePendingIntent())
                 .addOnFailureListener(e -> {
                     String logMsg = String.format(Locale.getDefault(),
-                            "Got error on stopMonitoring geofence with id=%s, alarmId=%d",
+                            "Got error [%s] on stopMonitoring geofence with id=%s, alarmId=%d",
+                            e.getMessage(),
                             geofence.getGeofenceId(),
                             geofence.getAlarmId());
                     Log.e(TAG,logMsg);
-                    //TODO handle the error
+                    zombieGeofenceQueue.add(geofence);
                 });
     }
 }

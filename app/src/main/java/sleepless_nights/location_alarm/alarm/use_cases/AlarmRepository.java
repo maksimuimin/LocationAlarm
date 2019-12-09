@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import sleepless_nights.LocationAlarmApplication;
+import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDao;
 import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDb;
@@ -52,7 +52,7 @@ public class AlarmRepository {
     public LiveData<AlarmDataSet> getActiveAlarmsDataSetLiveData() { return activeAlarmsDataSetLiveData; }
 
     @Nullable
-    public Alarm getAlarmById(int id) {
+    public Alarm getAlarmById(long id) {
         AlarmDataSet dataSet = dataSetLiveData.getValue();
         if (dataSet == null) {
             Log.wtf(TAG, "AlarmRepository contains dataSetLiveData with null AlarmDataSet");
@@ -77,7 +77,8 @@ public class AlarmRepository {
         executor.execute(() -> {
             Alarm alarm = new Alarm(0, name, address, isActive,
                     latitude, longitude, radius);
-            alarmDao.create(AlarmEntityAdapter.adapt(alarm));
+            long dbAlarmId = alarmDao.create(AlarmEntityAdapter.adapt(alarm))[0];
+            alarm = new Alarm((int)dbAlarmId, alarm);
 
             AlarmDataSet dataSet = dataSetLiveData.getValue();
             if (dataSet == null) {
