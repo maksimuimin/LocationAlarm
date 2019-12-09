@@ -22,9 +22,8 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
-            String errorMessage = getErrorString(geofencingEvent.getErrorCode());
-            Log.e(TAG, errorMessage);
-            //TODO handle error
+            Log.e(TAG, "got error onReceive: " +
+                    GeofenceStatusCodes.getStatusCodeString(geofencingEvent.getErrorCode()));
             return;
         }
 
@@ -50,19 +49,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             // Log the error.
             Log.e(TAG, String.format(Locale.getDefault(),
                     "Geofence transition has invalid type: %d", geofenceTransition));
-        }
-    }
-
-    private String getErrorString(int errorCode) {
-        switch (errorCode) {
-            case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
-                return "GEOFENCE_NOT_AVAILABLE";
-            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES:
-                return "GEOFENCE_TOO_MANY_GEOFENCES";
-            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS:
-                return "GEOFENCE_TOO_MANY_PENDING_INTENTS";
-            default:
-                return "Unknown geofence error";
         }
     }
 
