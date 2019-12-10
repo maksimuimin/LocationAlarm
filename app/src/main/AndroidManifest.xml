@@ -2,10 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sleepless_nights.location_alarm">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <!-- Required if your app targets Android 10 (API level 29) or higher -->
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- Required if your app targets Android 10 (API level 29) or higher -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:name="sleepless_nights.LocationAlarmApplication"
@@ -15,6 +14,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity
+            android:name=".alarm.ui.NewAlarmActivity"
+            android:label="@string/title_activity_new_alarm"
+            android:theme="@style/NoActionBar"></activity>
         <activity android:name=".alarm.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,12 +30,12 @@
             android:name=".alarm.ui.alarm_service.AlarmService"
             android:foregroundServiceType="location">
             <intent-filter>
-                <action android:name="${applicationId}.do_alarm"/>
-                <action android:name="${applicationId}.too_many_geofences"/>
+                <action android:name="${applicationId}.do_alarm" />
+                <action android:name="${applicationId}.too_many_geofences" />
             </intent-filter>
         </service>
 
-        <receiver android:name=".geofence.use_cases.GeofenceBroadcastReceiver"/>
+        <receiver android:name=".geofence.use_cases.GeofenceBroadcastReceiver" />
     </application>
 
 </manifest>

@@ -10,4 +10,5 @@
     <string name="map">Map</string>
     <string name="destination">Destination</string>
     <string name="name">Name</string>
+    <string name="title_activity_new_alarm">NewAlarmActivity</string>
 </resources>
