@@ -41,38 +41,6 @@ public class MainActivity extends AppCompatActivity {
                 .requirePermissionsByGroup(this, Permission.Group.MUST_HAVE);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState == null) {
-            tabState = MenuTabState.TAB_ALARM_LIST;
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragment_container, AlarmListFragment.newInstance())
-                    .commit();
-        } else {
-            tabState = MenuTabState.valueOf(savedInstanceState.getString(TAB_STATE_NAME_BUNDLE_KEY));
-            switch (tabState) {
-                case TAB_ALARM_LIST: {
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragment_container, AlarmListFragment.newInstance())
-                            .commit();
-                    break;
-                }
-                case TAB_MAP: {
-                    //TODO #5 load map fragment
-                    break;
-                }
-                default: {
-                    Log.wtf(TAG, "got unknown tabState from savedInstanceState: " + tabState);
-                    tabState = MenuTabState.TAB_ALARM_LIST;
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragment_container, AlarmListFragment.newInstance())
-                            .commit();
-                    break;
-                }
-            }
-        }
-
         Toolbar customToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(customToolBar);
 
@@ -109,6 +77,39 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if (savedInstanceState == null) {
+            tabState = MenuTabState.TAB_ALARM_LIST;
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.fragment_container, AlarmListFragment.newInstance())
+                    .commit();
+            return;
+        }
+
+        tabState = MenuTabState.valueOf(savedInstanceState.getString(TAB_STATE_NAME_BUNDLE_KEY));
+        switch (tabState) {
+            case TAB_ALARM_LIST: {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                        .commit();
+                break;
+            }
+            case TAB_MAP: {
+                //TODO #5 load map fragment
+                break;
+            }
+            default: {
+                Log.wtf(TAG, "got unknown tabState from savedInstanceState: " + tabState);
+                tabState = MenuTabState.TAB_ALARM_LIST;
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                        .commit();
+                break;
+            }
+        }
     }
 
     @Override
