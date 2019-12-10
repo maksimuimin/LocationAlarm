@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Objects;
@@ -32,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int GEO_LOC_PERMISSION_REQUEST = 1;
     private MenuTabState tabState = MenuTabState.TAB_ALARM_LIST;
+    private LinearLayout bottom_sheet;
+    private BottomSheetBehavior sheetBehavior;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +65,21 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
             });
 
+            bottom_sheet = (LinearLayout) findViewById(R.id.bottom_sheet);
+            sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
+
+            sheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+                @Override
+                public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                    // React to state change
+                }
+
+                @Override
+                public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                    // React to dragging events
+                }
+            });
+
             AlarmViewModel alarmViewModel = ViewModelProviders
                     .of(Objects.requireNonNull(this)) //Shared with MapFragment
                     .get(AlarmViewModel.class);
@@ -68,6 +87,12 @@ public class MainActivity extends AppCompatActivity {
             fab.setOnClickListener(v -> {
                switch (tabState) {
                    case TAB_ALARM_LIST: {
+//                       if (sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+//                           sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+//                       } else {
+//                           sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                       }
+
                        alarmViewModel.createAlarm("MyAlarm", "MyAddress", true, 0, 0,2000);
                        break;
                    }
