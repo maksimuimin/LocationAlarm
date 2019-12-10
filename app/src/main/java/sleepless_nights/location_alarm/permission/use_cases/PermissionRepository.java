@@ -60,9 +60,9 @@ public class PermissionRepository {
                 new PermissionRequest(activity, notGrantedPermissions, permissionRequestId);
         if (permissionRequest.shouldShowRequestPermissionRationale()) {
             new PermissionDialog(activity, permissionRequest).show();
-        } else {
-            permissionRequest.show();
+            return permissionRequestId;
         }
+        permissionRequest.show();
         return permissionRequestId;
     }
 
