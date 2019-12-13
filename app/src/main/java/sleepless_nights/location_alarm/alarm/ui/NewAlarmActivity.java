@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 
 import androidx.appcompat.app.ActionBar;
@@ -12,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.view.View;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import java.util.Objects;
@@ -42,13 +44,15 @@ public class NewAlarmActivity extends AppCompatActivity {
 
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_24);
         }
 
         toolbar.setNavigationOnClickListener(onNavigationClickListener);
 
         layout = (LinearLayout) findViewById(R.id.bottom_sheet_layout);
         behavior = BottomSheetBehavior.from(layout);
+
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
         nameInput = findViewById(R.id.name);
         destinatonInput = findViewById(R.id.destination);
@@ -62,10 +66,28 @@ public class NewAlarmActivity extends AppCompatActivity {
     }
 
     private View.OnClickListener onAddButtonClickListener = view -> {
-        name = nameInput.getEditText().getText().toString();
-        destinaton = destinatonInput.getEditText().getText().toString();
+        int state = behavior.getState();
 
-        alarmViewModel.createAlarm(name, destinaton, true, 0, 0,2000);
+        if (state == BottomSheetBehavior.STATE_COLLAPSED) {
+            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
+
+        EditText nameInputEditText = nameInput.getEditText();
+        EditText destinationInputEditText = destinatonInput.getEditText();
+
+        if (nameInputEditText == null || destinationInputEditText == null) {
+            return;
+        }
+
+        name = nameInputEditText.getText().toString();
+        destinaton = destinationInputEditText.getText().toString();
+
+        if (!name.isEmpty() && !destinaton.isEmpty()) {
+            alarmViewModel.createAlarm(name, destinaton, true, 0, 0,2000);
+        } else {
+            Snackbar.make(view, "Please fill required fields: Name and Destination", Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show();
+        }
     };
 
     private View.OnClickListener onNavigationClickListener = view -> finish();
