@@ -6,10 +6,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.view.View;
 import android.widget.LinearLayout;
 
 import java.util.Objects;
@@ -26,6 +28,8 @@ public class NewAlarmActivity extends AppCompatActivity {
     private String name;
     private String destinaton;
 
+    private AlarmViewModel alarmViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,23 +38,36 @@ public class NewAlarmActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        ActionBar actionBar = getSupportActionBar();
+
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(true);
+        }
+
+        toolbar.setNavigationOnClickListener(onNavigationClickListener);
+
         layout = (LinearLayout) findViewById(R.id.bottom_sheet_layout);
         behavior = BottomSheetBehavior.from(layout);
 
         nameInput = findViewById(R.id.name);
         destinatonInput = findViewById(R.id.destination);
 
-        AlarmViewModel alarmViewModel = ViewModelProviders
+        alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(this)) //Shared with MapFragment
                 .get(AlarmViewModel.class);
 
         FloatingActionButton fab = findViewById(R.id.button_ok);
-        fab.setOnClickListener(view -> {
-            name = nameInput.getEditText().getText().toString();
-            destinaton = destinatonInput.getEditText().getText().toString();
-
-            alarmViewModel.createAlarm(name, destinaton, true, 0, 0,2000);
-        });
+        fab.setOnClickListener(onAddButtonClickListener);
     }
+
+    private View.OnClickListener onAddButtonClickListener = view -> {
+        name = nameInput.getEditText().getText().toString();
+        destinaton = destinatonInput.getEditText().getText().toString();
+
+        alarmViewModel.createAlarm(name, destinaton, true, 0, 0,2000);
+    };
+
+    private View.OnClickListener onNavigationClickListener = view -> finish();
 
 }
