@@ -9,11 +9,16 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import java.util.Objects;
+
 import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class NewAlarmActivity extends AppCompatActivity {
 
@@ -27,8 +32,14 @@ public class NewAlarmActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        layout = (LinearLayout) findViewById(R.id.bottom_sheet);
+        layout = (LinearLayout) findViewById(R.id.bottom_sheet_layout);
+        if (layout == null) { Log.wtf("DEBUG", "unable to find bottom sheet by id"); }
         behavior = BottomSheetBehavior.from(layout);
+
+        AlarmViewModel alarmViewModel = ViewModelProviders
+                .of(Objects.requireNonNull(this)) //Shared with MapFragment
+                .get(AlarmViewModel.class);
+        //                alarmViewModel.createAlarm("MyAlarm", "MyAddress", true, 0, 0,2000);
 
         behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override

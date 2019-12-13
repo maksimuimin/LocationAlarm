@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,17 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProviders;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.Objects;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
-import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -65,26 +58,11 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
             });
 
-            AlarmViewModel alarmViewModel = ViewModelProviders
-                    .of(Objects.requireNonNull(this)) //Shared with MapFragment
-                    .get(AlarmViewModel.class);
             FloatingActionButton fab = findViewById(R.id.floating_button);
             fab.setOnClickListener(v -> {
-               switch (tabState) {
-                   case TAB_ALARM_LIST: {
-                       alarmViewModel.createAlarm("MyAlarm", "MyAddress", true, 0, 0,2000);
-                       break;
-                   }
-                   case TAB_MAP: {
-                       Toast.makeText(this, "MapTab's FAB is on click", Toast.LENGTH_SHORT).show();
-                       break;
-                   }
-                   default: {
-                       Log.wtf(TAG, "Got unknown tabState: " + tabState.toString());
-                   }
-               }
+                Intent intent = new Intent(this, NewAlarmActivity.class);
+                startActivity(intent);
             });
-
         }
     }
 
