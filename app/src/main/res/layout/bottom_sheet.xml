@@ -19,8 +19,8 @@
         >
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/listImageSize"
+            android:layout_height="@dimen/listImageSize"
             android:layout_marginEnd="@dimen/standardPadding"
             android:contentDescription="@string/add_new_alarm"
             android:src="@drawable/ic_alarm_40" />

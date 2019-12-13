@@ -11,4 +11,5 @@
     <dimen name="elevation">10dp</dimen>
     <dimen name="standardPadding">16dp</dimen>
     <dimen name="paddingTopWithFab">32dp</dimen>
+    <dimen name="listImageSize">40dp</dimen>
 </resources>
