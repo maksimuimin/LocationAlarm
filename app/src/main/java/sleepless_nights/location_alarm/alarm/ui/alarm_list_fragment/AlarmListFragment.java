@@ -49,6 +49,7 @@ public class AlarmListFragment extends Fragment {
             Log.wtf(TAG, "alarmViewModel returned LiveData with null DataSet");
             return;
         }
+        alarmDataSet = alarmDataSet.clone();
 
         final LinearLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
         alarmListAdapter = new AlarmListAdapter(alarmDataSet, alarmViewModel);
@@ -57,9 +58,11 @@ public class AlarmListFragment extends Fragment {
         listView.setLayoutManager(layoutManager);
 
         alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), updAlarmDataSet -> {
-            Log.d(TAG, String.format(Locale.getDefault(),
-                    "dataSet updated, updAlarmDataSet size: %d", updAlarmDataSet.size()));
+            updAlarmDataSet = updAlarmDataSet.clone();
             AlarmDataSet oldDataSet = alarmListAdapter.getAlarmDataSet();
+            Log.d(TAG, String.format(Locale.getDefault(),
+                    "dataSet updated, oldDataSet size: %d, updAlarmDataSet size: %d",
+                    oldDataSet.size(), updAlarmDataSet.size()));
             alarmListAdapter.setAlarmDataSet(updAlarmDataSet);
             updAlarmDataSet.diffFrom(oldDataSet).dispatchUpdatesTo(alarmListAdapter);
         });

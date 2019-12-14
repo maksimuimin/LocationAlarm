@@ -1,27 +1,53 @@
 package sleepless_nights.location_alarm.alarm.use_cases;
 
-import android.util.SparseArray;
+import android.util.Log;
+import android.util.LongSparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
-public class AlarmDataSet {
-    private SparseArray<Alarm> dataSet = new SparseArray<>();
+public class AlarmDataSet implements Iterable<Alarm> {
+    private static final String TAG = "AlarmDataSet";
+    private LongSparseArray<Alarm> dataSet = new LongSparseArray<>();
 
     public AlarmDataSet() {}
+
+    private AlarmDataSet(AlarmDataSet alarmDataSet) {
+        Log.d(TAG, String.format(Locale.getDefault(),
+                "on copy, new alarmDataSet size: %d, old alarmDataSet size: %d",
+                this.size(), alarmDataSet.size()));
+        this.dataSet = new LongSparseArray<>(alarmDataSet.size());
+        for (int i = 0; i < alarmDataSet.size(); i++) {
+            Alarm alarm = alarmDataSet.getAlarmByPosition(i);
+            if (alarm == null) {
+                Log.wtf(TAG, String.format(Locale.getDefault(),
+                        "got null Alarm on position %d while making a copy", i));
+                continue;
+            }
+            this.dataSet.put(alarm.getId(), new Alarm(alarm));
+        }
+    }
+
     AlarmDataSet(@NonNull List<Alarm> alarms) {
         for (Alarm alarm : alarms) {
             dataSet.put(alarm.getId(), alarm);
         }
     }
 
+    @NonNull
+    @Override
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
+    public AlarmDataSet clone() { return new AlarmDataSet(this); }
+
     @Nullable
-    Alarm getAlarmById(int id) {
+    Alarm getAlarmById(long id) {
         return dataSet.get(id, null);
     }
 
@@ -34,8 +60,8 @@ public class AlarmDataSet {
         dataSet.put(alarm.getId(), alarm);
     }
 
-    void deleteAlarm(int id) {
-        dataSet.remove(id);
+    void deleteAlarm(@NonNull Alarm alarm) {
+        dataSet.remove(alarm.getId());
     }
 
     void updateAlarm(@NonNull Alarm alarm) {
@@ -92,5 +118,25 @@ public class AlarmDataSet {
             }
             return oldAlarm.equals(newAlarm);
         }
+    }
+
+    @NonNull
+    @Override
+    public Iterator<Alarm> iterator() {
+        return new Iterator<Alarm>() {
+            int position = 0;
+
+            @Override
+            public boolean hasNext() {
+                return position != dataSet.size();
+            }
+
+            @Override
+            public Alarm next() {
+                Alarm alarm = getAlarmByPosition(position);
+                position++;
+                return alarm;
+            }
+        };
     }
 }
