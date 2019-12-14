@@ -1,16 +1,17 @@
 package sleepless_nights.location_alarm.alarm;
 
+import androidx.annotation.NonNull;
+
 public class Alarm {
-    private int id;
+    private long id;
     private String name;
     private String address;
-    private Boolean isActive;
+    private boolean isActive;
     private double latitude;
     private double longitude;
     private float radius;
 
-
-    public Alarm(int id, String name, String address, Boolean isActive,
+    public Alarm(long id, String name, String address, boolean isActive,
                  double latitude, double longitude, float radius) {
         this.id = id;
         this.name = name;
@@ -20,14 +21,39 @@ public class Alarm {
         this.longitude = longitude;
         this.radius = radius;
     }
+  
+    public Alarm(@NonNull Alarm alarm) {
+        this.id = alarm.id;
+        this.name = alarm.name;
+        this.address = alarm.address;
+        this.isActive = alarm.isActive;
+        this.latitude = alarm.latitude;
+        this.longitude = alarm.longitude;
+        this.radius = alarm.radius;
+    }
 
-    public int getId() { return id; }
+    public Alarm(long id, @NonNull Alarm alarm) {
+        this.id = id;
+        this.name = alarm.name;
+        this.address = alarm.address;
+        this.isActive = alarm.isActive;
+        this.latitude = alarm.latitude;
+        this.longitude = alarm.longitude;
+        this.radius = alarm.radius;
+    }
+
+    public long getId() { return id; }
 
     public void setName(String name) { this.name = name; }
     public String getName() { return this.name; }
 
-    public void setAddress(String address) { this.address = address; }
-    public String getAddress() { return this.address; }
+    public String getAddress() {
+        return address;
+    }
+    public Alarm setAddress(String address) {
+        this.address = address;
+        return this;
+    }
 
     public void setIsActive(boolean isActive) { this.isActive = isActive; }
     public boolean getIsActive() { return this.isActive; }
