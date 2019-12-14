@@ -16,10 +16,12 @@ import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
 public class AlarmViewModel extends AndroidViewModel {
     private static final String TAG = "AlarmViewModel";
     private MediatorLiveData<AlarmDataSet> liveData = new MediatorLiveData<>();
+    private AlarmRepository alarmRepository;
 
     public AlarmViewModel(@NonNull Application application) {
         super(application);
-        final LiveData<AlarmDataSet> repoLiveData = AlarmRepository.getInstance().getDataSetLiveData();
+        alarmRepository = AlarmRepository.getInstance(application.getApplicationContext());
+        final LiveData<AlarmDataSet> repoLiveData = alarmRepository.getDataSetLiveData();
         liveData.setValue(repoLiveData.getValue());
         liveData.addSource(repoLiveData, alarmDataSet -> {
             Log.d(TAG, "dataSet updated from repository");
@@ -32,25 +34,30 @@ public class AlarmViewModel extends AndroidViewModel {
 
     @Nullable
     public Alarm getAlarmByPosition(int pos) {
-        return AlarmRepository.getInstance().getAlarmByPosition(pos);
+        return alarmRepository.getAlarmByPosition(pos);
     }
 
     @Nullable
-    public Alarm getAlarmLiveDataById(int id) {
-        return AlarmRepository.getInstance().getAlarmById(id);
+    public Alarm getAlarmLiveDataById(long id) {
+        return alarmRepository.getAlarmById(id);
     }
+
+    /*
+    * TODO #4 make not read-only repository operations not void
+    *  we should return some structure which can accept onSuccess and onFailure callbacks
+    */
 
     public void createAlarm(String name, String address, boolean isActive,
                             double latitude, double longitude, float radius) {
-        AlarmRepository.getInstance().createAlarm(name, address, isActive,
+        alarmRepository.createAlarm(name, address, isActive,
                 latitude, longitude, radius);
     }
 
-    public void deleteAlarm(int id) {
-        AlarmRepository.getInstance().deleteAlarm(id);
+    public void deleteAlarm(Alarm alarm) {
+        alarmRepository.deleteAlarm(alarm);
     }
 
     public void updateAlarm(Alarm alarm) {
-        AlarmRepository.getInstance().updateAlarm(alarm);
+        alarmRepository.updateAlarm(alarm);
     }
 }
