@@ -66,6 +66,11 @@ public class PermissionRepository {
         return permissionRequestId;
     }
 
+    public boolean isPermissionGroupGranted(Permission.Group group) {
+        List<Permission> notGrantedPermissions = getNotGrantedPermissionsByGroup(group);
+        return notGrantedPermissions == null || notGrantedPermissions.isEmpty();
+    }
+
     @Nullable
     private List<Permission> getNotGrantedPermissionsByGroup(Permission.Group group) {
         List<Permission> permissions = permissionsMap.get(group);

@@ -2,7 +2,9 @@ package sleepless_nights.location_alarm.alarm.ui;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +32,7 @@ import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
+    private AlertDialog permissionDialog;
     private MenuTabState tabState;
     private final String TAB_STATE_NAME_BUNDLE_KEY = "tabState.name";
     //TODO #6 optimize AlarmListFragment creations by extracting it to a field of MainActivity
@@ -37,6 +40,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        permissionDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.not_enough_permissions_dialog_title)
+                .setMessage(R.string.not_enough_permissions_dialog_message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.dialog_positive_button,
+                        ((dialog, which) -> {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package", this.getPackageName(), null);
+                            intent.setData(uri);
+                            startActivity(intent);
+                        }))
+                .create();
         MUST_HAVE_PERMISSIONS_REQUEST_ID = PermissionRepository.getInstance(this)
                 .requirePermissionsByGroup(this, Permission.Group.MUST_HAVE);
         setContentView(R.layout.activity_main);
@@ -124,6 +139,12 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), AlarmService.class);
         startService(intent); //starting service on process creation
         //Alarm service handles its background/foreground state on its own
+        boolean havePermissions = PermissionRepository.getInstance(this)
+                .isPermissionGroupGranted(Permission.Group.MUST_HAVE);
+        if (permissionDialog.isShowing() && havePermissions) {
+            permissionDialog.hide();
+            //This may happen when user changes permission in app background
+        }
     }
 
     @Override
@@ -152,16 +173,7 @@ public class MainActivity extends AppCompatActivity {
             for (int grantResult : grantResults) {
                 if (grantResult != PackageManager.PERMISSION_GRANTED) {
                     Log.e(TAG, "Not enough permissions, exiting");
-                    new AlertDialog.Builder(this)
-                            .setTitle(R.string.not_enough_permissions_dialog_title)
-                            .setMessage(R.string.not_enough_permissions_dialog_message)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.dialog_positive_button,
-                                    ((dialog, which) -> {
-                                        finishAndRemoveTask();
-                                        System.exit(0);
-                                    }))
-                            .show();
+                    permissionDialog.show();
                 }
             }
         }
