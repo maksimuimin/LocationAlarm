@@ -42,7 +42,7 @@
         app:elevation="@dimen/elevation"
         app:layout_anchor="@id/bottom_sheet_layout"
         app:layout_anchorGravity="top|end"
-        app:srcCompat="@drawable/ic_add_24"
+        app:srcCompat="@drawable/ic_check_24"
         app:tint="@color/colorBarText" />
 
     <include

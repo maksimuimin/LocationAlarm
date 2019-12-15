@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -26,9 +27,9 @@ public class NewAlarmActivity extends AppCompatActivity {
     private LinearLayout layout;
     private BottomSheetBehavior behavior;
     private TextInputLayout nameInput;
-    private TextInputLayout destinatonInput;
-    private String name;
-    private String destinaton;
+    private TextInputLayout addressInput;
+    private String name = "";
+    private String address = "";
 
     private AlarmViewModel alarmViewModel;
 
@@ -52,10 +53,10 @@ public class NewAlarmActivity extends AppCompatActivity {
         layout = (LinearLayout) findViewById(R.id.bottom_sheet_layout);
         behavior = BottomSheetBehavior.from(layout);
 
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
 
         nameInput = findViewById(R.id.name);
-        destinatonInput = findViewById(R.id.destination);
+        addressInput = findViewById(R.id.destination);
 
         alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(this)) //Shared with MapFragment
@@ -73,21 +74,24 @@ public class NewAlarmActivity extends AppCompatActivity {
         }
 
         EditText nameInputEditText = nameInput.getEditText();
-        EditText destinationInputEditText = destinatonInput.getEditText();
+        EditText destinationInputEditText = addressInput.getEditText();
 
         if (nameInputEditText == null || destinationInputEditText == null) {
+            Log.wtf("ERROR", "could not find Edit text of name or address");
             return;
         }
 
         name = nameInputEditText.getText().toString();
-        destinaton = destinationInputEditText.getText().toString();
+        address = destinationInputEditText.getText().toString();
 
-        if (!name.isEmpty() && !destinaton.isEmpty()) {
-            alarmViewModel.createAlarm(name, destinaton, true, 0, 0,2000);
-        } else {
+        if (name.isEmpty() || address.isEmpty()) {
             Snackbar.make(view, "Please fill required fields: Name and Destination", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
+
+            return;
         }
+
+        alarmViewModel.createAlarm(name, address, true, 0, 0,2000);
     };
 
     private View.OnClickListener onNavigationClickListener = view -> finish();
