@@ -5,34 +5,54 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="@dimen/barHeight"
-    app:behavior_halfExpandedRatio="0.3"
+    app:behavior_peekHeight="@dimen/twoLineItemHeight"
     app:layout_behavior="@string/bottom_sheet_behavior"
+    app:elevation="20dp"
     >
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/barHeight"
+        android:layout_height="@dimen/twoLineItemHeight"
         android:background="@color/colorPrimary"
         android:paddingStart="@dimen/standardPadding"
         android:paddingEnd="@dimen/standardPadding"
-        android:gravity="center"
+        android:orientation="horizontal"
+        android:gravity="start|center"
         >
 
         <ImageView
+            android:id="@+id/sheet_switcher"
             android:layout_width="@dimen/listImageSize"
             android:layout_height="@dimen/listImageSize"
             android:layout_marginEnd="@dimen/standardPadding"
             android:contentDescription="@string/add_new_alarm"
-            android:src="@drawable/ic_alarm_40" />
+            android:src="@drawable/ic_expand_more_40" />
 
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_new_alarm"
-            android:textColor="@color/colorBarText"
-            android:textSize="@dimen/barTextSize"
-            />
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:id="@+id/name_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill_horizontal"
+                android:text="@string/add_new_alarm"
+                android:textColor="#fff"
+                style="@style/listPrimaryText" />
+
+            <TextView
+                android:id="@+id/address_header"
+                style="@style/listSecondaryText"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_gravity="fill_horizontal"
+                android:text="@string/address"
+                android:textColor="#fff" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -54,12 +74,13 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="text"
+                android:maxLength="40"
                 android:text="" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/destination"
+            android:id="@+id/address"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,6 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPostalAddress"
+                android:maxLength="50"
                 android:text="" />
 
         </com.google.android.material.textfield.TextInputLayout>
