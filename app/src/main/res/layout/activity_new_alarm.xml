@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="sleepless_nights.location_alarm.alarm.ui.MainActivity">
+    tools:context="sleepless_nights.location_alarm.alarm.ui.MainActivity"
+    android:background="#A9F6FF"> <!-- TODO remove -->
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -20,8 +21,7 @@
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
             android:gravity="center"
-            app:titleTextColor="@color/colorBarText"
-             />
+            app:titleTextColor="@color/colorBarText" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

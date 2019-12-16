@@ -2,11 +2,13 @@ package sleepless_nights.location_alarm.alarm.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputLayout;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -16,17 +18,10 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
@@ -38,13 +33,10 @@ public class NewAlarmActivity extends AppCompatActivity {
     private LinearLayout layout;
     private BottomSheetBehavior behavior;
 
-    private ImageView sheetSwitcher;
-
     private EditText nameInput;
     private EditText addressInput;
 
     private TextView nameHeader;
-    private TextView addressHeader;
 
     private String name = "";
     private String address = "";
@@ -72,9 +64,6 @@ public class NewAlarmActivity extends AppCompatActivity {
 
         toolbar.setNavigationOnClickListener(onNavigationClick);
 
-        sheetSwitcher = findViewById(R.id.sheet_switcher);
-        sheetSwitcher.setOnClickListener(onSwitchClick);
-
         layout = (LinearLayout) findViewById(R.id.bottom_sheet_layout);
         behavior = BottomSheetBehavior.from(layout);
 
@@ -93,13 +82,10 @@ public class NewAlarmActivity extends AppCompatActivity {
         }
 
         nameHeader = findViewById(R.id.name_header);
-        addressHeader = findViewById(R.id.address_header);
 
         nameHeader.setOnClickListener(view -> headerClickListener(nameInput));
-        addressHeader.setOnClickListener(view -> headerClickListener(addressInput));
 
         nameInput.setOnKeyListener(onNameInput);
-        addressInput.setOnKeyListener(onAddressInput);
 
         alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(this)) //Shared with MapFragment
@@ -115,28 +101,17 @@ public class NewAlarmActivity extends AppCompatActivity {
             CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
 
             if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                sheetSwitcher.setImageResource(R.drawable.ic_expand_less_40);
-
                 lp.anchorGravity = Gravity.BOTTOM | GravityCompat.END; // TODO fix doesn't work
                 fab.setLayoutParams(lp); // TODO fix doesn't work
 
-                addressHeader.setVisibility(View.INVISIBLE);
 //                actionBar.hide();
-
-                nameHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.barTextSize));
-
                 return;
             }
-
-            sheetSwitcher.setImageResource(R.drawable.ic_expand_more_40);
 
             lp.anchorGravity = Gravity.TOP | GravityCompat.END; // TODO fix doesn't work
             fab.setLayoutParams(lp); // TODO fix doesn't work
 
-            addressHeader.setVisibility(View.VISIBLE);
 //            actionBar.show();
-
-            nameHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.primaryTextSize));
         }
 
         @Override
@@ -167,33 +142,9 @@ public class NewAlarmActivity extends AppCompatActivity {
 
     private View.OnClickListener onNavigationClick = view -> finish();
 
-    private View.OnClickListener onSwitchClick = view -> {
-        int state = behavior.getState();
-
-        switch (state) {
-            case BottomSheetBehavior.STATE_COLLAPSED:
-            case BottomSheetBehavior.STATE_EXPANDED: {
-                behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-                break;
-            }
-
-            case BottomSheetBehavior.STATE_HALF_EXPANDED: {
-                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                break;
-            }
-        }
-    };
-    
     private View.OnKeyListener onNameInput = (v, keyCode, event) -> {
         String name = nameInput.getText().toString();
         nameHeader.setText(name);
-
-        return false;
-    };
-
-    private View.OnKeyListener onAddressInput = (v, keyCode, event) -> {
-        String address = addressInput.getText().toString();
-        addressHeader.setText(address);
 
         return false;
     };
