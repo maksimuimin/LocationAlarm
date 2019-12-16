@@ -52,11 +52,12 @@ public class AlarmService extends IntentService {
     public void onCreate() {
         super.onCreate();
 
-        activeAlarmsDataSet = AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().getValue();
+        activeAlarmsDataSet = AlarmRepository.getInstance(this).getActiveAlarmsDataSetLiveData().getValue();
         if (activeAlarmsDataSet == null) {
             Log.wtf(TAG, "activeAlarmDataSetLiveData contains null AlarmDataSet");
             activeAlarmsDataSet = new AlarmDataSet();
         }
+        activeAlarmsDataSet = activeAlarmsDataSet.clone();
 
         notificationManager = (NotificationManager) getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -68,12 +69,12 @@ public class AlarmService extends IntentService {
             notificationManager.createNotificationChannel(channel);
         }
 
-        AlarmRepository.getInstance().getActiveAlarmsDataSetLiveData().observeForever(updAlarmDataSet -> {
+        AlarmRepository.getInstance(this).getActiveAlarmsDataSetLiveData().observeForever(updAlarmDataSet -> {
             Log.d(TAG, String.format(Locale.getDefault(),
                     "activeAlarmsDataSet updated activeAlarmsDataSet.size(): %d, runningInForeground: %b",
                     activeAlarmsDataSet.size(), runningInForeground));
             if (!started) {
-                activeAlarmsDataSet = updAlarmDataSet;
+                activeAlarmsDataSet = updAlarmDataSet.clone();
                 return;
             }
             updAlarmDataSet.diffFrom(activeAlarmsDataSet).dispatchUpdatesTo(new ListUpdateCallback() {
@@ -110,7 +111,7 @@ public class AlarmService extends IntentService {
                 public void onChanged(int position, int count, @Nullable Object payload) {}
             });
 
-            activeAlarmsDataSet = updAlarmDataSet;// We can do it in ListUpdateCallback if copy will be too slow
+            activeAlarmsDataSet = updAlarmDataSet.clone();// We can do it in ListUpdateCallback if copy will be too slow
 
             if (!runningInForeground && !activeAlarmsDataSet.isEmpty()) {
                 becomeForeground(buildNotification(updAlarmDataSet.size()));
@@ -168,7 +169,7 @@ public class AlarmService extends IntentService {
     }
 
     private Notification buildNotification(int alarmsCount) {
-        //TODO develop
+        //TODO #1 develop
         String content = String.format(Locale.getDefault(), "Active alarms: %d", alarmsCount);
         return new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("LocationAlarm")
@@ -204,8 +205,8 @@ public class AlarmService extends IntentService {
     }
 
     private void handleActionDoAlarm(int alarmId) {
-        //TODO start alarming activity
-        Alarm triggeredAlarm = AlarmRepository.getInstance().getAlarmById(alarmId);
+        //TODO #2 start alarming activity
+        Alarm triggeredAlarm = AlarmRepository.getInstance(this).getAlarmById(alarmId);
         if (triggeredAlarm == null) {
             Log.wtf(TAG, "Triggered null alarm");
             return;
@@ -213,11 +214,11 @@ public class AlarmService extends IntentService {
         Toast.makeText(getApplicationContext(),
                 "Triggered alarm " + triggeredAlarm.getName(), Toast.LENGTH_SHORT).show();
         triggeredAlarm.setIsActive(false);
-        AlarmRepository.getInstance().updateAlarm(triggeredAlarm);
+        AlarmRepository.getInstance(this).updateAlarm(triggeredAlarm);
     }
 
     private void handleActionTooManyGeofences() {
-        //TODO develop
+        //TODO #3 develop
         Toast.makeText(getApplicationContext(),
                 "Too many geofences", Toast.LENGTH_SHORT).show();
     }

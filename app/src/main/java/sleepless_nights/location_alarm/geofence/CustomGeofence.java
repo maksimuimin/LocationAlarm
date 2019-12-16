@@ -17,7 +17,7 @@ import sleepless_nights.location_alarm.geofence.use_cases.GeofenceBroadcastRecei
 public class CustomGeofence {
     public static final int GEOFENCE_TRANSITION_TYPES = Geofence.GEOFENCE_TRANSITION_ENTER;
 
-    private int alarmId;
+    private long alarmId;
     private Geofence geofence;
     private PendingIntent geofencePendingIntent;
     private Context context;
@@ -34,6 +34,7 @@ public class CustomGeofence {
                         alarm.getRadius()
                 )
                 .setTransitionTypes(GEOFENCE_TRANSITION_TYPES)
+                .setExpirationDuration(0)
                 .build();
         this.context = context;
     }
@@ -61,5 +62,5 @@ public class CustomGeofence {
     @NonNull
     public String getGeofenceId() { return geofence.getRequestId(); }
 
-    public int getAlarmId() { return alarmId; }
+    public long getAlarmId() { return alarmId; }
 }

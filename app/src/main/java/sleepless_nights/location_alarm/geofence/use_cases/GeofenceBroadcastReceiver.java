@@ -22,9 +22,8 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
-            String errorMessage = getErrorString(geofencingEvent.getErrorCode());
-            Log.e(TAG, errorMessage);
-            //TODO handle error
+            Log.e(TAG, "got error onReceive: " +
+                    GeofenceStatusCodes.getStatusCodeString(geofencingEvent.getErrorCode()));
             return;
         }
 
@@ -39,7 +38,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                     Log.wtf(TAG, "Got geofence with null id");
                     continue;
                 }
-                Integer alarmId = GeofenceRepository.getInstance(context)
+                Long alarmId = GeofenceRepository.getInstance(context)
                         .getAlarmIdByGeofenceId(geofenceId);
                 if (alarmId == null) {
                     continue; //Triggered unregistered geofence
@@ -53,20 +52,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         }
     }
 
-    private String getErrorString(int errorCode) {
-        switch (errorCode) {
-            case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
-                return "GEOFENCE_NOT_AVAILABLE";
-            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES:
-                return "GEOFENCE_TOO_MANY_GEOFENCES";
-            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS:
-                return "GEOFENCE_TOO_MANY_PENDING_INTENTS";
-            default:
-                return "Unknown geofence error";
-        }
-    }
-
-    private void doAlarm(Context context, int alarmId) {
+    private void doAlarm(Context context, long alarmId) {
         Intent intent = new Intent(AlarmService.ACTION_DO_ALARM);
         intent.putExtra(AlarmService.INTENT_EXTRA_ALARM_ID, alarmId);
         context.getApplicationContext().startService(intent);
