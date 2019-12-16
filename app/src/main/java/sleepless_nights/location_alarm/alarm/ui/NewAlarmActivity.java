@@ -12,9 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -47,15 +51,19 @@ public class NewAlarmActivity extends AppCompatActivity {
 
     private AlarmViewModel alarmViewModel;
 
+    Toolbar toolbar;
+    ActionBar actionBar;
+    FloatingActionButton fab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_alarm);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ActionBar actionBar = getSupportActionBar();
+        actionBar = getSupportActionBar();
 
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -71,22 +79,7 @@ public class NewAlarmActivity extends AppCompatActivity {
         behavior = BottomSheetBehavior.from(layout);
 
         behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-        behavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View view, int newState) {
-                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                    sheetSwitcher.setImageResource(R.drawable.ic_expand_less_40);
-                    return;
-                }
-
-                sheetSwitcher.setImageResource(R.drawable.ic_expand_more_40);
-            }
-
-            @Override
-            public void onSlide(@NonNull View view, float v) {
-
-            }
-        });
+        behavior.setBottomSheetCallback(bottomSheetCallback);
 
         TextInputLayout nameInputLayout = findViewById(R.id.name);
         TextInputLayout addressInputLayout = findViewById(R.id.address);
@@ -112,9 +105,45 @@ public class NewAlarmActivity extends AppCompatActivity {
                 .of(Objects.requireNonNull(this)) //Shared with MapFragment
                 .get(AlarmViewModel.class);
 
-        FloatingActionButton fab = findViewById(R.id.button_ok);
+        fab = findViewById(R.id.button_ok);
         fab.setOnClickListener(onAddButtonClickListener);
     }
+
+    private BottomSheetBehavior.BottomSheetCallback bottomSheetCallback = new BottomSheetBehavior.BottomSheetCallback() {
+        @Override
+        public void onStateChanged(@NonNull View view, int newState) {
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
+
+            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                sheetSwitcher.setImageResource(R.drawable.ic_expand_less_40);
+
+                lp.anchorGravity = Gravity.BOTTOM | GravityCompat.END; // TODO fix doesn't work
+                fab.setLayoutParams(lp); // TODO fix doesn't work
+
+                addressHeader.setVisibility(View.INVISIBLE);
+//                actionBar.hide();
+
+                nameHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.barTextSize));
+
+                return;
+            }
+
+            sheetSwitcher.setImageResource(R.drawable.ic_expand_more_40);
+
+            lp.anchorGravity = Gravity.TOP | GravityCompat.END; // TODO fix doesn't work
+            fab.setLayoutParams(lp); // TODO fix doesn't work
+
+            addressHeader.setVisibility(View.VISIBLE);
+//            actionBar.show();
+
+            nameHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.primaryTextSize));
+        }
+
+        @Override
+        public void onSlide(@NonNull View view, float v) {
+
+        }
+    };
 
     private View.OnClickListener onAddButtonClickListener = view -> {
         int state = behavior.getState();
