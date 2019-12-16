@@ -13,4 +13,9 @@
     <dimen name="paddingTopWithFab">32dp</dimen>
     <dimen name="listImageSize">40dp</dimen>
     <dimen name="titleTextSize">24sp</dimen>
+    <dimen name="dashHeight">4dp</dimen>
+    <dimen name="dashWidth">32dp</dimen>
+    <dimen name="dashCornerRadius">2dp</dimen>
+    <dimen name="newAlrmBottomSheetPeekHeight">236dp</dimen>
+    <dimen name="largeObjectCornerRadius">12dp</dimen>
 </resources>

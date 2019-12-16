@@ -1,21 +1,18 @@
 package sleepless_nights.location_alarm.alarm.ui;
 
-import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -29,18 +26,12 @@ import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class NewAlarmActivity extends AppCompatActivity {
-
-    private LinearLayout layout;
-    private BottomSheetBehavior behavior;
+    private static final String TAG = "NewAlarmActivity";
 
     private EditText nameInput;
     private EditText addressInput;
 
     private TextView nameHeader;
-
-    private String name = "";
-    private String address = "";
-
     private AlarmViewModel alarmViewModel;
 
     Toolbar toolbar;
@@ -54,116 +45,71 @@ public class NewAlarmActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         actionBar = getSupportActionBar();
-
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_24);
         }
+        toolbar.setNavigationOnClickListener(view -> finish());
 
-        toolbar.setNavigationOnClickListener(onNavigationClick);
-
-        layout = (LinearLayout) findViewById(R.id.bottom_sheet_layout);
-        behavior = BottomSheetBehavior.from(layout);
-
-        behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-        behavior.setBottomSheetCallback(bottomSheetCallback);
+        LinearLayout layout = findViewById(R.id.bottom_sheet_layout);
+        BottomSheetBehavior behavior = BottomSheetBehavior.from(layout);
+        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         TextInputLayout nameInputLayout = findViewById(R.id.name);
         TextInputLayout addressInputLayout = findViewById(R.id.address);
-
-        nameInput = (EditText) nameInputLayout.getEditText();
-        addressInput = (EditText) addressInputLayout.getEditText();
-
+        nameInput = nameInputLayout.getEditText();
+        addressInput = addressInputLayout.getEditText();
         if (nameInput == null || addressInput == null) {
-            Log.wtf("ERROR", "could not find Edit text of name or address");
+            Log.wtf(TAG, "could not find Edit text of name or address");
             return;
         }
 
         nameHeader = findViewById(R.id.name_header);
-
-        nameHeader.setOnClickListener(view -> headerClickListener(nameInput));
-
         nameInput.setOnKeyListener(onNameInput);
 
         alarmViewModel = ViewModelProviders
-                .of(Objects.requireNonNull(this)) //Shared with MapFragment
+                .of(Objects.requireNonNull(this))
                 .get(AlarmViewModel.class);
 
-        fab = findViewById(R.id.button_ok);
+        fab = findViewById(R.id.button_ok); //TODO #7 add FAB animation
         fab.setOnClickListener(onAddButtonClickListener);
     }
 
-    private BottomSheetBehavior.BottomSheetCallback bottomSheetCallback = new BottomSheetBehavior.BottomSheetCallback() {
-        @Override
-        public void onStateChanged(@NonNull View view, int newState) {
-            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
-
-            if (newState == BottomSheetBehavior.STATE_EXPANDED) {
-                lp.anchorGravity = Gravity.BOTTOM | GravityCompat.END; // TODO fix doesn't work
-                fab.setLayoutParams(lp); // TODO fix doesn't work
-
-//                actionBar.hide();
-                return;
-            }
-
-            lp.anchorGravity = Gravity.TOP | GravityCompat.END; // TODO fix doesn't work
-            fab.setLayoutParams(lp); // TODO fix doesn't work
-
-//            actionBar.show();
-        }
-
-        @Override
-        public void onSlide(@NonNull View view, float v) {
-
-        }
-    };
-
     private View.OnClickListener onAddButtonClickListener = view -> {
-        int state = behavior.getState();
+        hideKeyboard();
 
-        if (state == BottomSheetBehavior.STATE_COLLAPSED) {
-            behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-        }
-
-        name = nameInput.getText().toString();
-        address = addressInput.getText().toString();
+        String name = nameInput.getText().toString();
+        String address = addressInput.getText().toString();
 
         if (name.isEmpty() || address.isEmpty()) {
             Snackbar.make(view, "Please fill required fields: Name and Destination", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
-
             return;
         }
 
         alarmViewModel.createAlarm(name, address, true, 0, 0,2000);
-    };
 
-    private View.OnClickListener onNavigationClick = view -> finish();
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    };
 
     private View.OnKeyListener onNameInput = (v, keyCode, event) -> {
         String name = nameInput.getText().toString();
         nameHeader.setText(name);
-
         return false;
     };
 
-    private void headerClickListener (EditText editText) {
-        int state = behavior.getState();
-
-        if (state == BottomSheetBehavior.STATE_COLLAPSED) {
-            behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
-        }
-
-        editText.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (imm == null) {
-            Log.wtf("ERROR", "Error happened in getSystemService");
+            Log.wtf(TAG, "unable to get INPUT_METHOD_SERVICE");
             return;
         }
-
-        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+        View view = getCurrentFocus();
+        if (view == null) {
+            view = new View(this);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
