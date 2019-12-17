@@ -83,7 +83,7 @@ public class NewAlarmActivity extends AppCompatActivity {
         String address = addressInput.getText().toString();
 
         if (name.isEmpty() || address.isEmpty()) {
-            Snackbar.make(view, "Please fill required fields: Name and Destination", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, "Please fill required fields: Name and Address", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
             return;
         }
