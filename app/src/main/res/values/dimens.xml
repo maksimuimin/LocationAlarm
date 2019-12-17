@@ -3,9 +3,19 @@
     <dimen name="twoLineItemHeight">72dp</dimen>
     <dimen name="twoLineItemPadding">16dp</dimen>
     <dimen name="twoLineItemPaddingTop">8dp</dimen>
+    <dimen name="barTextSize">20sp</dimen>
     <dimen name="primaryTextSize">16sp</dimen>
     <dimen name="secondaryTextHeight">20dp</dimen>
     <dimen name="secondaryTextSize">14sp</dimen>
     <dimen name="barHeight">56dp</dimen>
     <dimen name="elevation">10dp</dimen>
+    <dimen name="standardPadding">16dp</dimen>
+    <dimen name="paddingTopWithFab">32dp</dimen>
+    <dimen name="listImageSize">40dp</dimen>
+    <dimen name="titleTextSize">24sp</dimen>
+    <dimen name="dashHeight">4dp</dimen>
+    <dimen name="dashWidth">32dp</dimen>
+    <dimen name="dashCornerRadius">2dp</dimen>
+    <dimen name="newAlrmBottomSheetPeekHeight">236dp</dimen>
+    <dimen name="largeObjectCornerRadius">12dp</dimen>
 </resources>

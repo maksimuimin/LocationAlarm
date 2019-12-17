@@ -16,7 +16,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-      
+
+        <activity
+            android:name=".alarm.ui.NewAlarmActivity"
+            android:label="@string/add_new_alarm"
+            android:theme="@style/AppTheme">
+        </activity>
+
         <activity android:name=".alarm.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,12 +37,12 @@
             android:name=".alarm.ui.alarm_service.AlarmService"
             android:foregroundServiceType="location">
             <intent-filter>
-                <action android:name="${applicationId}.do_alarm"/>
-                <action android:name="${applicationId}.too_many_geofences"/>
+                <action android:name="${applicationId}.do_alarm" />
+                <action android:name="${applicationId}.too_many_geofences" />
             </intent-filter>
         </service>
 
-        <receiver android:name=".geofence.use_cases.GeofenceBroadcastReceiver"/>
+        <receiver android:name=".geofence.use_cases.GeofenceBroadcastReceiver" />
 
     </application>
 

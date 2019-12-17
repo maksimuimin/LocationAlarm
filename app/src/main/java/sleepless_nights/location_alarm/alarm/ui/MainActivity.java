@@ -16,16 +16,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.Objects;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
-import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 import sleepless_nights.location_alarm.permission.Permission;
 import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository;
 
@@ -73,24 +69,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
         });
 
-        AlarmViewModel alarmViewModel = ViewModelProviders
-                .of(Objects.requireNonNull(this)) //Shared with MapFragment
-                .get(AlarmViewModel.class);
         FloatingActionButton fab = findViewById(R.id.floating_button);
         fab.setOnClickListener(v -> {
-            switch (tabState) {
-                case TAB_ALARM_LIST: {
-                    alarmViewModel.createAlarm("MyAlarm", "MyAddress", true, 0, 0,2000);
-                    break;
-                }
-                case TAB_MAP: {
-                    Toast.makeText(this, "MapTab's FAB is on click", Toast.LENGTH_SHORT).show();
-                    break;
-                }
-                default: {
-                    Log.wtf(TAG, "Got unknown tabState: " + tabState.toString());
-                }
-            }
+            Intent intent = new Intent(this, NewAlarmActivity.class);
+            startActivity(intent);
         });
 
         if (savedInstanceState == null) {
