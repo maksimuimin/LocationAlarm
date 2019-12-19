@@ -21,14 +21,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
 import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.permission.Permission;
 import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Router {
     private static final String TAG = "MainActivity";
+    private MapFragment mapFragment;
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
     private AlertDialog permissionDialog;
     private MenuTabState tabState;
@@ -54,14 +56,15 @@ public class MainActivity extends AppCompatActivity {
                 .requirePermissionsByGroup(this, Permission.Group.MUST_HAVE);
         setContentView(R.layout.activity_main);
 
+        this.mapFragment = LocationAlarmApplication.from(this).getMapFragment();
+
         Toolbar customToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(customToolBar);
 
         View alarmListTabBtn = findViewById(R.id.app_bar_alarm_list_tab);
         alarmListTabBtn.setOnClickListener(v -> {
             if (tabState == MenuTabState.TAB_ALARM_LIST) return;
-            tabState = MenuTabState.TAB_ALARM_LIST;
-            Toast.makeText(this, "switched to alarm list tab", Toast.LENGTH_SHORT).show();
+            showAlarmList();
         });
 
         View mapTabBtn = findViewById(R.id.app_bar_map_tab);
@@ -72,36 +75,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         FloatingActionButton fab = findViewById(R.id.floating_button);
-        fab.setOnClickListener(v -> {
-            Intent intent = new Intent(this, NewAlarmActivity.class);
-            startActivity(intent);
-        });
+        fab.setOnClickListener(v -> newAlarm());
 
         if (savedInstanceState == null) {
-            tabState = MenuTabState.TAB_ALARM_LIST;
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragment_container, AlarmListFragment.newInstance())
-                    .commit();
+            showAlarmList();
             return;
         }
 
         tabState = MenuTabState.valueOf(savedInstanceState.getString(TAB_STATE_NAME_BUNDLE_KEY));
         switch (tabState) {
             case TAB_MAP: {
-                MapFragment mapFragment =  LocationAlarmApplication.from(this).getMapFragment();
-                mapFragment.showAll();
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, mapFragment)
-                        .commit();
+                showAllAlarms();
                 break;
             }
             case TAB_ALARM_LIST: {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, AlarmListFragment.newInstance())
-                        .commit();
+                showAlarmList();
             }
             default: {
                 Log.wtf(TAG, "got unknown tabState from savedInstanceState: " + tabState);
@@ -165,4 +153,45 @@ public class MainActivity extends AppCompatActivity {
         TAB_ALARM_LIST,
         TAB_MAP
     }
+
+    @Override
+    public void showAlarmList() {
+        tabState = MenuTabState.TAB_ALARM_LIST;
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                .commit();
+    }
+
+    @Override
+    public void showAllAlarms() {
+        tabState = MenuTabState.TAB_MAP;
+        mapFragment.showAll();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, mapFragment)
+                .commit();
+    }
+
+    @Override
+    public void newAlarm() {
+        Intent intent = new Intent(this, NewAlarmActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void showAlarm(Alarm alarm) {
+        tabState = MenuTabState.TAB_MAP;
+        mapFragment.show(alarm);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, mapFragment)
+                .commit();
+    }
+
+    @Override
+    public void editAlarm(Alarm alarm) {
+        //
+    }
+
 }
