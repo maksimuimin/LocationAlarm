@@ -35,11 +35,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final float STD_ZOOM = 10.0f;
     private static final int STD_PADDING = 80;
 
-    //fixme ON OFF STATIC DYNAMIC
     private static final float OFF_HUE = BitmapDescriptorFactory.HUE_AZURE;
     private static final float ON_HUE = BitmapDescriptorFactory.HUE_RED;
-    private static final float SELF_HUE = BitmapDescriptorFactory.HUE_VIOLET;
-    private static final float MOVING_HUE = BitmapDescriptorFactory.HUE_GREEN;
+    private static final float STATIC_HUE = BitmapDescriptorFactory.HUE_VIOLET;
+    private static final float DYNAMIC_HUE = BitmapDescriptorFactory.HUE_VIOLET;
 
     public enum Mode {
         CURRENT_LOC, SHOW_ALL, SHOW, EDIT
@@ -210,6 +209,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * camera
+     * */
+
     private void zoomAtAll() {
         LatLngBounds.Builder builder = LatLngBounds.builder();
         for (Marker marker : markers) {
@@ -223,25 +226,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), STD_ZOOM));
     }
 
-    @Deprecated
-    private void zoomAt(double latitude, double longitude) {
-        LatLng latLng = new LatLng(latitude, longitude);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, STD_ZOOM));
-        Log.d("MAP", "moving camera " + latitude + " : " + longitude);
-    }
+    /**
+     * markers
+     * */
 
     private void addMarker(GoogleMap googleMap, Alarm alarm) {
-        addMarker(
-                googleMap, alarm.getLatitude(), alarm.getLongitude(),
-                alarm.getIsActive() ? ON_HUE : OFF_HUE
-        );
+        LatLng latLng = new LatLng(alarm.getLatitude(), alarm.getLongitude());
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.defaultMarker( alarm.getIsActive() ? ON_HUE : OFF_HUE ));
+        markers.add(googleMap.addMarker(markerOptions));
     }
 
     private void setStaticMarker(GoogleMap googleMap, LatLng latLng) {
         if (staticMarker == null) {
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(latLng)
-                    .icon(BitmapDescriptorFactory.defaultMarker(SELF_HUE));
+                    .icon(BitmapDescriptorFactory.defaultMarker(STATIC_HUE));
             staticMarker = googleMap.addMarker(markerOptions);
         } else {
             staticMarker.setPosition(latLng);
@@ -259,7 +260,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(latLng)
                     .alpha(0.5f)
-                    .icon(BitmapDescriptorFactory.defaultMarker(MOVING_HUE));
+                    .icon(BitmapDescriptorFactory.defaultMarker(DYNAMIC_HUE));
             dynamicMarker = googleMap.addMarker(markerOptions);
         } else {
             dynamicMarker.setPosition(latLng);
@@ -271,15 +272,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             dynamicMarker.remove();
             dynamicMarker = null;
         }
-    }
-
-    @Deprecated
-    private void addMarker(GoogleMap googleMap, double latitude, double longitude, float hue) {
-        LatLng latLng = new LatLng(latitude, longitude);
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.defaultMarker(hue));
-        markers.add(googleMap.addMarker(markerOptions));
     }
 
     private void clearMarkers() {
