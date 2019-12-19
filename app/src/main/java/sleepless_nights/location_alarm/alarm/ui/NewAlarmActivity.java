@@ -10,11 +10,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
-
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -22,11 +17,19 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
+import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class NewAlarmActivity extends AppCompatActivity {
     private static final String TAG = "NewAlarmActivity";
+
+    private MapFragment mapFragment;
 
     private EditText nameInput;
     private EditText addressInput;
@@ -51,6 +54,16 @@ public class NewAlarmActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_24);
         }
         toolbar.setNavigationOnClickListener(view -> finish());
+
+        MapFragment mapFragment = LocationAlarmApplication.from(this).getMapFragment();
+        //fixme mapFragmentEditNew();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.fragment_container, mapFragment)
+                    .commit();
+            return;
+        }
 
         LinearLayout layout = findViewById(R.id.bottom_sheet_layout);
         BottomSheetBehavior behavior = BottomSheetBehavior.from(layout);

@@ -45,7 +45,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String ID = "id";
 
     public enum Mode {
-        CURRENT_LOC, SHOW_ALL, SHOW, EDIT
+        CURRENT_LOC, SHOW_ALL, SHOW, EDIT, EDIT_NEW
     }
 
     /**
@@ -68,36 +68,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * factory methods
      * */
 
-    public static MapFragment newCurrentLoc() {
-        Bundle arguments = new Bundle();
-        arguments.putString(MODE, Mode.CURRENT_LOC.name());
-        return createWithArguments(arguments);
-    }
-
-    public static MapFragment newShowAll() {
-        Bundle arguments = new Bundle();
-        arguments.putString(MODE, Mode.SHOW_ALL.name());
-        return createWithArguments(arguments);
-    }
-
-    public static MapFragment newShow(long id) {
-        Bundle arguments = new Bundle();
-        arguments.putString(MODE, Mode.SHOW.name());
-        arguments.putLong(ID, id);
-        return createWithArguments(arguments);
-    }
-
-    public static MapFragment newEdit(long id) {
-        Bundle arguments = new Bundle();
-        arguments.putString(MODE, Mode.EDIT.name());
-        arguments.putLong(ID, id);
-        return createWithArguments(arguments);
-    }
-
-    private static MapFragment createWithArguments(Bundle arguments) {
-        MapFragment res = new MapFragment();
-        res.setArguments(arguments);
-        return res;
+    public static MapFragment newInstance() {
+        return new MapFragment();
     }
 
     /**
@@ -122,6 +94,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         switchMode(Mode.EDIT);
     }
 
+    public void editNew() {
+        switchMode(Mode.EDIT_NEW);
+        //fixme implement
+    }
+
     /**
      * lifecycle callbacks
      * */
@@ -142,13 +119,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        Bundle arguments = getArguments();
-        if (arguments != null && arguments.getString(MODE) != null) {
-            this.mode = Mode.valueOf(arguments.getString(MODE));
-            this.id = arguments.getLong(ID, -1);
-        } else {
-            this.mode = Mode.CURRENT_LOC;
-        }
+        this.mode = Mode.CURRENT_LOC;
         this.modeSwitched = true;
         this.markers = new ArrayList<>();
         this.markerToId = new HashMap<>();

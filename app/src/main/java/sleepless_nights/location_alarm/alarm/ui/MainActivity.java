@@ -19,6 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
@@ -87,25 +88,23 @@ public class MainActivity extends AppCompatActivity {
 
         tabState = MenuTabState.valueOf(savedInstanceState.getString(TAB_STATE_NAME_BUNDLE_KEY));
         switch (tabState) {
+            case TAB_MAP: {
+                MapFragment mapFragment =  LocationAlarmApplication.from(this).getMapFragment();
+                mapFragment.showAll();
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragment_container, mapFragment)
+                        .commit();
+                break;
+            }
             case TAB_ALARM_LIST: {
                 getSupportFragmentManager()
                         .beginTransaction()
                         .replace(R.id.fragment_container, AlarmListFragment.newInstance())
                         .commit();
-                break;
-            }
-            case TAB_MAP: {
-                //TODO #5 load map fragment
-                break;
             }
             default: {
                 Log.wtf(TAG, "got unknown tabState from savedInstanceState: " + tabState);
-                tabState = MenuTabState.TAB_ALARM_LIST;
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, AlarmListFragment.newInstance())
-                        .commit();
-                break;
             }
         }
     }
