@@ -56,7 +56,7 @@ public class NewAlarmActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(view -> finish());
 
         MapFragment mapFragment = LocationAlarmApplication.from(this).getMapFragment();
-        //fixme mapFragmentEditNew();
+        mapFragment.edit();
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -101,7 +101,10 @@ public class NewAlarmActivity extends AppCompatActivity {
             return;
         }
 
-        alarmViewModel.createAlarm(name, address, true, 0, 0,2000);
+        alarmViewModel.createAlarm(
+                name, address, true,
+                mapFragment.getLatitude(), mapFragment.getLongitude(),2000
+        );
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
