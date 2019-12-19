@@ -193,6 +193,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             LocationRepo.getCurrentLocation(activity, location -> {
                 setStaticMarker(googleMap, new LatLng(location.getLatitude(), location.getLongitude()));
                 zoomAt(staticMarker);
+            }, () -> {
+                setStaticMarker(googleMap, new LatLng(0.0, 0.0));
+                zoomAt(staticMarker);
             });
         } else if (mode == Mode.SHOW_ALL) {
             AlarmDataSet alarmDataSet = alarmViewModel.getLiveData().getValue();

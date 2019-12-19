@@ -11,8 +11,7 @@ public class LocationRepo {
         void onLocationGot(Location location);
     }
 
-    //fixme Callback on success, on fail
-    public static void getCurrentLocation(Activity activity, Callback callback) {
+    public static void getCurrentLocation(Activity activity, Callback onSuccess, Runnable onFail) {
         LocationServices
                 .getFusedLocationProviderClient(activity)
                 .getLastLocation()
@@ -20,8 +19,10 @@ public class LocationRepo {
                     if (task.isSuccessful()) {
                         Location location = task.getResult();
                         if (location != null) {
-                            callback.onLocationGot(location);
+                            onSuccess.onLocationGot(location);
                         }
+                    } else {
+                        onFail.run();
                     }
                 });
     }
