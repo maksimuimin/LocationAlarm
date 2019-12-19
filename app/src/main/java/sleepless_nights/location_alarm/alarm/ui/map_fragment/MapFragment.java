@@ -18,9 +18,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -36,16 +34,15 @@ import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final float STD_ZOOM = 10.0f;
     private static final int STD_PADDING = 80;
+
+    //fixme ON OFF STATIC DYNAMIC
     private static final float OFF_HUE = BitmapDescriptorFactory.HUE_AZURE;
     private static final float ON_HUE = BitmapDescriptorFactory.HUE_RED;
     private static final float SELF_HUE = BitmapDescriptorFactory.HUE_VIOLET;
     private static final float MOVING_HUE = BitmapDescriptorFactory.HUE_GREEN;
 
-    private static final String MODE = "mode";
-    private static final String ID = "id";
-
     public enum Mode {
-        CURRENT_LOC, SHOW_ALL, SHOW, EDIT, EDIT_NEW
+        CURRENT_LOC, SHOW_ALL, SHOW, EDIT
     }
 
     /**
@@ -56,11 +53,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private AlarmViewModel alarmViewModel;
 
     private Mode mode;
-    private boolean modeSwitched;
-    private long id;
     private List<Marker> markers;
-    private Marker movingMarker;
-    private Map<Marker, Long> markerToId;
+    private Marker staticMarker;
+    private Marker dynamicMarker;
 
     private GoogleMap googleMap;
 
@@ -84,19 +79,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         switchMode(Mode.SHOW);
     }
 
+    @Deprecated
+    //fixme
     public void show(long id) {
-        this.id = id;
-        switchMode(Mode.SHOW);
+//        this.id = id;
+//        switchMode(Mode.SHOW);
     }
 
-    public void edit(long id) {
-        this.id = id;
+    public void edit() {
         switchMode(Mode.EDIT);
     }
 
-    public void editNew() {
-        switchMode(Mode.EDIT_NEW);
-        //fixme implement
+    public double getLatitude() {
+        return googleMap.getCameraPosition().target.latitude;
+    }
+
+    public double getLongitude() {
+        return googleMap.getCameraPosition().target.longitude;
     }
 
     /**
@@ -114,17 +113,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 .get(AlarmViewModel.class);
         //fixme можно оптимизировать
         alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> {
-            if (mode != Mode.CURRENT_LOC) {
+            if (mode == Mode.SHOW_ALL) {
                 refresh();
             }
         });
 
         this.mode = Mode.CURRENT_LOC;
-        this.modeSwitched = true;
         this.markers = new ArrayList<>();
-        this.markerToId = new HashMap<>();
 
-        SupportMapFragment googleMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+        SupportMapFragment googleMapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         if (googleMapFragment == null) {
             Log.wtf("MAP", "Google map fragment not found");
             return res;
@@ -143,47 +141,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         googleMap.setOnCameraMoveListener(() -> {
             if (mode == Mode.EDIT) {
-                if (movingMarker == null) {
-                    MarkerOptions markerOptions = new MarkerOptions()
-                            .position(googleMap.getCameraPosition().target)
-                            .alpha(0.5f)
-                            .icon(BitmapDescriptorFactory.defaultMarker(MOVING_HUE));
-                    movingMarker = googleMap.addMarker(markerOptions);
-                }
-                movingMarker.setPosition(googleMap.getCameraPosition().target);
+                setDynamicMarker(googleMap, googleMap.getCameraPosition().target);
             }
         });
 
         googleMap.setOnCameraIdleListener(() -> {
-            if (mode == Mode.EDIT && movingMarker != null) {
-                movingMarker.remove();
-                movingMarker = null;
-                Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
-                if (alarm == null) {
-                    Log.wtf("MAP", "editing with out alarm");
-                    return;
-                }
-                LatLng latLng = googleMap.getCameraPosition().target;
-                alarm.setLatitude(latLng.latitude);
-                alarm.setLongitude(latLng.longitude);
-                alarmViewModel.updateAlarm(alarm);
+            removeDynamicMarker();
+            if (mode == Mode.EDIT) {
+                setStaticMarker(googleMap, googleMap.getCameraPosition().target);
             }
         });
 
-        googleMap.setOnMarkerClickListener(marker -> {
-            if (marker != null) {
-                Long id = markerToId.get(marker);
-                if (id != null) {
-                    Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
-                    if (alarm != null) {
-                        alarm.setIsActive(!alarm.getIsActive());
-                        alarmViewModel.updateAlarm(alarm);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        });
+//        googleMap.setOnMarkerClickListener(marker -> {
+//            if (marker != null) {
+//                Long id = markerToId.get(marker);
+//                if (id != null) {
+//                    Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
+//                    if (alarm != null) {
+//                        alarm.setIsActive(!alarm.getIsActive());
+//                        alarmViewModel.updateAlarm(alarm);
+//                        return true;
+//                    }
+//                }
+//            }
+//            return false;
+//        });
 
         refresh();
     }
@@ -194,7 +176,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void switchMode(Mode mode) {
         this.mode = mode;
-        this.modeSwitched = true;
         refresh();
     }
 
@@ -209,10 +190,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
 
         clearMarkers();
-        if (mode == Mode.CURRENT_LOC) {
+        if (mode == Mode.CURRENT_LOC || mode == Mode.EDIT) {
             LocationRepo.getCurrentLocation(activity, location -> {
-                addMarker(googleMap, location.getLatitude(), location.getLongitude(), SELF_HUE);
-                zoomAt(location.getLatitude(), location.getLongitude());
+                setStaticMarker(googleMap, new LatLng(location.getLatitude(), location.getLongitude()));
+                zoomAt(staticMarker);
             });
         } else if (mode == Mode.SHOW_ALL) {
             AlarmDataSet alarmDataSet = alarmViewModel.getLiveData().getValue();
@@ -224,18 +205,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 addMarker(googleMap, alarm);
             }
             zoomAtAll();
-        } else if ((mode == Mode.SHOW || mode == Mode.EDIT)) {
-            Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
-            if (alarm == null) {
-                Log.wtf("MAP", "No alarm found while refreshing");
-                return;
-            }
-            addMarker(googleMap, alarm);
-            if (modeSwitched) {
-                zoomAt(alarm.getLatitude(), alarm.getLongitude());
-            }
+        } else if (mode == Mode.SHOW) {
+            //fixme implement
         }
-        modeSwitched = false;
     }
 
     private void zoomAtAll() {
@@ -247,6 +219,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Log.d("MAP", "moving camera around all alarms");
     }
 
+    private void zoomAt(Marker marker) {
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), STD_ZOOM));
+    }
+
+    @Deprecated
     private void zoomAt(double latitude, double longitude) {
         LatLng latLng = new LatLng(latitude, longitude);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, STD_ZOOM));
@@ -254,29 +231,64 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void addMarker(GoogleMap googleMap, Alarm alarm) {
-        Marker res = addMarker(
+        addMarker(
                 googleMap, alarm.getLatitude(), alarm.getLongitude(),
                 alarm.getIsActive() ? ON_HUE : OFF_HUE
         );
-        markerToId.put(res, alarm.getId());
     }
 
-    private Marker addMarker(GoogleMap googleMap, double latitude, double longitude, float hue) {
+    private void setStaticMarker(GoogleMap googleMap, LatLng latLng) {
+        if (staticMarker == null) {
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.defaultMarker(SELF_HUE));
+            staticMarker = googleMap.addMarker(markerOptions);
+        } else {
+            staticMarker.setPosition(latLng);
+        }
+    }
+
+    private void removeStaticMarker() {
+        if (staticMarker != null) {
+            staticMarker.remove();
+        }
+    }
+
+    private void setDynamicMarker(GoogleMap googleMap, LatLng latLng) {
+        if (dynamicMarker == null) {
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng)
+                    .alpha(0.5f)
+                    .icon(BitmapDescriptorFactory.defaultMarker(MOVING_HUE));
+            dynamicMarker = googleMap.addMarker(markerOptions);
+        } else {
+            dynamicMarker.setPosition(latLng);
+        }
+    }
+
+    private void removeDynamicMarker() {
+        if (dynamicMarker != null) {
+            dynamicMarker.remove();
+            dynamicMarker = null;
+        }
+    }
+
+    @Deprecated
+    private void addMarker(GoogleMap googleMap, double latitude, double longitude, float hue) {
         LatLng latLng = new LatLng(latitude, longitude);
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.defaultMarker(hue));
-        Marker res = googleMap.addMarker(markerOptions);
-        markers.add(res);
-        return res;
+        markers.add(googleMap.addMarker(markerOptions));
     }
 
     private void clearMarkers() {
+        removeStaticMarker();
+        removeDynamicMarker();
         for (Marker marker : markers) {
             marker.remove();
         }
         markers.clear();
-        markerToId.clear();
     }
 
 }

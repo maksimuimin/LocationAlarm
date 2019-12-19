@@ -11,6 +11,7 @@ public class LocationRepo {
         void onLocationGot(Location location);
     }
 
+    //fixme Callback on success, on fail
     public static void getCurrentLocation(Activity activity, Callback callback) {
         LocationServices
                 .getFusedLocationProviderClient(activity)
