@@ -27,7 +27,6 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         switchAlarmView = itemView.findViewById(R.id.switch_alarm);
 
         switchAlarmView.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
             alarm.setIsActive(isChecked);
             viewModel.updateAlarm(alarm);
         });

@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import sleepless_nights.LocationAlarmApplication;
+import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDao;
 import sleepless_nights.location_alarm.alarm.use_cases.db.AlarmDb;
