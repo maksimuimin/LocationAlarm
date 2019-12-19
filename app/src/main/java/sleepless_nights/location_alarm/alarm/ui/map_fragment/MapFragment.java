@@ -51,6 +51,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Activity activity;
     private AlarmViewModel alarmViewModel;
 
+    private Alarm alarm;
     private Mode mode;
     private List<Marker> markers;
     private Marker staticMarker;
@@ -78,11 +79,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         switchMode(Mode.SHOW);
     }
 
-    @Deprecated
-    //fixme
-    public void show(long id) {
-//        this.id = id;
-//        switchMode(Mode.SHOW);
+    public void show(Alarm alarm) {
+        this.alarm = alarm;
+        switchMode(Mode.SHOW);
     }
 
     public void edit() {
@@ -110,7 +109,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         this.alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
-        //fixme можно оптимизировать
         alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> {
             if (mode == Mode.SHOW_ALL) {
                 refresh();
@@ -150,21 +148,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 setStaticMarker(googleMap, googleMap.getCameraPosition().target);
             }
         });
-
-//        googleMap.setOnMarkerClickListener(marker -> {
-//            if (marker != null) {
-//                Long id = markerToId.get(marker);
-//                if (id != null) {
-//                    Alarm alarm = alarmViewModel.getAlarmLiveDataById(id);
-//                    if (alarm != null) {
-//                        alarm.setIsActive(!alarm.getIsActive());
-//                        alarmViewModel.updateAlarm(alarm);
-//                        return true;
-//                    }
-//                }
-//            }
-//            return false;
-//        });
 
         refresh();
     }
@@ -208,7 +191,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
             zoomAtAll();
         } else if (mode == Mode.SHOW) {
-            //fixme implement
+            setStaticMarker(googleMap, new LatLng(alarm.getLatitude(), alarm.getLongitude()));
+            zoomAt(staticMarker);
         }
     }
 
