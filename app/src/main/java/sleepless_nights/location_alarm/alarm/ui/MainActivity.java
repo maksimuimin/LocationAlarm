@@ -70,8 +70,7 @@ public class MainActivity extends AppCompatActivity implements Router {
         View mapTabBtn = findViewById(R.id.app_bar_map_tab);
         mapTabBtn.setOnClickListener(v -> {
             if (tabState == MenuTabState.TAB_MAP) return;
-            tabState = MenuTabState.TAB_MAP;
-            Toast.makeText(this, "switched to map tab", Toast.LENGTH_SHORT).show();
+            showAllAlarms();
         });
 
         FloatingActionButton fab = findViewById(R.id.floating_button);

@@ -62,7 +62,6 @@ public class NewAlarmActivity extends AppCompatActivity {
                     .beginTransaction()
                     .add(R.id.fragment_container, mapFragment)
                     .commit();
-            return;
         }
 
         LinearLayout layout = findViewById(R.id.bottom_sheet_layout);

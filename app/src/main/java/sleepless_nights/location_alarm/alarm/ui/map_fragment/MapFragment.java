@@ -191,8 +191,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
             zoomAtAll();
         } else if (mode == Mode.SHOW) {
-            setStaticMarker(googleMap, new LatLng(alarm.getLatitude(), alarm.getLongitude()));
-            zoomAt(staticMarker);
+            if (alarm != null) {
+                setStaticMarker(googleMap, new LatLng(alarm.getLatitude(), alarm.getLongitude()));
+                zoomAt(staticMarker);
+            } else {
+                Log.wtf("MAP", "show mode with no alarm to show");
+            }
         }
     }
 
@@ -201,6 +205,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * */
 
     private void zoomAtAll() {
+        if (markers.size() == 0) return;
         LatLngBounds.Builder builder = LatLngBounds.builder();
         for (Marker marker : markers) {
             builder.include(marker.getPosition());
