@@ -21,15 +21,12 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
-import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class NewAlarmActivity extends AppCompatActivity {
     private static final String TAG = "NewAlarmActivity";
-
-    private MapFragment mapFragment;
 
     private EditText nameInput;
     private EditText addressInput;
@@ -55,12 +52,10 @@ public class NewAlarmActivity extends AppCompatActivity {
         }
         toolbar.setNavigationOnClickListener(view -> finish());
 
-        MapFragment mapFragment = LocationAlarmApplication.from(this).getMapFragment();
-        mapFragment.edit();
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.fragment_container, mapFragment)
+                    .add(R.id.fragment_container, MapFragment.newEdit())
                     .commit();
         }
 
@@ -100,10 +95,16 @@ public class NewAlarmActivity extends AppCompatActivity {
             return;
         }
 
-        alarmViewModel.createAlarm(
-                name, address, true,
-                mapFragment.getLatitude(), mapFragment.getLongitude(),2000
-        );
+        MapFragment mapFragment =
+                (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (mapFragment != null) {
+            alarmViewModel.createAlarm(
+                    name, address, true,
+                    mapFragment.getLatitude(), mapFragment.getLongitude(), 2000
+            );
+        } else {
+            Log.wtf(TAG, "No map fragment found");
+        }
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);

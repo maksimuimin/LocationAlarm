@@ -63,8 +63,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * factory methods
      * */
 
-    public static MapFragment newInstance() {
-        return new MapFragment();
+    public static MapFragment newCurentLoc() {
+        return createWithArgs(Mode.CURRENT_LOC, null);
+    }
+
+    public static MapFragment newShowAll() {
+        return createWithArgs(Mode.SHOW_ALL, null);
+    }
+
+    public static MapFragment newShow(Alarm alarm) {
+        return createWithArgs(Mode.SHOW, alarm);
+    }
+
+    public static MapFragment newEdit() {
+        return createWithArgs(Mode.EDIT, null);
+    }
+
+    private static MapFragment createWithArgs(Mode mode, Alarm alarm) {
+        Bundle args = new Bundle();
+        args.putString(MODE, mode.toString());
+        if (alarm != null) args.putLong(ID, alarm.getId());
+        MapFragment res = new MapFragment();
+        res.setArguments(args);
+        return res;
     }
 
     /**

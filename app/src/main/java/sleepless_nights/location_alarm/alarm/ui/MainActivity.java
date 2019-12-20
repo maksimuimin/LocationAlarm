@@ -19,7 +19,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import sleepless_nights.location_alarm.LocationAlarmApplication;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
@@ -30,7 +29,6 @@ import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository
 
 public class MainActivity extends AppCompatActivity implements Router {
     private static final String TAG = "MainActivity";
-    private MapFragment mapFragment;
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
     private AlertDialog permissionDialog;
     private MenuTabState tabState;
@@ -55,8 +53,6 @@ public class MainActivity extends AppCompatActivity implements Router {
         MUST_HAVE_PERMISSIONS_REQUEST_ID = PermissionRepository.getInstance(this)
                 .requirePermissionsByGroup(this, Permission.Group.MUST_HAVE);
         setContentView(R.layout.activity_main);
-
-        this.mapFragment = LocationAlarmApplication.from(this).getMapFragment();
 
         Toolbar customToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(customToolBar);
@@ -165,10 +161,9 @@ public class MainActivity extends AppCompatActivity implements Router {
     @Override
     public void showAllAlarms() {
         tabState = MenuTabState.TAB_MAP;
-        mapFragment.showAll();
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, mapFragment)
+                .replace(R.id.fragment_container, MapFragment.newShowAll())
                 .commit();
     }
 
@@ -181,10 +176,9 @@ public class MainActivity extends AppCompatActivity implements Router {
     @Override
     public void showAlarm(Alarm alarm) {
         tabState = MenuTabState.TAB_MAP;
-        mapFragment.show(alarm);
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, mapFragment)
+                .replace(R.id.fragment_container, MapFragment.newShow(alarm))
                 .commit();
     }
 

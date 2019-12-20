@@ -13,15 +13,12 @@ public class LocationAlarmApplication extends Application {
     private AlarmRepository alarmRepository;
     private PermissionRepository permissionRepository;
 
-    private MapFragment mapFragment;
-
     @Override
     public void onCreate() {
         super.onCreate();
         geofenceRepository = new GeofenceRepository(getApplicationContext());
         alarmRepository = new AlarmRepository(getApplicationContext());
         permissionRepository = new PermissionRepository(getApplicationContext());
-        mapFragment = MapFragment.newInstance();
     }
 
     public GeofenceRepository getGeofenceRepository() {
@@ -33,10 +30,6 @@ public class LocationAlarmApplication extends Application {
     }
 
     public PermissionRepository getPermissionRepository() { return permissionRepository; }
-
-    public MapFragment getMapFragment() {
-        return mapFragment;
-    }
 
     public static LocationAlarmApplication from(Context context) {
         return (LocationAlarmApplication) context.getApplicationContext();
