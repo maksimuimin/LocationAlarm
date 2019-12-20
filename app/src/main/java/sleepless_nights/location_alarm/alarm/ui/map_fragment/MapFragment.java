@@ -32,6 +32,9 @@ import sleepless_nights.location_alarm.alarm.use_cases.LocationRepo;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
+    private static final String MODE = "MODE";
+    private static final String ID = "ID";
+
     private static final float STD_ZOOM = 10.0f;
     private static final int STD_PADDING = 80;
 
@@ -139,6 +142,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         this.mode = Mode.CURRENT_LOC;
         this.markers = new ArrayList<>();
 
+        loadFromBundle(getArguments());
+        loadFromBundle(savedInstanceState);
+
         SupportMapFragment googleMapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         if (googleMapFragment == null) {
@@ -171,6 +177,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         refresh();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(MODE, mode.toString());
+        if (alarm != null) {
+            outState.putLong(ID, alarm.getId());
+        }
+    }
+
+    private void loadFromBundle(Bundle bundle) {
+        if (bundle == null) return;
+        this.mode = Mode.valueOf(bundle.getString(MODE, Mode.CURRENT_LOC.toString()));
+        long id = bundle.getLong(ID, -1);
+        if (id != -1) {
+            alarm = alarmViewModel.getAlarmLiveDataById(id);
+        }
     }
 
     /**
@@ -232,7 +256,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             builder.include(marker.getPosition());
         }
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), STD_PADDING));
-        Log.d("MAP", "moving camera around all alarms");
     }
 
     private void zoomAt(Marker marker) {
