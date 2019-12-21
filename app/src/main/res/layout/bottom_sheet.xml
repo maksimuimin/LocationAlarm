@@ -7,7 +7,7 @@
     android:background="@drawable/backdrop"
     android:padding="@dimen/standardPadding"
     app:behavior_hideable="false"
-    app:behavior_peekHeight="@dimen/newAlrmBottomSheetPeekHeight"
+    app:behavior_peekHeight="@dimen/newAlarmBottomSheetPeekHeight"
     app:layout_behavior="@string/bottom_sheet_behavior"
     app:elevation="20dp">
 
