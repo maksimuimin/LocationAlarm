@@ -34,6 +34,8 @@ import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String MODE = "MODE";
     private static final String ID = "ID";
+    private static final String LAT = "LAT";
+    private static final String LON = "LON";
 
     private static final float STD_ZOOM = 10.0f;
     private static final int STD_PADDING = 80;
@@ -55,6 +57,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private AlarmViewModel alarmViewModel;
 
     private Alarm alarm;
+    private LatLng editLatLng;
     private Mode mode;
     private List<Marker> markers;
     private Marker staticMarker;
@@ -113,11 +116,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public double getLatitude() {
-        return googleMap.getCameraPosition().target.latitude;
+        if (editLatLng == null) return 0.0;
+        return editLatLng.latitude;
     }
 
     public double getLongitude() {
-        return googleMap.getCameraPosition().target.longitude;
+        if (editLatLng == null) return 0.0;
+        return editLatLng.longitude;
     }
 
     /**
@@ -165,14 +170,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         googleMap.setOnCameraMoveListener(() -> {
             if (mode == Mode.EDIT) {
-                setDynamicMarker(googleMap, googleMap.getCameraPosition().target);
+                setDynamicMarker(googleMap.getCameraPosition().target);
             }
         });
 
         googleMap.setOnCameraIdleListener(() -> {
             removeDynamicMarker();
             if (mode == Mode.EDIT) {
-                setStaticMarker(googleMap, googleMap.getCameraPosition().target);
+                editLatLng = googleMap.getCameraPosition().target;
+                setStaticMarker(editLatLng);
             }
         });
 
@@ -186,6 +192,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (alarm != null) {
             outState.putLong(ID, alarm.getId());
         }
+        if (editLatLng != null) {
+            outState.putDouble(LAT, editLatLng.latitude);
+            outState.putDouble(LON, editLatLng.longitude);
+        }
     }
 
     private void loadFromBundle(Bundle bundle) {
@@ -195,6 +205,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (id != -1) {
             alarm = alarmViewModel.getAlarmLiveDataById(id);
         }
+        double lat = bundle.getDouble(LAT, Double.MIN_VALUE);
+        if (lat != Double.MIN_VALUE) {
+            editLatLng = new LatLng(lat, bundle.getDouble(LON));
+        }
     }
 
     /**
@@ -203,6 +217,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void switchMode(Mode mode) {
         this.mode = mode;
+        editLatLng = null;
         refresh();
     }
 
@@ -218,13 +233,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         clearMarkers();
         if (mode == Mode.CURRENT_LOC || mode == Mode.EDIT) {
-            LocationRepo.getCurrentLocation(activity, location -> {
-                setStaticMarker(googleMap, new LatLng(location.getLatitude(), location.getLongitude()));
-                zoomAt(staticMarker);
-            }, () -> {
-                setStaticMarker(googleMap, new LatLng(0.0, 0.0));
-                zoomAt(staticMarker);
-            });
+            if (mode == Mode.EDIT && editLatLng != null) {
+                setStaticMarker(editLatLng);
+            } else {
+                LocationRepo.getCurrentLocation(activity, location -> {
+                    setStaticMarker(new LatLng(location.getLatitude(), location.getLongitude()));
+                    zoomAt(staticMarker);
+                }, () -> {
+                    setStaticMarker(new LatLng(0.0, 0.0));
+                    zoomAt(staticMarker);
+                });
+            }
         } else if (mode == Mode.SHOW_ALL) {
             AlarmDataSet alarmDataSet = alarmViewModel.getLiveData().getValue();
             if (alarmDataSet == null) {
@@ -232,12 +251,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 return;
             }
             for (Alarm alarm : alarmDataSet) {
-                addMarker(googleMap, alarm);
+                addMarker(alarm);
             }
             zoomAtAll();
         } else if (mode == Mode.SHOW) {
             if (alarm != null) {
-                setStaticMarker(googleMap, new LatLng(alarm.getLatitude(), alarm.getLongitude()));
+                setStaticMarker(new LatLng(alarm.getLatitude(), alarm.getLongitude()));
                 zoomAt(staticMarker);
             } else {
                 Log.wtf("MAP", "show mode with no alarm to show");
@@ -266,7 +285,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * markers
      * */
 
-    private void addMarker(GoogleMap googleMap, Alarm alarm) {
+    private void addMarker(Alarm alarm) {
         LatLng latLng = new LatLng(alarm.getLatitude(), alarm.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
@@ -274,7 +293,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         markers.add(googleMap.addMarker(markerOptions));
     }
 
-    private void setStaticMarker(GoogleMap googleMap, LatLng latLng) {
+    private void setStaticMarker(LatLng latLng) {
         if (staticMarker == null) {
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(latLng)
@@ -291,7 +310,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void setDynamicMarker(GoogleMap googleMap, LatLng latLng) {
+    private void setDynamicMarker(LatLng latLng) {
         if (dynamicMarker == null) {
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(latLng)
