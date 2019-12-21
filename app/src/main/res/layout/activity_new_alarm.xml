@@ -29,6 +29,9 @@
     tools:context="sleepless_nights.location_alarm.alarm.ui.MainActivity"
     android:background="#A9F6FF"> <!-- TODO remove -->
 
+<!--    this frame seems to have 0 px height,
+map fragment is added into it and can be found and used later when alarm is created,
+despite that map is not shown in the UI-->
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"

@@ -53,9 +53,11 @@ public class NewAlarmActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(view -> finish());
 
         if (savedInstanceState == null) {
+            //adding mapFragment
+            //container seems to not work
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.fragment_container, MapFragment.newEdit())
+                    .replace(R.id.fragment_container, MapFragment.newEdit())
                     .commit();
         }
 
@@ -98,11 +100,13 @@ public class NewAlarmActivity extends AppCompatActivity {
         MapFragment mapFragment =
                 (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (mapFragment != null) {
+            //getting selected coordinates
             alarmViewModel.createAlarm(
                     name, address, true,
                     mapFragment.getLatitude(), mapFragment.getLongitude(), 2000
             );
         } else {
+            //perhaps showing user something went wrong?
             Log.wtf(TAG, "No map fragment found");
         }
 
