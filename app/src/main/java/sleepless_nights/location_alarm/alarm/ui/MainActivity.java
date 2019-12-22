@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements Router {
 
     @Override
     public void newAlarm() {
-        Intent intent = new Intent(this, NewAlarmActivity.class);
+        Intent intent = new Intent(this, AlarmRingingActivity.class);
         startActivity(intent);
     }
 

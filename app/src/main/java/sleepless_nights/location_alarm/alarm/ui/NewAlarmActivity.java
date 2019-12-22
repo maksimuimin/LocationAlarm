@@ -53,8 +53,6 @@ public class NewAlarmActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(view -> finish());
 
         if (savedInstanceState == null) {
-            //adding mapFragment
-            //container seems to not work
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, MapFragment.newEdit())
