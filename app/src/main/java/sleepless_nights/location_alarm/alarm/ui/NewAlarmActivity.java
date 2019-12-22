@@ -99,13 +99,17 @@ public class NewAlarmActivity extends AppCompatActivity {
                 (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (mapFragment != null) {
             //TODO editable radius
-            alarmViewModel.createAlarm(
-                    name, address, true,
-                    mapFragment.getLatitude(), mapFragment.getLongitude(), 2000
-            );
+            Double lat = mapFragment.getLatitude();
+            Double lon = mapFragment.getLongitude();
+            if (lat == null || lon == null) {
+                Log.wtf(TAG, "No latitude or longitude got from map fragment");
+                return;
+            }
+            alarmViewModel.createAlarm(name, address, true, lat, lon, 2000);
         } else {
             //perhaps showing user something went wrong?
             Log.wtf(TAG, "No map fragment found");
+            return;
         }
 
         Intent intent = new Intent(this, MainActivity.class);

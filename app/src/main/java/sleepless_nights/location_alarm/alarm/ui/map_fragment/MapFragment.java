@@ -118,18 +118,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         switchMode(Mode.EDIT);
     }
 
-    public double getLatitude() {
+    @Nullable
+    public Double getLatitude() {
         if (editLatLng == null) {
             Log.wtf(LOG_TAG, "No LatLng found while getting latitude");
-            return 0.0;
+            return null;
         }
         return editLatLng.latitude;
     }
 
-    public double getLongitude() {
+    @Nullable
+    public Double getLongitude() {
         if (editLatLng == null) {
             Log.wtf(LOG_TAG, "No LatLng found while getting longitude");
-            return 0.0;
+            return null;
         }
         return editLatLng.longitude;
     }
