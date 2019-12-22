@@ -3,9 +3,10 @@
     package="sleepless_nights.location_alarm">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- Required if your app targets Android 10 (API level 29) or higher -->
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.newAlarmBottomSheetPeekHeightsion.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.newAlarmBottomSheetPeekHeightsion.ACCESS_FINE_LOCATION" /> <!-- Required if your app targets Android 10 (API level 29) or higher -->
+    <uses-permission android:name="android.newAlarmBottomSheetPeekHeightsion.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:name=".LocationAlarmApplication"
