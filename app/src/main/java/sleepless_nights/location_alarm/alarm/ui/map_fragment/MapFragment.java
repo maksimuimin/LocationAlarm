@@ -3,6 +3,7 @@ package sleepless_nights.location_alarm.alarm.ui.map_fragment;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.LongSparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +18,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
@@ -28,6 +27,7 @@ import androidx.lifecycle.ViewModelProviders;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
+import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSetUpdate;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -57,10 +57,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Activity activity;
     private AlarmViewModel alarmViewModel;
 
-    private Alarm alarm;
+    private AlarmDataSet alarmDataSet;
+    private Alarm showAlarm;
     private LatLng editLatLng;
     private Mode mode;
-    private List<Marker> markers;
+    private boolean modeChanged;
+    private LongSparseArray<Marker> markers;
     private Marker staticMarker;
     private Marker dynamicMarker;
 
@@ -108,7 +110,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void show(Alarm alarm) {
-        this.alarm = alarm;
+        this.showAlarm = alarm;
         switchMode(Mode.SHOW);
     }
 
@@ -145,14 +147,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         this.alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
+        this.alarmDataSet = alarmViewModel.getLiveData().getValue();
+        if (alarmDataSet != null) {
+            alarmDataSet = alarmDataSet.clone();
+        } else {
+            Log.wtf(LOG_TAG, "No alarm data set provided by view model");
+        }
         alarmViewModel.getLiveData().observe(getViewLifecycleOwner(), alarmDataSet -> {
             if (mode == Mode.SHOW_ALL) {
-                refresh();
+                alarmDataSet.diffFrom(this.alarmDataSet).dispatchUpdatesTo(new AlarmDataSetUpdate(alarmDataSet) {
+                    @Override
+                    public void onInserted(Alarm alarm) {
+                        addMarker(alarm);
+                    }
+
+                    @Override
+                    public void onRemoved(Alarm alarm) {
+                        removeMarker(alarm);
+                    }
+
+                    @Override
+                    public void onChanged(Alarm alarm) {
+                        changeMarker(alarm);
+                    }
+                });
             }
+            this.alarmDataSet = alarmDataSet.clone();
         });
 
         this.mode = Mode.CURRENT_LOC;
-        this.markers = new ArrayList<>();
+        this.modeChanged = true;
+        this.markers = new LongSparseArray<>();
 
         loadFromBundle(getArguments());
         loadFromBundle(savedInstanceState);
@@ -196,8 +221,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(MODE, mode.toString());
-        if (alarm != null) {
-            outState.putLong(ID, alarm.getId());
+        if (showAlarm != null) {
+            outState.putLong(ID, showAlarm.getId());
         }
         if (editLatLng != null) {
             outState.putDouble(LAT, editLatLng.latitude);
@@ -207,10 +232,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void loadFromBundle(Bundle bundle) {
         if (bundle == null) return;
-        this.mode = Mode.valueOf(bundle.getString(MODE, Mode.CURRENT_LOC.toString()));
+        mode = Mode.valueOf(bundle.getString(MODE, Mode.CURRENT_LOC.toString()));
         long id = bundle.getLong(ID, -1);
         if (id != -1) {
-            alarm = alarmViewModel.getAlarmLiveDataById(id);
+            showAlarm = alarmViewModel.getAlarmLiveDataById(id);
         }
         double lat = bundle.getDouble(LAT, Double.MIN_VALUE);
         if (lat != Double.MIN_VALUE) {
@@ -224,7 +249,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void switchMode(Mode mode) {
         this.mode = mode;
-        editLatLng = null;
+        modeChanged = true;
         refresh();
     }
 
@@ -240,7 +265,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         clearMarkers();
         if (mode == Mode.CURRENT_LOC || mode == Mode.EDIT) {
-            if (mode == Mode.EDIT && editLatLng != null) {
+            if (mode == Mode.EDIT && !modeChanged) {
                 setStaticMarker(editLatLng);
             } else {
                 LocationProvider.getCurrentLocation(activity, location -> {
@@ -252,7 +277,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 });
             }
         } else if (mode == Mode.SHOW_ALL) {
-            AlarmDataSet alarmDataSet = alarmViewModel.getLiveData().getValue();
             if (alarmDataSet == null) {
                 Log.wtf(LOG_TAG, "AlarmDataSet LiveData is empty");
                 return;
@@ -260,15 +284,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             for (Alarm alarm : alarmDataSet) {
                 addMarker(alarm);
             }
-            zoomAtAll();
+            if (modeChanged) {
+                zoomAtAll();
+            }
         } else if (mode == Mode.SHOW) {
-            if (alarm != null) {
-                setStaticMarker(new LatLng(alarm.getLatitude(), alarm.getLongitude()));
-                zoomAt(staticMarker);
+            if (showAlarm != null) {
+                setStaticMarker(new LatLng(showAlarm.getLatitude(), showAlarm.getLongitude()));
+                if (modeChanged) {
+                    zoomAt(staticMarker);
+                }
             } else {
                 Log.wtf(LOG_TAG, "show mode with no alarm to show");
             }
         }
+        modeChanged = false;
     }
 
     /**
@@ -278,8 +307,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void zoomAtAll() {
         if (markers.size() == 0) return;
         LatLngBounds.Builder builder = LatLngBounds.builder();
-        for (Marker marker : markers) {
-            builder.include(marker.getPosition());
+        for (int i = 0; i < markers.size(); i++) {
+            builder.include( markers.get(markers.keyAt(i)).getPosition() );
         }
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), STD_PADDING));
     }
@@ -297,7 +326,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.defaultMarker( alarm.getIsActive() ? ON_HUE : OFF_HUE ));
-        markers.add(googleMap.addMarker(markerOptions));
+        markers.put(alarm.getId(), googleMap.addMarker(markerOptions));
+    }
+
+    private void removeMarker(Alarm alarm) {
+        Marker marker = markers.get(alarm.getId());
+        if (marker != null) {
+            marker.remove();
+            markers.remove(alarm.getId());
+        }
+    }
+
+    private void changeMarker(Alarm alarm) {
+        Marker marker = markers.get(alarm.getId());
+        if (marker != null) {
+            marker.setPosition(new LatLng(alarm.getLatitude(), alarm.getLongitude()));
+        } else {
+            addMarker(alarm);
+        }
     }
 
     private void setStaticMarker(LatLng latLng) {
@@ -339,8 +385,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void clearMarkers() {
         removeStaticMarker();
         removeDynamicMarker();
-        for (Marker marker : markers) {
-            marker.remove();
+        for (int i = 0; i < markers.size(); i++) {
+            markers.get(markers.keyAt(i)).remove();
         }
         markers.clear();
     }
