@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.ui.Router;
+import sleepless_nights.location_alarm.alarm.ui.IMainActivity;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
@@ -18,14 +18,14 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private static final String TAG = "AlarmListAdapter";
     private AlarmDataSet alarmDataSet;
     private AlarmViewModel viewModel;
-    private Router router;
+    private IMainActivity IMainActivity;
 
     AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
                      @NonNull AlarmViewModel viewModel,
-                     Router router) {
+                     IMainActivity IMainActivity) {
         this.alarmDataSet = alarmDataSet;
         this.viewModel = viewModel;
-        this.router = router;
+        this.IMainActivity = IMainActivity;
     }
 
     @NonNull
@@ -35,7 +35,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
                 .from(parent.getContext())
                 .inflate(R.layout.alarm_item, parent, false);
 
-        return new AlarmViewHolder(view, viewModel, router);
+        return new AlarmViewHolder(view, viewModel, IMainActivity);
     }
 
 

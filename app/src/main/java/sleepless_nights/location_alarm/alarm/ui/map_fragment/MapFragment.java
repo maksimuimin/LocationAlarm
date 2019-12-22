@@ -28,7 +28,6 @@ import androidx.lifecycle.ViewModelProviders;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
-import sleepless_nights.location_alarm.alarm.use_cases.LocationRepo;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -36,6 +35,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private static final String ID = "ID";
     private static final String LAT = "LAT";
     private static final String LON = "LON";
+
+    private static final String LOG_TAG = "MapFragment";
 
     private static final float STD_ZOOM = 10.0f;
     private static final int STD_PADDING = 80;
@@ -116,12 +117,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public double getLatitude() {
-        if (editLatLng == null) return 0.0;
+        if (editLatLng == null) {
+            Log.wtf(LOG_TAG, "No LatLng found while getting latitude");
+            return 0.0;
+        }
         return editLatLng.latitude;
     }
 
     public double getLongitude() {
-        if (editLatLng == null) return 0.0;
+        if (editLatLng == null) {
+            Log.wtf(LOG_TAG, "No LatLng found while getting longitude");
+            return 0.0;
+        }
         return editLatLng.longitude;
     }
 
@@ -153,7 +160,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment googleMapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
         if (googleMapFragment == null) {
-            Log.wtf("MAP", "Google map fragment not found");
+            Log.wtf(LOG_TAG, "Google map fragment not found");
             return res;
         }
         googleMapFragment.getMapAsync(this);
@@ -223,11 +230,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void refresh() {
         if (activity == null) {
-            Log.wtf("MAP", "Map created with no activity");
+            Log.wtf(LOG_TAG, "Map created with no activity");
             return;
         }
         if (googleMap == null) {
-            Log.wtf("MAP", "Map crated with no google map");
+            Log.wtf(LOG_TAG, "Map crated with no google map");
             return;
         }
 
@@ -236,7 +243,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if (mode == Mode.EDIT && editLatLng != null) {
                 setStaticMarker(editLatLng);
             } else {
-                LocationRepo.getCurrentLocation(activity, location -> {
+                LocationProvider.getCurrentLocation(activity, location -> {
                     setStaticMarker(new LatLng(location.getLatitude(), location.getLongitude()));
                     zoomAt(staticMarker);
                 }, () -> {
@@ -247,7 +254,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         } else if (mode == Mode.SHOW_ALL) {
             AlarmDataSet alarmDataSet = alarmViewModel.getLiveData().getValue();
             if (alarmDataSet == null) {
-                Log.wtf("MAP", "AlarmDataSet LiveData is empty");
+                Log.wtf(LOG_TAG, "AlarmDataSet LiveData is empty");
                 return;
             }
             for (Alarm alarm : alarmDataSet) {
@@ -259,7 +266,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 setStaticMarker(new LatLng(alarm.getLatitude(), alarm.getLongitude()));
                 zoomAt(staticMarker);
             } else {
-                Log.wtf("MAP", "show mode with no alarm to show");
+                Log.wtf(LOG_TAG, "show mode with no alarm to show");
             }
         }
     }

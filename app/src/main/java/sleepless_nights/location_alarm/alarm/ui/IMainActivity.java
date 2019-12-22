@@ -2,7 +2,7 @@ package sleepless_nights.location_alarm.alarm.ui;
 
 import sleepless_nights.location_alarm.alarm.Alarm;
 
-public interface Router {
+public interface IMainActivity {
 
     void showAlarmList();
 

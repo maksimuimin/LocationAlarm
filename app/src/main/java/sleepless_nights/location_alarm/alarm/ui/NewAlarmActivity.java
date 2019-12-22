@@ -53,8 +53,6 @@ public class NewAlarmActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(view -> finish());
 
         if (savedInstanceState == null) {
-            //adding mapFragment
-            //container seems to not work
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, MapFragment.newEdit())
@@ -100,7 +98,7 @@ public class NewAlarmActivity extends AppCompatActivity {
         MapFragment mapFragment =
                 (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (mapFragment != null) {
-            //getting selected coordinates
+            //TODO editable radius
             alarmViewModel.createAlarm(
                     name, address, true,
                     mapFragment.getLatitude(), mapFragment.getLongitude(), 2000

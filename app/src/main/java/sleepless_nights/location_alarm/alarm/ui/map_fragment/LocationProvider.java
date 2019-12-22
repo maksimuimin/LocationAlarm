@@ -1,11 +1,11 @@
-package sleepless_nights.location_alarm.alarm.use_cases;
+package sleepless_nights.location_alarm.alarm.ui.map_fragment;
 
 import android.app.Activity;
 import android.location.Location;
 
 import com.google.android.gms.location.LocationServices;
 
-public class LocationRepo {
+public class LocationProvider {
 
     public interface Callback {
         void onLocationGot(Location location);
