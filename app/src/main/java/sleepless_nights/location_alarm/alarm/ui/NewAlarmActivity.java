@@ -10,11 +10,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
-
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -22,7 +17,12 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
 import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 public class NewAlarmActivity extends AppCompatActivity {
@@ -51,6 +51,13 @@ public class NewAlarmActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_24);
         }
         toolbar.setNavigationOnClickListener(view -> finish());
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, MapFragment.newEdit())
+                    .commit();
+        }
 
         LinearLayout layout = findViewById(R.id.bottom_sheet_layout);
         BottomSheetBehavior behavior = BottomSheetBehavior.from(layout);
@@ -88,7 +95,22 @@ public class NewAlarmActivity extends AppCompatActivity {
             return;
         }
 
-        alarmViewModel.createAlarm(name, address, true, 0, 0,2000);
+        MapFragment mapFragment =
+                (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (mapFragment != null) {
+            //TODO editable radius
+            Double lat = mapFragment.getLatitude();
+            Double lon = mapFragment.getLongitude();
+            if (lat == null || lon == null) {
+                Log.wtf(TAG, "No latitude or longitude got from map fragment");
+                return;
+            }
+            alarmViewModel.createAlarm(name, address, true, lat, lon, 2000);
+        } else {
+            //perhaps showing user something went wrong?
+            Log.wtf(TAG, "No map fragment found");
+            return;
+        }
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
