@@ -1,9 +1,9 @@
 package sleepless_nights.location_alarm.alarm.ui;
 import androidx.appcompat.app.AppCompatActivity;
-
 import sleepless_nights.location_alarm.R;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
@@ -11,12 +11,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.MotionEvent;
 
 public class AlarmRingingActivity extends AppCompatActivity {
 
     private static final String TAG = "AlarmRingingActivity";
-    /** Play alarm up to 10 minutes before silencing */
-    private static final int ALARM_TIMEOUT_SECONDS = 10 * 60;
     private static final long[] sVibratePattern = new long[] { 500, 500 };
 
     private boolean playing = false;
@@ -30,6 +29,16 @@ public class AlarmRingingActivity extends AppCompatActivity {
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         play();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        int action = event.getActionMasked();
+        if (action == MotionEvent.ACTION_UP) {
+            stop();
+        }
+
+        return true;
     }
 
     private void play() {
@@ -105,6 +114,10 @@ public class AlarmRingingActivity extends AppCompatActivity {
 
             // Stop vibrator
             vibrator.cancel();
+
+            Intent i = new Intent(this, MainActivity.class);
+            i.setFlags(i.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(i);
         }
     }
 }
