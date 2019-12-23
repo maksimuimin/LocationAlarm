@@ -44,9 +44,18 @@ public class AlarmRingingActivity extends AppCompatActivity {
                 alarmName = extras.getString(ALARM_NAME);
                 alarmAddress = extras.getString(ALARM_ADDRESS);
             }
+
         } else {
             alarmName = (String) savedInstanceState.getSerializable(ALARM_NAME);
             alarmAddress = (String) savedInstanceState.getSerializable(ALARM_ADDRESS);
+        }
+
+        if (alarmName == null || alarmName.isEmpty()) {
+            alarmName = getResources().getString(R.string.default_alarm_name);
+        }
+
+        if (alarmAddress == null || alarmAddress.isEmpty()) {
+            alarmAddress = getResources().getString(R.string.default_address_name);
         }
 
         TextView alarmNameView = findViewById(R.id.name);
@@ -70,9 +79,11 @@ public class AlarmRingingActivity extends AppCompatActivity {
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
+
+            return true;
         }
 
-        return true;
+        return super.onTouchEvent(event);
     }
 
     private void play() {
@@ -118,14 +129,18 @@ public class AlarmRingingActivity extends AppCompatActivity {
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
             mediaPlayer.setLooping(true);
             mediaPlayer.prepareAsync();
+        } else {
+            startSilent();
         }
     }
 
     public void start() {
         mediaPlayer.start();
-        /* Start the vibrator after everything is ok with the media player */
-        vibrator.vibrate(VIBRATE_PATTERN, 0);
+        startSilent();
+    }
 
+    public void startSilent() {
+        vibrator.vibrate(VIBRATE_PATTERN, 0);
         playing = true;
     }
 

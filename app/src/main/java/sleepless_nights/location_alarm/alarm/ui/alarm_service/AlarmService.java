@@ -25,6 +25,8 @@ import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
 import sleepless_nights.location_alarm.geofence.use_cases.GeofenceRepository;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 public class AlarmService extends IntentService {
     public static final String ACTION_DO_ALARM = BuildConfig.APPLICATION_ID + ".do_alarm";
     public static final String ACTION_TOO_MANY_GEOFENCES = BuildConfig.APPLICATION_ID + ".too_many_geofences";
@@ -214,9 +216,12 @@ public class AlarmService extends IntentService {
         }
 
         Intent intent = new Intent(this, AlarmRingingActivity.class);
-        startActivity(intent);
         intent.putExtra(AlarmRingingActivity.ALARM_NAME, triggeredAlarm.getName());
         intent.putExtra(AlarmRingingActivity.ALARM_ADDRESS, triggeredAlarm.getAddress());
+        intent.setFlags(intent.getFlags() | FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        //TODO transfer alarm disable responsibility to AlarmRingingActivity
 
         triggeredAlarm.setIsActive(false);
         AlarmRepository.getInstance(this).updateAlarm(triggeredAlarm);
