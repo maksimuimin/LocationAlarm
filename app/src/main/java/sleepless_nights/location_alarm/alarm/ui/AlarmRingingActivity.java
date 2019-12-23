@@ -20,7 +20,7 @@ public class AlarmRingingActivity extends AppCompatActivity {
     public static final String ALARM_NAME = "alarm_name";
     public static final String ALARM_ADDRESS = "alarm_address";
 
-    private static final long[] sVibratePattern = new long[] { 500, 500 };
+    private static final long[] VIBRATE_PATTERN = new long[] { 500, 500 };
 
     private boolean playing = false;
     private Vibrator vibrator;
@@ -56,6 +56,8 @@ public class AlarmRingingActivity extends AppCompatActivity {
         alarmAddressView.setText(alarmAddress);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        mediaPlayer = new MediaPlayer();
+
         play();
     }
 
@@ -64,6 +66,10 @@ public class AlarmRingingActivity extends AppCompatActivity {
         int action = event.getActionMasked();
         if (action == MotionEvent.ACTION_UP) {
             stop();
+
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+            startActivity(intent);
         }
 
         return true;
@@ -71,8 +77,6 @@ public class AlarmRingingActivity extends AppCompatActivity {
 
     private void play() {
         stop(); // stop() checks to see if we are already playing
-
-        mediaPlayer = new MediaPlayer();
 
         try {
             mediaPlayer.setOnErrorListener((mp, what, extra) -> {
@@ -92,7 +96,7 @@ public class AlarmRingingActivity extends AppCompatActivity {
 
             prepareAlarm();
         } catch (Exception ex) {
-            Log.v(TAG, "Unable to  startAlarm, Using the fallback ringtone", ex);
+            Log.e(TAG, "Unable to  startAlarm, Using the fallback ringtone", ex);
         }
     }
 
@@ -120,7 +124,7 @@ public class AlarmRingingActivity extends AppCompatActivity {
     public void start() {
         mediaPlayer.start();
         /* Start the vibrator after everything is ok with the media player */
-        vibrator.vibrate(sVibratePattern, 0);
+        vibrator.vibrate(VIBRATE_PATTERN, 0);
 
         playing = true;
     }
@@ -142,10 +146,6 @@ public class AlarmRingingActivity extends AppCompatActivity {
 
             // Stop vibrator
             vibrator.cancel();
-
-            Intent i = new Intent(this, MainActivity.class);
-            i.setFlags(i.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
-            startActivity(i);
         }
     }
 }
