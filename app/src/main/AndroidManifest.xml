@@ -44,10 +44,6 @@
 
         <receiver android:name=".geofence.use_cases.GeofenceBroadcastReceiver" />
 
-        <uses-library
-            android:name="org.apache.http.legacy"
-            android:required="false" />
-
     </application>
 
 </manifest>
