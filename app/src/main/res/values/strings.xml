@@ -27,4 +27,8 @@
     <string name="main_notification_channel_description">
         This channel is used for notifying about state of active alarms and quick access to them
     </string>
+    <string name="icon_up">Icon Up</string>
+    <string name="swipe_up_to_turn_off">Swipe up to turn off</string>
+    <string name="default_alarm_name">Wake up,</string>
+    <string name="default_address_name">you reached your destination</string>
 </resources>

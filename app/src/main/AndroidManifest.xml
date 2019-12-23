@@ -2,11 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sleepless_nights.location_alarm">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Required if your app targets Android 10 (API level 29) or higher -->
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".LocationAlarmApplication"
@@ -17,8 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity
-            android:name=".alarm.ui.NewAlarmActivity"
+        <activity android:name=".alarm.ui.AlarmRingingActivity">
+        </activity>
+
+        <activity android:name=".alarm.ui.NewAlarmActivity"
             android:label="@string/add_new_alarm"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize">
@@ -32,7 +35,9 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyABqwH1tswT2cmr2TN8LHYL5W6xhYQGvCo"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyABqwH1tswT2cmr2TN8LHYL5W6xhYQGvCo" />
 
         <service
             android:name=".alarm.ui.alarm_service.AlarmService"
@@ -44,7 +49,6 @@
         </service>
 
         <receiver android:name=".geofence.use_cases.GeofenceBroadcastReceiver" />
-
     </application>
 
 </manifest>
