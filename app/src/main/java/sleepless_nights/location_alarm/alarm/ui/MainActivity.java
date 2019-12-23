@@ -9,8 +9,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.animation.Animation;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,11 +31,11 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     private static final String TAG = "MainActivity";
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
     private AlertDialog permissionDialog;
-    private MenuTabState tabState;
     private final String TAB_STATE_NAME_BUNDLE_KEY = "tabState.name";
     //TODO #6 optimize AlarmListFragment creations by extracting it to a field of MainActivity
 
-//    BottomNavigationView bottomNavigationView;
+    BottomNavigationView bottomNavigationView;
+    private int selectedItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
                             startActivity(intent);
                         }))
                 .create();
+
         MUST_HAVE_PERMISSIONS_REQUEST_ID = PermissionRepository.getInstance(this)
                 .requirePermissionsByGroup(this, Permission.Group.MUST_HAVE);
         setContentView(R.layout.activity_main);
@@ -61,32 +60,8 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         Toolbar customToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(customToolBar);
 
-        View alarmListTabBtn = findViewById(R.id.app_bar_alarm_list_tab);
-        alarmListTabBtn.setOnClickListener(v -> {
-            if (tabState == MenuTabState.TAB_ALARM_LIST) return;
-            showAlarmList();
-        });
-
-        View mapTabBtn = findViewById(R.id.app_bar_map_tab);
-        mapTabBtn.setOnClickListener(v -> {
-            if (tabState == MenuTabState.TAB_MAP) return;
-            showAllAlarms();
-        });
-
-//        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-//
-//        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-//            int id = item.getItemId();
-//            switch (id) {
-//                case R.id.app_bar_alarm_list_tab:
-//                    if (tabState != MenuTabState.TAB_ALARM_LIST) {
-//                        showAlarmList();
-//                    }
-//
-//            }
-//            return false;
-//        });
-
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener);
 
         FloatingActionButton fab = findViewById(R.id.floating_button);
         fab.setOnClickListener(v -> newAlarm());
@@ -96,26 +71,32 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
             return;
         }
 
-        tabState = MenuTabState.valueOf(savedInstanceState.getString(TAB_STATE_NAME_BUNDLE_KEY));
-        switch (tabState) {
-            case TAB_MAP: {
-                showAllAlarms();
-                break;
-            }
-            case TAB_ALARM_LIST: {
-                showAlarmList();
-                break;
-            }
-            default: {
-                Log.wtf(TAG, "got unknown tabState from savedInstanceState: " + tabState);
-            }
-        }
+        int selectedItem = savedInstanceState.getInt(TAB_STATE_NAME_BUNDLE_KEY);
+        bottomNavigationView.setSelectedItemId(selectedItem);
     }
+
+    BottomNavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener = item -> {
+        int id = item.getItemId();
+        int ALARM_LIST_TAB_ID = R.id.app_bar_alarm_list_tab;
+        int MAP_TAB_ID = R.id.app_bar_map_tab;
+
+        if (id == ALARM_LIST_TAB_ID && selectedItem != ALARM_LIST_TAB_ID) {
+            showAlarmList();
+        }
+
+        if (id == MAP_TAB_ID && selectedItem != MAP_TAB_ID) {
+            showAllAlarms();
+        }
+
+        selectedItem = id;
+        return true;
+    };
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(TAB_STATE_NAME_BUNDLE_KEY, tabState.name());
+        bottomNavigationView.getSelectedItemId();
+        outState.putInt(TAB_STATE_NAME_BUNDLE_KEY, bottomNavigationView.getSelectedItemId());
     }
 
     @Override
@@ -165,14 +146,8 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         }
     }
 
-    private enum MenuTabState {
-        TAB_ALARM_LIST,
-        TAB_MAP
-    }
-
     @Override
     public void showAlarmList() {
-        tabState = MenuTabState.TAB_ALARM_LIST;
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, AlarmListFragment.newInstance())
@@ -181,7 +156,6 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @Override
     public void showAllAlarms() {
-        tabState = MenuTabState.TAB_MAP;
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, MapFragment.newShowAll())
@@ -196,7 +170,6 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @Override
     public void showAlarm(Alarm alarm) {
-        tabState = MenuTabState.TAB_MAP;
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, MapFragment.newShow(alarm))
@@ -207,5 +180,4 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public void editAlarm(Alarm alarm) {
         //
     }
-
 }
