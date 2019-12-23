@@ -28,7 +28,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         }
 
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
-        if (geofenceTransition == CustomGeofence.GEOFENCE_TRANSITION_TYPES) {
+        if ((geofenceTransition & CustomGeofence.GEOFENCE_TRANSITION_TYPES) != 0) {
             // Get the geofences that were triggered. A single event can trigger
             // multiple geofences.
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
