@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
             }
             case TAB_ALARM_LIST: {
                 showAlarmList();
+                break;
             }
             default: {
                 Log.wtf(TAG, "got unknown tabState from savedInstanceState: " + tabState);

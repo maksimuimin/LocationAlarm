@@ -23,7 +23,8 @@
 
         <activity android:name=".alarm.ui.NewAlarmActivity"
             android:label="@string/add_new_alarm"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize">
         </activity>
 
         <activity android:name=".alarm.ui.MainActivity">

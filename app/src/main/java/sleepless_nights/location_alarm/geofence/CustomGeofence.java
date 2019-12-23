@@ -15,7 +15,10 @@ import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.geofence.use_cases.GeofenceBroadcastReceiver;
 
 public class CustomGeofence {
-    public static final int GEOFENCE_TRANSITION_TYPES = Geofence.GEOFENCE_TRANSITION_ENTER;
+    public static final int GEOFENCE_TRANSITION_TYPES = Geofence.GEOFENCE_TRANSITION_ENTER |
+            Geofence.GEOFENCE_TRANSITION_DWELL |
+            Geofence.GEOFENCE_TRANSITION_EXIT;
+    private static final int GEOFENCE_DWELL_EVENT_DELAY = 60 * 1000; // 1 min
 
     private long alarmId;
     private Geofence geofence;
@@ -34,7 +37,8 @@ public class CustomGeofence {
                         alarm.getRadius()
                 )
                 .setTransitionTypes(GEOFENCE_TRANSITION_TYPES)
-                .setExpirationDuration(0)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setLoiteringDelay(GEOFENCE_DWELL_EVENT_DELAY)
                 .build();
         this.context = context;
     }
