@@ -20,9 +20,12 @@ import java.util.Locale;
 import sleepless_nights.location_alarm.BuildConfig;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.ui.AlarmRingingActivity;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
 import sleepless_nights.location_alarm.geofence.use_cases.GeofenceRepository;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class AlarmService extends IntentService {
     public static final String ACTION_DO_ALARM = BuildConfig.APPLICATION_ID + ".do_alarm";
@@ -211,8 +214,15 @@ public class AlarmService extends IntentService {
             Log.wtf(TAG, "Triggered null alarm");
             return;
         }
-        Toast.makeText(getApplicationContext(),
-                "Triggered alarm " + triggeredAlarm.getName(), Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(this, AlarmRingingActivity.class);
+        intent.putExtra(AlarmRingingActivity.ALARM_NAME, triggeredAlarm.getName());
+        intent.putExtra(AlarmRingingActivity.ALARM_ADDRESS, triggeredAlarm.getAddress());
+        intent.setFlags(intent.getFlags() | FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        //TODO transfer alarm disable responsibility to AlarmRingingActivity
+
         triggeredAlarm.setIsActive(false);
         AlarmRepository.getInstance(this).updateAlarm(triggeredAlarm);
     }
