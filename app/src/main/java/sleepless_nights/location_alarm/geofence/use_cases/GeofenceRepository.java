@@ -109,7 +109,7 @@ public class GeofenceRepository {
                     AlarmRepository.getInstance(context).updateAlarm(alarm);
                     Toast.makeText(context,
                             context.getString(R.string.start_geofence_monitoring_error_msg)
-                                    + " " + alarm.getName(), Toast.LENGTH_LONG).show();
+                                    + " " + alarm.getName(), Toast.LENGTH_LONG).show(); // TODO - normal error message
                 });
     }
 

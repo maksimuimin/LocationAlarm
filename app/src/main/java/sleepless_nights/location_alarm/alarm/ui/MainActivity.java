@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import sleepless_nights.location_alarm.R;
@@ -34,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     private MenuTabState tabState;
     private final String TAB_STATE_NAME_BUNDLE_KEY = "tabState.name";
     //TODO #6 optimize AlarmListFragment creations by extracting it to a field of MainActivity
+
+//    BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,21 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
             if (tabState == MenuTabState.TAB_MAP) return;
             showAllAlarms();
         });
+
+//        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+//
+//        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+//            int id = item.getItemId();
+//            switch (id) {
+//                case R.id.app_bar_alarm_list_tab:
+//                    if (tabState != MenuTabState.TAB_ALARM_LIST) {
+//                        showAlarmList();
+//                    }
+//
+//            }
+//            return false;
+//        });
+
 
         FloatingActionButton fab = findViewById(R.id.floating_button);
         fab.setOnClickListener(v -> newAlarm());
@@ -123,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.settingsBtn) {
+            //  TODO - change with SettingsActivity
             Toast.makeText(this, "settingsBtn is on click", Toast.LENGTH_SHORT).show();
             return true;
         }
