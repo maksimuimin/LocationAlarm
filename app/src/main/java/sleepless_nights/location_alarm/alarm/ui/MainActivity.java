@@ -27,7 +27,7 @@ import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.permission.Permission;
 import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository;
 
-public class MainActivity extends AppCompatActivity implements Router {
+public class MainActivity extends AppCompatActivity implements IMainActivity {
     private static final String TAG = "MainActivity";
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
     private AlertDialog permissionDialog;

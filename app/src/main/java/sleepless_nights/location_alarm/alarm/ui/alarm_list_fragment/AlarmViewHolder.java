@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.ui.Router;
+import sleepless_nights.location_alarm.alarm.ui.IMainActivity;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 class AlarmViewHolder extends RecyclerView.ViewHolder {
@@ -21,7 +21,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
 
     AlarmViewHolder(@NonNull View itemView,
                     @NonNull AlarmViewModel viewModel,
-                    Router router) {
+                    IMainActivity IMainActivity) {
         super(itemView);
 
         alarmNameView = itemView.findViewById(R.id.name);
@@ -30,7 +30,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
 
         alarmNameView.setOnClickListener(v -> {
             if (alarm != null) {
-                router.showAlarm(alarm);
+                IMainActivity.showAlarm(alarm);
             }
         });
 
