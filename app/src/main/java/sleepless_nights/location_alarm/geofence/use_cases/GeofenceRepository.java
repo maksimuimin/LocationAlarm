@@ -98,11 +98,11 @@ public class GeofenceRepository {
                             geofence.getGeofenceId(),
                             geofence.getAlarmId());
                     Log.e(TAG,logMsg);
-                    geofenceMap.remove(geofence.getGeofenceId());
-                    alarmIdToGeofenceIdMap.remove(geofence.getAlarmId());
                     Alarm alarm = AlarmRepository.getInstance(context).getAlarmById(geofence.getAlarmId());
                     if (alarm == null) {
                         Log.wtf(TAG, "Alarm not found in repository");
+                        alarmIdToGeofenceIdMap.remove(geofence.getAlarmId());
+                        geofenceMap.remove(geofence.getGeofenceId());
                         return;
                     }
                     alarm.setIsActive(false);

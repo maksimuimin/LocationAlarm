@@ -53,8 +53,9 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     }
 
     private void doAlarm(Context context, long alarmId) {
-        Intent intent = new Intent(AlarmService.ACTION_DO_ALARM);
+        Intent intent = new Intent(context, AlarmService.class);
+        intent.setAction(AlarmService.ACTION_DO_ALARM);
         intent.putExtra(AlarmService.INTENT_EXTRA_ALARM_ID, alarmId);
-        context.getApplicationContext().startService(intent);
+        context.startService(intent);
     }
 }
