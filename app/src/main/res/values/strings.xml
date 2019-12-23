@@ -27,4 +27,5 @@
     <string name="main_notification_channel_description">
         This channel is used for notifying about state of active alarms and quick access to them
     </string>
+    <string name="confirm">Confirm</string>
 </resources>
