@@ -2,22 +2,14 @@ package sleepless_nights.location_alarm.alarm.ui;
 import androidx.appcompat.app.AppCompatActivity;
 
 import sleepless_nights.location_alarm.R;
-import sleepless_nights.location_alarm.alarm.Alarm;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnErrorListener;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.Vibrator;
-import android.telephony.PhoneStateListener;
 import android.util.Log;
 
 public class AlarmRingingActivity extends AppCompatActivity {
@@ -29,10 +21,7 @@ public class AlarmRingingActivity extends AppCompatActivity {
 
     private boolean playing = false;
     private Vibrator vibrator;
-    private int initialCallState;
     private MediaPlayer mediaPlayer;
-
-    private long startTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,56 +29,63 @@ public class AlarmRingingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_alarm_ringing);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        play();
     }
 
-    private void startAlarm(MediaPlayer player)
+    private void play() {
+        stop(); // stop() checks to see if we are already playing
+
+        mediaPlayer = new MediaPlayer();
+
+        try {
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Log.e(TAG, "Error occurred while preparing mediaPlayer");
+                return true;
+            });
+
+            mediaPlayer.setOnPreparedListener(mp -> {
+                mediaPlayer.setOnErrorListener((inner_mp, what, extra) -> {
+                    Log.e(TAG, "Error occurred while playing audio.");
+                    stop();
+                    return true;
+                });
+
+                start();
+            });
+
+            prepareAlarm();
+        } catch (Exception ex) {
+            Log.v(TAG, "Unable to  startAlarm, Using the fallback ringtone", ex);
+        }
+    }
+
+    private void prepareAlarm()
             throws java.io.IOException, IllegalArgumentException,
             IllegalStateException {
         final AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-
         if (audioManager == null) {
+            Log.wtf(TAG, "Got null AudioManager");
             return;
         }
 
         // do not play alarms if stream volume is 0
         // (typically because ringer mode is silent).
         if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
-            player.setAudioStreamType(AudioManager.STREAM_ALARM);
-            player.setLooping(true);
-            player.prepare();
-            player.start();
+            Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(this, alert);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+            mediaPlayer.setLooping(true);
+            mediaPlayer.prepareAsync();
         }
     }
 
-    private void play() {
-        // stop() checks to see if we are already playing.
-        stop();
-
-        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-
-        // TODO: Reuse mMediaPlayer instead of creating a new one and/or use
-        // RingtoneManager.
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-            Log.e(TAG, "Error occurred while playing audio.");
-            mp.stop();
-            mp.release();
-
-            mediaPlayer = null;
-            return true;
-        });
-
-        try {
-            startAlarm(mediaPlayer);
-        } catch (Exception ex) {
-            Log.v(TAG, "Using the fallback ringtone");
-        }
-
+    public void start() {
+        mediaPlayer.start();
         /* Start the vibrator after everything is ok with the media player */
         vibrator.vibrate(sVibratePattern, 0);
 
         playing = true;
-        startTime = System.currentTimeMillis();
     }
 
     /**
