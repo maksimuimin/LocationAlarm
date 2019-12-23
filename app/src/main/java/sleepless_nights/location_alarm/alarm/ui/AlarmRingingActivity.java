@@ -12,10 +12,14 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.widget.TextView;
 
 public class AlarmRingingActivity extends AppCompatActivity {
 
     private static final String TAG = "AlarmRingingActivity";
+    public static final String ALARM_NAME = "alarm_name";
+    public static final String ALARM_ADDRESS = "alarm_address";
+
     private static final long[] sVibratePattern = new long[] { 500, 500 };
 
     private boolean playing = false;
@@ -26,6 +30,30 @@ public class AlarmRingingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm_ringing);
+
+        String alarmName;
+        String alarmAddress;
+
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+
+            if (extras == null) {
+                alarmName = null;
+                alarmAddress = null;
+            } else {
+                alarmName = extras.getString(ALARM_NAME);
+                alarmAddress = extras.getString(ALARM_ADDRESS);
+            }
+        } else {
+            alarmName = (String) savedInstanceState.getSerializable(ALARM_NAME);
+            alarmAddress = (String) savedInstanceState.getSerializable(ALARM_ADDRESS);
+        }
+
+        TextView alarmNameView = findViewById(R.id.name);
+        TextView alarmAddressView = findViewById(R.id.address);
+
+        alarmNameView.setText(alarmName);
+        alarmAddressView.setText(alarmAddress);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         play();

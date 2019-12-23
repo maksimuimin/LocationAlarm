@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @Override
     public void newAlarm() {
-        Intent intent = new Intent(this, AlarmRingingActivity.class);
+        Intent intent = new Intent(this, NewAlarmActivity.class);
         startActivity(intent);
     }
 
