@@ -8,7 +8,11 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -17,10 +21,6 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
@@ -31,7 +31,6 @@ public class NewAlarmActivity extends AppCompatActivity {
     private EditText nameInput;
     private EditText addressInput;
 
-    private TextView nameHeader;
     private AlarmViewModel alarmViewModel;
 
     Toolbar toolbar;
@@ -72,9 +71,6 @@ public class NewAlarmActivity extends AppCompatActivity {
             return;
         }
 
-        nameHeader = findViewById(R.id.name_header);
-        nameInput.setOnKeyListener(onNameInput);
-
         alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(this))
                 .get(AlarmViewModel.class);
@@ -114,12 +110,6 @@ public class NewAlarmActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-    };
-
-    private View.OnKeyListener onNameInput = (v, keyCode, event) -> {
-        String name = nameInput.getText().toString();
-        nameHeader.setText(name);
-        return false;
     };
 
     private void hideKeyboard() {

@@ -143,7 +143,7 @@ public class AlarmService extends IntentService {
 
         switch (action) {
             case ACTION_DO_ALARM: {
-                int alarmId = intent.getIntExtra(INTENT_EXTRA_ALARM_ID, -1);
+                long alarmId = intent.getLongExtra(INTENT_EXTRA_ALARM_ID, -1);
                 if (alarmId == -1) {
                     Log.wtf(TAG, "ACTION_DO_ALARM intent does not contain INTENT_EXTRA_ALARM_ID");
                     return;
@@ -204,7 +204,7 @@ public class AlarmService extends IntentService {
         notificationManager.notify(NOTIFICATION_ID, buildNotification(activeAlarmsDataSet.size()));
     }
 
-    private void handleActionDoAlarm(int alarmId) {
+    private void handleActionDoAlarm(long alarmId) {
         //TODO #2 start alarming activity
         Alarm triggeredAlarm = AlarmRepository.getInstance(this).getAlarmById(alarmId);
         if (triggeredAlarm == null) {
