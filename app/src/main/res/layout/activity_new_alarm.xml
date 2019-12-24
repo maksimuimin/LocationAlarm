@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_new_alarm"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -34,19 +35,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="@dimen/newAlarmBottomSheetPeekHeight" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/button_ok"
-            style="@style/Widget.MaterialComponents.FloatingActionButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/standardPadding"
-            app:backgroundTint="@color/colorAccent"
-            app:elevation="@dimen/elevation"
-            app:layout_anchor="@id/bottom_sheet_layout"
-            app:layout_anchorGravity="top|end"
-            app:srcCompat="@drawable/ic_check_24"
-            app:tint="@color/colorBackground" />
 
         <include
             android:id="@+id/bottom_sheet_layout"

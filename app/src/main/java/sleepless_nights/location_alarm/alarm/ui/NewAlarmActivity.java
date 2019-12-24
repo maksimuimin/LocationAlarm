@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -15,7 +18,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -35,15 +37,18 @@ public class NewAlarmActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     ActionBar actionBar;
-    FloatingActionButton fab;
+    LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_alarm);
 
+        linearLayout = findViewById(R.id.activity_new_alarm);
+
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -74,19 +79,33 @@ public class NewAlarmActivity extends AppCompatActivity {
         alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(this))
                 .get(AlarmViewModel.class);
-
-        fab = findViewById(R.id.button_ok); //TODO #7 add FAB animation
-        fab.setOnClickListener(onAddButtonClickListener);
     }
 
-    private View.OnClickListener onAddButtonClickListener = view -> {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.add_new_alarm, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.confirm_button) {
+            confirmAddingNewAlarm();
+        }
+
+        return true;
+    }
+
+    private void confirmAddingNewAlarm() {
         hideKeyboard();
 
         String name = nameInput.getText().toString();
         String address = addressInput.getText().toString();
 
         if (name.isEmpty() || address.isEmpty()) {
-            Snackbar.make(view, "Please fill required fields: Name and Address", Snackbar.LENGTH_LONG)
+            Snackbar.make(linearLayout, "Please fill required fields: Name and Address", Snackbar.LENGTH_LONG)
                     .setAction("Action", null).show();
             return;
         }
@@ -110,7 +129,7 @@ public class NewAlarmActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-    };
+    }
 
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -118,10 +137,12 @@ public class NewAlarmActivity extends AppCompatActivity {
             Log.wtf(TAG, "unable to get INPUT_METHOD_SERVICE");
             return;
         }
+
         View view = getCurrentFocus();
         if (view == null) {
             view = new View(this);
         }
+
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }

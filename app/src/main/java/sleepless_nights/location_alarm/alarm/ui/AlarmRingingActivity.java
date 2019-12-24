@@ -77,7 +77,6 @@ public class AlarmRingingActivity extends AppCompatActivity {
             stop();
 
             Intent intent = new Intent(this, MainActivity.class);
-            intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(intent);
 
             return true;
