@@ -20,9 +20,13 @@ import java.util.Locale;
 import sleepless_nights.location_alarm.BuildConfig;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.ui.AlarmRingingActivity;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
 import sleepless_nights.location_alarm.geofence.use_cases.GeofenceRepository;
+
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NO_HISTORY;
 
 public class AlarmService extends IntentService {
     public static final String ACTION_DO_ALARM = BuildConfig.APPLICATION_ID + ".do_alarm";
@@ -143,7 +147,7 @@ public class AlarmService extends IntentService {
 
         switch (action) {
             case ACTION_DO_ALARM: {
-                int alarmId = intent.getIntExtra(INTENT_EXTRA_ALARM_ID, -1);
+                long alarmId = intent.getLongExtra(INTENT_EXTRA_ALARM_ID, -1);
                 if (alarmId == -1) {
                     Log.wtf(TAG, "ACTION_DO_ALARM intent does not contain INTENT_EXTRA_ALARM_ID");
                     return;
@@ -204,15 +208,22 @@ public class AlarmService extends IntentService {
         notificationManager.notify(NOTIFICATION_ID, buildNotification(activeAlarmsDataSet.size()));
     }
 
-    private void handleActionDoAlarm(int alarmId) {
+    private void handleActionDoAlarm(long alarmId) {
         //TODO #2 start alarming activity
         Alarm triggeredAlarm = AlarmRepository.getInstance(this).getAlarmById(alarmId);
         if (triggeredAlarm == null) {
             Log.wtf(TAG, "Triggered null alarm");
             return;
         }
-        Toast.makeText(getApplicationContext(),
-                "Triggered alarm " + triggeredAlarm.getName(), Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(this, AlarmRingingActivity.class);
+        intent.putExtra(AlarmRingingActivity.ALARM_NAME, triggeredAlarm.getName());
+        intent.putExtra(AlarmRingingActivity.ALARM_ADDRESS, triggeredAlarm.getAddress());
+        intent.setFlags(intent.getFlags() | FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(intent);
+
+        //TODO transfer alarm disable responsibility to AlarmRingingActivity
+
         triggeredAlarm.setIsActive(false);
         AlarmRepository.getInstance(this).updateAlarm(triggeredAlarm);
     }

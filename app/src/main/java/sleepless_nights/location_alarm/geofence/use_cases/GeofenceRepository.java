@@ -98,18 +98,18 @@ public class GeofenceRepository {
                             geofence.getGeofenceId(),
                             geofence.getAlarmId());
                     Log.e(TAG,logMsg);
-                    geofenceMap.remove(geofence.getGeofenceId());
-                    alarmIdToGeofenceIdMap.remove(geofence.getAlarmId());
                     Alarm alarm = AlarmRepository.getInstance(context).getAlarmById(geofence.getAlarmId());
                     if (alarm == null) {
                         Log.wtf(TAG, "Alarm not found in repository");
+                        alarmIdToGeofenceIdMap.remove(geofence.getAlarmId());
+                        geofenceMap.remove(geofence.getGeofenceId());
                         return;
                     }
                     alarm.setIsActive(false);
                     AlarmRepository.getInstance(context).updateAlarm(alarm);
                     Toast.makeText(context,
                             context.getString(R.string.start_geofence_monitoring_error_msg)
-                                    + " " + alarm.getName(), Toast.LENGTH_LONG).show();
+                                    + " " + alarm.getName(), Toast.LENGTH_LONG).show(); // TODO - normal error message
                 });
     }
 

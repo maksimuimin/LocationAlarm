@@ -47,12 +47,15 @@ public class AlarmDataSet implements Iterable<Alarm> {
     public AlarmDataSet clone() { return new AlarmDataSet(this); }
 
     @Nullable
-    Alarm getAlarmById(long id) {
+    public Alarm getAlarmById(long id) {
         return dataSet.get(id, null);
     }
 
     @Nullable
     public Alarm getAlarmByPosition(int pos) {
+        if (pos >= dataSet.size()) {
+            return null;
+        }
         return dataSet.get(dataSet.keyAt(pos), null);
     }
 

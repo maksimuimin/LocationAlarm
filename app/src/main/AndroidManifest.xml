@@ -2,11 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sleepless_nights.location_alarm">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Required if your app targets Android 10 (API level 29) or higher -->
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:name=".LocationAlarmApplication"
@@ -16,7 +17,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-      
+
+        <activity android:name=".alarm.ui.AlarmRingingActivity">
+        </activity>
+
+        <activity android:name=".alarm.ui.NewAlarmActivity"
+            android:label="@string/add_new_alarm"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
         <activity android:name=".alarm.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,19 +35,20 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyABqwH1tswT2cmr2TN8LHYL5W6xhYQGvCo"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyABqwH1tswT2cmr2TN8LHYL5W6xhYQGvCo" />
 
         <service
             android:name=".alarm.ui.alarm_service.AlarmService"
             android:foregroundServiceType="location">
             <intent-filter>
-                <action android:name="${applicationId}.do_alarm"/>
-                <action android:name="${applicationId}.too_many_geofences"/>
+                <action android:name="${applicationId}.do_alarm" />
+                <action android:name="${applicationId}.too_many_geofences" />
             </intent-filter>
         </service>
 
-        <receiver android:name=".geofence.use_cases.GeofenceBroadcastReceiver"/>
-
+        <receiver android:name=".geofence.use_cases.GeofenceBroadcastReceiver" />
     </application>
 
 </manifest>
