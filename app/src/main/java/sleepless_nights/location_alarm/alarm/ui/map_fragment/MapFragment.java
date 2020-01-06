@@ -63,7 +63,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private AlarmDataSet alarmDataSet;
     private Alarm showAlarm;
     private LatLng editLatLng;
-    private MutableLiveData<String> editAddress;
+    private MutableLiveData<String> editAddress = new MutableLiveData<>("");
     private Mode mode;
     private boolean modeChanged;
     private LongSparseArray<Marker> markers;
@@ -124,6 +124,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public LiveData<String> getEditAddress() {
         return editAddress;
+    }
+
+    public void setEditAddress(String addressString) {
+        addressProvider.getLatLong(addressString, (lat, lon) -> {
+            if (mode != Mode.EDIT || lat == null || lon == null) return;
+            setStaticMarker(new LatLng(lat, lon));
+            zoomAt(staticMarker);
+        });
     }
 
     @Nullable
@@ -187,7 +195,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             this.alarmDataSet = alarmDataSet.clone();
         });
 
-        this.editAddress = new MutableLiveData<>("");
         this.mode = Mode.CURRENT_LOC;
         this.modeChanged = true;
         this.markers = new LongSparseArray<>();
@@ -224,7 +231,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if (mode == Mode.EDIT) {
                 editLatLng = googleMap.getCameraPosition().target;
                 setStaticMarker(editLatLng);
-                addressProvider.getAddress(editLatLng.latitude, editLatLng.longitude, editAddress::setValue);
+                addressProvider.getAddress(editLatLng.latitude, editLatLng.longitude, editAddress::postValue);
             }
         });
 

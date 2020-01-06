@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -83,7 +84,12 @@ public class NewAlarmActivity extends AppCompatActivity {
         MapFragment mapFragment =
                 (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (mapFragment != null) {
-            mapFragment.getEditAddress().observe(this, newStr -> addressInput.setText(newStr));
+            mapFragment.getEditAddress().observe(this, addressInput::setText);
+            addressInput.setOnEditorActionListener((v, actionId, event) -> {
+                if (event.getKeyCode() != KeyEvent.KEYCODE_ENTER) return false;
+                mapFragment.setEditAddress(v.getText().toString());
+                return true;
+            });
         }
     }
 

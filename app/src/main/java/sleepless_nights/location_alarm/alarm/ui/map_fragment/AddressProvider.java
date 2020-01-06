@@ -13,8 +13,12 @@ import java.util.concurrent.Executors;
 
 public class AddressProvider {
 
-    public interface Callback {
+    public interface OnAddressGot {
         void onAddressGot(String address);
+    }
+
+    public interface OnLatLongGot {
+        void onLatLongGot(Double latitude, Double longitude);
     }
 
 
@@ -28,7 +32,7 @@ public class AddressProvider {
         executor = Executors.newSingleThreadExecutor();
     }
 
-    public void getAddress(double latitude, double longitude, Callback callback) {
+    public void getAddress(double latitude, double longitude, OnAddressGot onAddressGot) {
         executor.execute(() -> {
             List<Address> addresses = null;
             try {
@@ -37,7 +41,7 @@ public class AddressProvider {
                 Log.e(LOG_TAG, e.toString());
             }
             if (addresses == null || addresses.size() == 0) {
-                callback.onAddressGot("");
+                onAddressGot.onAddressGot("");
                 return;
             }
             Address address = addresses.get(0);
@@ -45,7 +49,24 @@ public class AddressProvider {
             for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
                 res.append(address.getAddressLine(i)).append(" ");
             }
-            callback.onAddressGot(res.toString());
+            onAddressGot.onAddressGot(res.toString());
+        });
+    }
+
+    public void getLatLong(String addressString, OnLatLongGot onLatLongGot) {
+        executor.execute(() -> {
+            List<Address> addresses = null;
+            try {
+                addresses = geocoder.getFromLocationName(addressString, 1);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, e.toString());
+            }
+            if (addresses == null || addresses.size() == 0) {
+                onLatLongGot.onLatLongGot(null, null);
+                return;
+            }
+            Address address = addresses.get(0);
+            onLatLongGot.onLatLongGot(address.getLatitude(), address.getLongitude());
         });
     }
 
