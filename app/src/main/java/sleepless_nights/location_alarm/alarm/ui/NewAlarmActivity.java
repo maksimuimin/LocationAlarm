@@ -79,6 +79,12 @@ public class NewAlarmActivity extends AppCompatActivity {
         alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(this))
                 .get(AlarmViewModel.class);
+
+        MapFragment mapFragment =
+                (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (mapFragment != null) {
+            mapFragment.getEditAddress().observe(this, newStr -> addressInput.setText(newStr));
+        }
     }
 
     @Override

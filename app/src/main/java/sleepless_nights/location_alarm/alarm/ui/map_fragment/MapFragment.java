@@ -23,6 +23,8 @@ import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProviders;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
@@ -56,10 +58,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private Activity activity;
     private AlarmViewModel alarmViewModel;
+    private AddressProvider addressProvider;
 
     private AlarmDataSet alarmDataSet;
     private Alarm showAlarm;
     private LatLng editLatLng;
+    private MutableLiveData<String> editAddress;
     private Mode mode;
     private boolean modeChanged;
     private LongSparseArray<Marker> markers;
@@ -118,6 +122,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         switchMode(Mode.EDIT);
     }
 
+    public LiveData<String> getEditAddress() {
+        return editAddress;
+    }
+
     @Nullable
     public Double getLatitude() {
         if (editLatLng == null) {
@@ -149,6 +157,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         this.alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
+        this.addressProvider = new AddressProvider(getContext());
+
         this.alarmDataSet = alarmViewModel.getLiveData().getValue();
         if (alarmDataSet != null) {
             alarmDataSet = alarmDataSet.clone();
@@ -177,6 +187,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             this.alarmDataSet = alarmDataSet.clone();
         });
 
+        this.editAddress = new MutableLiveData<>("");
         this.mode = Mode.CURRENT_LOC;
         this.modeChanged = true;
         this.markers = new LongSparseArray<>();
@@ -213,6 +224,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if (mode == Mode.EDIT) {
                 editLatLng = googleMap.getCameraPosition().target;
                 setStaticMarker(editLatLng);
+                addressProvider.getAddress(editLatLng.latitude, editLatLng.longitude, editAddress::setValue);
             }
         });
 
