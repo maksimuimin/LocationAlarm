@@ -28,7 +28,7 @@ import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
-public class NewAlarmActivity extends AppCompatActivity {
+public class NewAlarmActivity extends AppCompatActivity implements IMapFragmentActivity {
     private static final String TAG = "NewAlarmActivity";
 
     private EditText nameInput;
@@ -81,16 +81,16 @@ public class NewAlarmActivity extends AppCompatActivity {
                 .of(Objects.requireNonNull(this))
                 .get(AlarmViewModel.class);
 
-        MapFragment mapFragment =
-                (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (mapFragment != null) {
-            mapFragment.getEditAddress().observe(this, addressInput::setText);
-            addressInput.setOnEditorActionListener((v, actionId, event) -> {
-                if (event.getKeyCode() != KeyEvent.KEYCODE_ENTER) return false;
-                mapFragment.setEditAddress(v.getText().toString());
-                return true;
-            });
-        }
+        //fixme uncomment
+//        MapFragment mapFragment =
+//                (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+//        if (mapFragment != null) {
+//            addressInput.setOnEditorActionListener((v, actionId, event) -> {
+//                if (event.getKeyCode() != KeyEvent.KEYCODE_ENTER) return false;
+//                mapFragment.setAddress(v.getText().toString());
+//                return true;
+//            });
+//        }
     }
 
     @Override
@@ -157,4 +157,10 @@ public class NewAlarmActivity extends AppCompatActivity {
 
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+
+    @Override
+    public void onAddressGot(String address) {
+        addressInput.setText(address);
+    }
+
 }

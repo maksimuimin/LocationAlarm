@@ -23,11 +23,10 @@ import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProviders;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.ui.IMapFragmentActivity;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSetUpdate;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
@@ -57,13 +56,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
 
     private Activity activity;
+    private IMapFragmentActivity iMapFragmentActivity;
     private AlarmViewModel alarmViewModel;
     private AddressProvider addressProvider;
 
     private AlarmDataSet alarmDataSet;
     private Alarm showAlarm;
     private LatLng editLatLng;
-    private MutableLiveData<String> editAddress = new MutableLiveData<>("");
     private Mode mode;
     private boolean modeChanged;
     private LongSparseArray<Marker> markers;
@@ -122,11 +121,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         switchMode(Mode.EDIT);
     }
 
-    public LiveData<String> getEditAddress() {
-        return editAddress;
-    }
-
-    public void setEditAddress(String addressString) {
+    public void setAddress(String addressString) {
         addressProvider.getLatLong(addressString, (lat, lon) -> {
             if (mode != Mode.EDIT || lat == null || lon == null) return;
             setStaticMarker(new LatLng(lat, lon));
@@ -162,6 +157,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         View res = inflater.inflate(R.layout.fragment_map, container, false);
 
         this.activity = getActivity();
+        this.iMapFragmentActivity = (IMapFragmentActivity) activity;
         this.alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
@@ -231,7 +227,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if (mode == Mode.EDIT) {
                 editLatLng = googleMap.getCameraPosition().target;
                 setStaticMarker(editLatLng);
-                addressProvider.getAddress(editLatLng.latitude, editLatLng.longitude, editAddress::postValue);
+                addressProvider.getAddress(
+                        editLatLng.latitude,
+                        editLatLng.longitude,
+                        address -> activity.runOnUiThread(
+                                () -> iMapFragmentActivity.onAddressGot(address)
+                        )
+                );
             }
         });
 
