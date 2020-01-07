@@ -75,7 +75,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * factory methods
      * */
 
-    public static MapFragment newCurentLoc() {
+    public static MapFragment newCurrentLoc() {
         return createWithArgs(Mode.CURRENT_LOC, null);
     }
 
@@ -123,9 +123,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public void setAddress(String addressString) {
         addressProvider.getLatLong(addressString, (lat, lon) -> {
-            if (mode != Mode.EDIT || lat == null || lon == null) return;
-            setStaticMarker(new LatLng(lat, lon));
-            zoomAt(staticMarker);
+            if (mode != Mode.EDIT || lat == null || lon == null || activity == null) return;
+            activity.runOnUiThread(() -> {
+                setStaticMarker(new LatLng(lat, lon));
+                zoomAt(staticMarker);
+            });
         });
     }
 

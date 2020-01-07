@@ -41,12 +41,12 @@ public class AddressProvider {
                 Log.e(LOG_TAG, e.toString());
             }
             if (addresses == null || addresses.size() == 0) {
-                onAddressGot.onAddressGot("");
+                Log.wtf(LOG_TAG, "addresses size == 0");
                 return;
             }
             Address address = addresses.get(0);
             StringBuilder res = new StringBuilder();
-            for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+            for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
                 res.append(address.getAddressLine(i)).append(" ");
             }
             onAddressGot.onAddressGot(res.toString());

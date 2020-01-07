@@ -4,11 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -61,7 +61,7 @@ public class NewAlarmActivity extends AppCompatActivity implements IMapFragmentA
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, MapFragment.newEdit())
-                    .commit();
+                    .commitNow();
         }
 
         LinearLayout layout = findViewById(R.id.bottom_sheet_layout);
@@ -81,16 +81,15 @@ public class NewAlarmActivity extends AppCompatActivity implements IMapFragmentA
                 .of(Objects.requireNonNull(this))
                 .get(AlarmViewModel.class);
 
-        //fixme uncomment
-//        MapFragment mapFragment =
-//                (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-//        if (mapFragment != null) {
-//            addressInput.setOnEditorActionListener((v, actionId, event) -> {
-//                if (event.getKeyCode() != KeyEvent.KEYCODE_ENTER) return false;
-//                mapFragment.setAddress(v.getText().toString());
-//                return true;
-//            });
-//        }
+        MapFragment mapFragment =
+                (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (mapFragment != null) {
+            addressInput.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId != EditorInfo.IME_ACTION_DONE) return false;
+                mapFragment.setAddress(v.getText().toString());
+                return false;
+            });
+        }
     }
 
     @Override
