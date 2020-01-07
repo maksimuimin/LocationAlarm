@@ -8,6 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="actionBarStyle">@style/Theme.MaterialComponents.Light.DarkActionBar</item>
+        <item name="actionModeBackground">@color/colorPrimaryDark</item>
+        <item name="actionModeCloseDrawable">@drawable/ic_close_24</item>
     </style>
     
     <style name="title">

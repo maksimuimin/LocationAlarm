@@ -1,7 +1,10 @@
 package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,6 +22,9 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private AlarmDataSet alarmDataSet;
     private AlarmViewModel viewModel;
     private IMainActivity IMainActivity;
+
+    private boolean multiSelect = false;
+//    private ArrayList<Integer> selectedItems = new ArrayList<Integer>();
 
     AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
                      @NonNull AlarmViewModel viewModel,

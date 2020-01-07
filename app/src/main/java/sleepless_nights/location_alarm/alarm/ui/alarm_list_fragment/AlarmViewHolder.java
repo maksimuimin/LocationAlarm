@@ -3,8 +3,10 @@ package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import sleepless_nights.location_alarm.R;
@@ -27,6 +29,12 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         alarmNameView = itemView.findViewById(R.id.name);
         addressView = itemView.findViewById(R.id.address);
         switchAlarmView = itemView.findViewById(R.id.switch_alarm);
+
+        itemView.setOnLongClickListener(v -> {
+            ((AppCompatActivity)v.getContext()).startSupportActionMode(new ActionBarCallBack());
+            Toast.makeText(v.getContext(), "settingsBtn is on click", Toast.LENGTH_SHORT).show();
+            return true;
+        });
 
         alarmNameView.setOnClickListener(v -> {
             if (alarm != null) {

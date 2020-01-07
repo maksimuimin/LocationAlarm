@@ -32,4 +32,5 @@
     <string name="default_alarm_name">Wake up,</string>
     <string name="default_address_name">you reached your destination</string>
     <string name="confirm">Confirm</string>
+    <string name="delete_alarms">Delete selected alarms</string>
 </resources>
