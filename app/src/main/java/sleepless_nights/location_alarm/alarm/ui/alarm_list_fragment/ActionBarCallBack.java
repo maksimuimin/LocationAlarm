@@ -32,6 +32,7 @@ class ActionBarCallBack implements ActionMode.Callback {
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
         // TODO Auto-generated method stub
         mode.setTitle("CheckBox is Checked");
+
         return false;
     }
 }
