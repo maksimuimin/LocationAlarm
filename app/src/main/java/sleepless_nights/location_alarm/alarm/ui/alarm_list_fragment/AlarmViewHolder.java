@@ -1,7 +1,9 @@
 package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -17,6 +19,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
     private final TextView alarmNameView;
     private final TextView addressView;
     private final Switch switchAlarmView;
+    private final CheckBox selectAlarmView;
 
     private Alarm alarm = null;
     private View alarmItemView;
@@ -27,17 +30,21 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
                     AlarmListAdapter adapter) {
         super(itemView);
 
-        alarmNameView = itemView.findViewById(R.id.name);
-        addressView = itemView.findViewById(R.id.address);
-        switchAlarmView = itemView.findViewById(R.id.switch_alarm);
         alarmItemView = itemView;
         listAdapter = adapter;
 
+        alarmNameView = itemView.findViewById(R.id.name);
+        addressView = itemView.findViewById(R.id.address);
+        switchAlarmView = itemView.findViewById(R.id.switch_alarm);
+        selectAlarmView = itemView.findViewById(R.id.select_alarm);
+
         alarmItemView.setOnLongClickListener(v -> {
             ActionBarCallBack actionBarCallBack = new ActionBarCallBack(listAdapter, viewModel);
-            ((AppCompatActivity)v.getContext()).startSupportActionMode(actionBarCallBack);
+            AppCompatActivity activity = (AppCompatActivity)v.getContext();
+            activity.startSupportActionMode(actionBarCallBack);
 
-            listAdapter.multiSelect = true;
+            listAdapter.selectMode = true;
+            listAdapter.notifyDataSetChanged();
             selectItem(alarm.getId());
 
             return true;
@@ -52,15 +59,19 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void selectItem(Long item) {
-        if (listAdapter.multiSelect) {
+        if (!listAdapter.selectMode) {
             return;
         }
 
+        Log.v("selectedItems", listAdapter.selectedItems.toString());
+
         if (listAdapter.selectedItems.contains(item)) {
             listAdapter.selectedItems.remove(item);
+            selectAlarmView.setChecked(false);
             alarmItemView.setBackgroundColor(Color.WHITE);
         } else {
             listAdapter.selectedItems.add(item);
+            selectAlarmView.setChecked(true);
             alarmItemView.setBackgroundColor(Color.LTGRAY);
         }
 
@@ -82,5 +93,18 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         alarmNameView.setText(alarm.getName());
         addressView.setText(alarm.getAddress());
         switchAlarmView.setChecked(alarm.getIsActive());
+    }
+
+    void setViewMode(boolean selectMode) {
+        if (selectMode) {
+            selectAlarmView.setVisibility(View.VISIBLE);
+            switchAlarmView.setVisibility(View.GONE);
+            return;
+        }
+
+        alarmItemView.setBackgroundColor(Color.WHITE);
+        selectAlarmView.setChecked(false);
+        selectAlarmView.setVisibility(View.GONE);
+        switchAlarmView.setVisibility(View.VISIBLE);
     }
 }

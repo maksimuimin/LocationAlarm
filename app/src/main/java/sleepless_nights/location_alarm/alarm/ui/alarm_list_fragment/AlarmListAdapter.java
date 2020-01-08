@@ -22,7 +22,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private AlarmViewModel viewModel;
 
     ArrayList<Long> selectedItems = new ArrayList<>();
-    boolean multiSelect;
+    boolean selectMode;
     ActionMode actionMode;
 
     AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
@@ -49,7 +49,9 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
             Log.wtf(TAG, "Trying to bindViewHolder with null Alarm");
             return;
         }
+
         holder.setAlarm(alarm);
+        holder.setViewMode(selectMode);
     }
 
     @Override

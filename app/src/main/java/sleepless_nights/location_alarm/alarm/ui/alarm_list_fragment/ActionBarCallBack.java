@@ -43,7 +43,9 @@ class ActionBarCallBack implements ActionMode.Callback {
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
-        listAdapter.multiSelect = false;
+        listAdapter.selectMode = false;
+        listAdapter.selectedItems.clear();
+        listAdapter.notifyDataSetChanged();
     }
 
     @Override
