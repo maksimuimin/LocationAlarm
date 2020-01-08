@@ -1,7 +1,6 @@
 package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.graphics.Color;
-import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -9,8 +8,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
@@ -41,6 +38,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         alarmItemView.setOnLongClickListener(v -> {
             ActionBarCallBack actionBarCallBack = new ActionBarCallBack(listAdapter, viewModel);
             ((AppCompatActivity)v.getContext()).startSupportActionMode(actionBarCallBack);
+
             listAdapter.multiSelect = true;
             selectItem(alarm.getId());
 
@@ -63,14 +61,23 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
 
     private void selectItem(Long item) {
         if (listAdapter.multiSelect) {
-            if (listAdapter.selectedItems.contains(item)) {
-                listAdapter.selectedItems.remove(item);
-                alarmItemView.setBackgroundColor(Color.WHITE);
-            } else {
-                listAdapter.selectedItems.add(item);
-                alarmItemView.setBackgroundColor(Color.LTGRAY);
-            }
+            return;
         }
+
+        if (listAdapter.selectedItems.contains(item)) {
+            listAdapter.selectedItems.remove(item);
+            alarmItemView.setBackgroundColor(Color.WHITE);
+        } else {
+            listAdapter.selectedItems.add(item);
+            alarmItemView.setBackgroundColor(Color.LTGRAY);
+        }
+
+        if (listAdapter.actionMode == null) {
+            return;
+        }
+
+        int selectedItemsCount = listAdapter.selectedItems.size();
+        listAdapter.actionMode.setTitle(selectedItemsCount + ": selected");
     }
 
     void setAlarm(@NonNull Alarm alarm) {

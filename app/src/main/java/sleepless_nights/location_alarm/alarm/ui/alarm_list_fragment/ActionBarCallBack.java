@@ -48,7 +48,7 @@ class ActionBarCallBack implements ActionMode.Callback {
 
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        mode.setTitle(listAdapter.selectedItems.size() + " :selected");
+        listAdapter.actionMode = mode;
         return false;
     }
 }
