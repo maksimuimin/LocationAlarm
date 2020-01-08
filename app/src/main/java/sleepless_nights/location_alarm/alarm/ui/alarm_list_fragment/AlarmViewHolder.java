@@ -1,7 +1,6 @@
 package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.graphics.Color;
-import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Switch;
@@ -51,6 +50,7 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         });
 
         alarmItemView.setOnClickListener(v -> selectItem(alarm.getId()));
+        selectAlarmView.setOnClickListener(v -> selectItem(alarm.getId()));
 
         switchAlarmView.setOnCheckedChangeListener((buttonView, isChecked) -> {
             alarm.setIsActive(isChecked);
@@ -62,8 +62,6 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         if (!listAdapter.selectMode) {
             return;
         }
-
-        Log.v("selectedItems", listAdapter.selectedItems.toString());
 
         if (listAdapter.selectedItems.contains(item)) {
             listAdapter.selectedItems.remove(item);
