@@ -1,13 +1,16 @@
 package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
+import android.graphics.Color;
+import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
@@ -20,21 +23,31 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
     private final Switch switchAlarmView;
 
     private Alarm alarm = null;
+    private View alarmItemView;
+    private AlarmListAdapter listAdapter;
 
     AlarmViewHolder(@NonNull View itemView,
                     @NonNull AlarmViewModel viewModel,
-                    IMainActivity IMainActivity) {
+                    IMainActivity IMainActivity,
+                    AlarmListAdapter adapter) {
         super(itemView);
 
         alarmNameView = itemView.findViewById(R.id.name);
         addressView = itemView.findViewById(R.id.address);
         switchAlarmView = itemView.findViewById(R.id.switch_alarm);
+        alarmItemView = itemView;
+        listAdapter = adapter;
 
-        itemView.setOnLongClickListener(v -> {
-            ((AppCompatActivity)v.getContext()).startSupportActionMode(new ActionBarCallBack());
-            Toast.makeText(v.getContext(), "settingsBtn is on click", Toast.LENGTH_SHORT).show();
+        alarmItemView.setOnLongClickListener(v -> {
+            ActionBarCallBack actionBarCallBack = new ActionBarCallBack(listAdapter, viewModel);
+            ((AppCompatActivity)v.getContext()).startSupportActionMode(actionBarCallBack);
+            listAdapter.multiSelect = true;
+            selectItem(alarm.getId());
+
             return true;
         });
+
+        alarmItemView.setOnClickListener(v -> selectItem(alarm.getId()));
 
         alarmNameView.setOnClickListener(v -> {
             if (alarm != null) {
@@ -46,6 +59,18 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
             alarm.setIsActive(isChecked);
             viewModel.updateAlarm(alarm);
         });
+    }
+
+    private void selectItem(Long item) {
+        if (listAdapter.multiSelect) {
+            if (listAdapter.selectedItems.contains(item)) {
+                listAdapter.selectedItems.remove(item);
+                alarmItemView.setBackgroundColor(Color.WHITE);
+            } else {
+                listAdapter.selectedItems.add(item);
+                alarmItemView.setBackgroundColor(Color.LTGRAY);
+            }
+        }
     }
 
     void setAlarm(@NonNull Alarm alarm) {

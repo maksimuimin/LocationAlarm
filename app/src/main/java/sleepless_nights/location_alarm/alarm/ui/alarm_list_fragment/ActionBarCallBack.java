@@ -6,18 +6,36 @@ import android.view.MenuItem;
 
 import androidx.appcompat.view.ActionMode;
 import sleepless_nights.location_alarm.R;
+import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 class ActionBarCallBack implements ActionMode.Callback {
 
+    private AlarmListAdapter listAdapter;
+    private AlarmViewModel viewModel;
+
+    ActionBarCallBack(
+            AlarmListAdapter listAdapter,
+            AlarmViewModel viewModel) {
+        this.listAdapter = listAdapter;
+        this.viewModel = viewModel;
+    }
+
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        // TODO Auto-generated method stub
+        if (item.getItemId() == R.id.delete_alarm) {
+            for (Long selectedItemId : listAdapter.selectedItems) {
+                Alarm alarm = viewModel.getAlarmLiveDataById(selectedItemId);
+                viewModel.deleteAlarm(alarm);
+            }
+
+            mode.finish();
+        }
         return false;
     }
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        // TODO Auto-generated method stub
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.delete_alarm_cab, menu);
         return true;
@@ -25,14 +43,12 @@ class ActionBarCallBack implements ActionMode.Callback {
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
-        // TODO Auto-generated method stub
+        listAdapter.multiSelect = false;
     }
 
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        // TODO Auto-generated method stub
-        mode.setTitle("CheckBox is Checked");
-
+        mode.setTitle(listAdapter.selectedItems.size() + " :selected");
         return false;
     }
 }

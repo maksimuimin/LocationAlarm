@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.IMainActivity;
@@ -23,8 +25,8 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private AlarmViewModel viewModel;
     private IMainActivity IMainActivity;
 
-    private boolean multiSelect = false;
-//    private ArrayList<Integer> selectedItems = new ArrayList<Integer>();
+    ArrayList<Long> selectedItems = new ArrayList<>();
+    boolean multiSelect;
 
     AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
                      @NonNull AlarmViewModel viewModel,
@@ -41,7 +43,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
                 .from(parent.getContext())
                 .inflate(R.layout.alarm_item, parent, false);
 
-        return new AlarmViewHolder(view, viewModel, IMainActivity);
+        return new AlarmViewHolder(view, viewModel, IMainActivity, this);
     }
 
 
