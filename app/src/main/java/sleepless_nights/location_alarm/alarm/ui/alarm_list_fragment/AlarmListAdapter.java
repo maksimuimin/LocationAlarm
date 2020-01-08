@@ -3,8 +3,6 @@ package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 import android.util.Log;
 import androidx.appcompat.view.ActionMode;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,7 +13,6 @@ import java.util.ArrayList;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.ui.IMainActivity;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
@@ -23,18 +20,15 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private static final String TAG = "AlarmListAdapter";
     private AlarmDataSet alarmDataSet;
     private AlarmViewModel viewModel;
-    private IMainActivity IMainActivity;
 
     ArrayList<Long> selectedItems = new ArrayList<>();
     boolean multiSelect;
     ActionMode actionMode;
 
     AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
-                     @NonNull AlarmViewModel viewModel,
-                     IMainActivity IMainActivity) {
+                     @NonNull AlarmViewModel viewModel) {
         this.alarmDataSet = alarmDataSet;
         this.viewModel = viewModel;
-        this.IMainActivity = IMainActivity;
     }
 
     @NonNull
@@ -44,7 +38,7 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
                 .from(parent.getContext())
                 .inflate(R.layout.alarm_item, parent, false);
 
-        return new AlarmViewHolder(view, viewModel, IMainActivity, this);
+        return new AlarmViewHolder(view, viewModel, this);
     }
 
 

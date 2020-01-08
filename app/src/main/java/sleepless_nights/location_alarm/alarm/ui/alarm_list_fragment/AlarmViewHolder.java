@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.ui.IMainActivity;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
 class AlarmViewHolder extends RecyclerView.ViewHolder {
@@ -25,7 +24,6 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
 
     AlarmViewHolder(@NonNull View itemView,
                     @NonNull AlarmViewModel viewModel,
-                    IMainActivity IMainActivity,
                     AlarmListAdapter adapter) {
         super(itemView);
 
@@ -46,12 +44,6 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         });
 
         alarmItemView.setOnClickListener(v -> selectItem(alarm.getId()));
-
-        alarmNameView.setOnClickListener(v -> {
-            if (alarm != null) {
-                IMainActivity.showAlarm(alarm);
-            }
-        });
 
         switchAlarmView.setOnCheckedChangeListener((buttonView, isChecked) -> {
             alarm.setIsActive(isChecked);
@@ -77,7 +69,12 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         }
 
         int selectedItemsCount = listAdapter.selectedItems.size();
-        listAdapter.actionMode.setTitle(selectedItemsCount + ": selected");
+        String title = selectedItemsCount + ": selected";
+        if (selectedItemsCount == 0) {
+            title = "Select items";
+        }
+
+        listAdapter.actionMode.setTitle(title);
     }
 
     void setAlarm(@NonNull Alarm alarm) {

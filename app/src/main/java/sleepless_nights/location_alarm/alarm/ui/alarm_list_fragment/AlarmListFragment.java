@@ -57,7 +57,7 @@ public class AlarmListFragment extends Fragment {
         final RecyclerView listView = view.findViewById(R.id.alarm_list);
 
         alarmDataSet = alarmDataSet.clone();
-        alarmListAdapter = new AlarmListAdapter(alarmDataSet, alarmViewModel, (IMainActivity) getActivity());
+        alarmListAdapter = new AlarmListAdapter(alarmDataSet, alarmViewModel);
         listView.setAdapter(alarmListAdapter);
 
         final LinearLayoutManager layoutManager = new GridLayoutManager(getActivity(), 1);
