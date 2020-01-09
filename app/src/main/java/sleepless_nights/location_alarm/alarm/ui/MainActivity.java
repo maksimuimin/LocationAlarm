@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
         int selectedItem = savedInstanceState.getInt(TAB_STATE_NAME_BUNDLE_KEY);
         bottomNavigationView.setSelectedItemId(selectedItem);
-
     }
 
     BottomNavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener = item -> {

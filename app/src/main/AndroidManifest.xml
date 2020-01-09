@@ -27,9 +27,7 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
 
-        <activity
-            android:name=".alarm.ui.MainActivity"
-            android:theme="@style/AppTheme">
+        <activity android:name=".alarm.ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
