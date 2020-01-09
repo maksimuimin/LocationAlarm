@@ -20,4 +20,6 @@
     <dimen name="largeObjectCornerRadius">12dp</dimen>
     <dimen name="alarmRingingTitleTextSize">30sp</dimen>
     <dimen name="alarmRingingSubtitleTextSize">20sp</dimen>
+    <dimen name="alarm_action_height">42dp</dimen>
+    <dimen name="alarm_select_width">30dp</dimen>
 </resources>

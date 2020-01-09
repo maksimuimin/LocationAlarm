@@ -21,9 +21,9 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private AlarmDataSet alarmDataSet;
     private AlarmViewModel viewModel;
 
-    ArrayList<Long> selectedItems = new ArrayList<>();
-    boolean selectMode;
-    ActionMode actionMode;
+    private ArrayList<Long> selectedItems = new ArrayList<>();
+    private boolean selectMode;
+    private ActionMode actionMode;
 
     AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
                      @NonNull AlarmViewModel viewModel) {
@@ -41,7 +41,6 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
         return new AlarmViewHolder(view, viewModel, this);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
         Alarm alarm = viewModel.getAlarmByPosition(position);
@@ -53,6 +52,17 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
         holder.setAlarm(alarm);
         holder.setViewMode(selectMode);
     }
+
+    ActionMode getActionMode() { return actionMode; }
+    void setActionMode(ActionMode actionMode) { this.actionMode = actionMode; }
+
+    ArrayList<Long> getSelectedItems() { return selectedItems; }
+    void clearSelectedItems() { this.selectedItems.clear(); }
+
+    void updateHolders() { notifyDataSetChanged(); }
+
+    void setSelectMode(boolean selectMode) { this.selectMode = selectMode; }
+    boolean isSelectMode() { return selectMode; }
 
     @Override
     public int getItemCount() { return alarmDataSet.size(); }

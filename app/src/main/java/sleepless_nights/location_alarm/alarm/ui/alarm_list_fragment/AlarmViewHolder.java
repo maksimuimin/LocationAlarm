@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
@@ -38,19 +40,20 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         selectAlarmView = itemView.findViewById(R.id.select_alarm);
 
         alarmItemView.setOnLongClickListener(v -> {
-            ActionBarCallBack actionBarCallBack = new ActionBarCallBack(listAdapter, viewModel);
-            AppCompatActivity activity = (AppCompatActivity)v.getContext();
-            activity.startSupportActionMode(actionBarCallBack);
+            if (!listAdapter.isSelectMode()) {
+                ActionBarCallBack actionBarCallBack = new ActionBarCallBack(listAdapter, viewModel);
+                ((AppCompatActivity)v.getContext()).startSupportActionMode(actionBarCallBack);
 
-            listAdapter.selectMode = true;
-            listAdapter.notifyDataSetChanged();
-            selectItem(alarm.getId());
-
+                listAdapter.setSelectMode(true);
+                listAdapter.updateHolders();
+            }
+            
+            selectItem(v);
             return true;
         });
 
-        alarmItemView.setOnClickListener(v -> selectItem(alarm.getId()));
-        selectAlarmView.setOnClickListener(v -> selectItem(alarm.getId()));
+        alarmItemView.setOnClickListener(this::selectItem);
+        selectAlarmView.setOnClickListener(this::selectItem);
 
         switchAlarmView.setOnCheckedChangeListener((buttonView, isChecked) -> {
             alarm.setIsActive(isChecked);
@@ -58,32 +61,35 @@ class AlarmViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    private void selectItem(Long item) {
-        if (!listAdapter.selectMode) {
+    private void selectItem(View view) {
+        if (!listAdapter.isSelectMode()) {
             return;
         }
 
-        if (listAdapter.selectedItems.contains(item)) {
-            listAdapter.selectedItems.remove(item);
+        ArrayList<Long> selectedItems = listAdapter.getSelectedItems();
+        Long item = alarm.getId();
+        AppCompatActivity activity = (AppCompatActivity)view.getContext();
+
+        if (selectedItems.contains(item)) {
+            selectedItems.remove(item);
             selectAlarmView.setChecked(false);
             alarmItemView.setBackgroundColor(Color.WHITE);
         } else {
-            listAdapter.selectedItems.add(item);
+            selectedItems.add(item);
             selectAlarmView.setChecked(true);
             alarmItemView.setBackgroundColor(Color.LTGRAY);
         }
 
-        if (listAdapter.actionMode == null) {
+        if (listAdapter.getActionMode() == null) {
             return;
         }
 
-        int selectedItemsCount = listAdapter.selectedItems.size();
-        String title = selectedItemsCount + ": selected";
+        int selectedItemsCount = selectedItems.size();
+        String title = selectedItemsCount + activity.getString(R.string.selected);
         if (selectedItemsCount == 0) {
-            title = "Select items";
+            title = activity.getString(R.string.select_items);
         }
-
-        listAdapter.actionMode.setTitle(title);
+        listAdapter.getActionMode().setTitle(title);
     }
 
     void setAlarm(@NonNull Alarm alarm) {

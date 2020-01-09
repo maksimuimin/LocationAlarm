@@ -24,8 +24,8 @@ class ActionBarCallBack implements ActionMode.Callback {
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         if (item.getItemId() == R.id.delete_alarm) {
-            for (Long selectedItemId : listAdapter.selectedItems) {
-                Alarm alarm = viewModel.getAlarmLiveDataById(selectedItemId);
+            for (Long selectedItemId : listAdapter.getSelectedItems()) {
+                Alarm alarm = viewModel.getAlarmById(selectedItemId);
                 viewModel.deleteAlarm(alarm);
             }
 
@@ -43,14 +43,14 @@ class ActionBarCallBack implements ActionMode.Callback {
 
     @Override
     public void onDestroyActionMode(ActionMode mode) {
-        listAdapter.selectMode = false;
-        listAdapter.selectedItems.clear();
-        listAdapter.notifyDataSetChanged();
+        listAdapter.setSelectMode(false);
+        listAdapter.clearSelectedItems();
+        listAdapter.updateHolders();
     }
 
     @Override
     public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-        listAdapter.actionMode = mode;
+        listAdapter.setActionMode(mode);
         return false;
     }
 }
