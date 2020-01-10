@@ -12,6 +12,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class AddressProvider {
+    private static final int ADDRESS_VALIDITY_THRESHOLD = 5;
 
     public interface OnAddressGot {
         void onAddressGot(String address);
@@ -36,7 +37,7 @@ public class AddressProvider {
         executor.execute(() -> {
             List<Address> addresses = null;
             try {
-                addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                addresses = geocoder.getFromLocation(latitude, longitude, ADDRESS_VALIDITY_THRESHOLD);
             } catch (IOException e) {
                 Log.e(LOG_TAG, e.toString());
             }
@@ -45,6 +46,10 @@ public class AddressProvider {
                 return;
             }
             Address address = addresses.get(0);
+            if (addresses.size() < ADDRESS_VALIDITY_THRESHOLD) {
+                onAddressGot.onAddressGot(address.getLatitude() + " " + address.getLongitude());
+                return;
+            }
             StringBuilder res = new StringBuilder();
             for (int i = 0; i <= address.getMaxAddressLineIndex(); i++) {
                 res.append(address.getAddressLine(i)).append(" ");

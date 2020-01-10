@@ -159,7 +159,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         View res = inflater.inflate(R.layout.fragment_map, container, false);
 
         this.activity = getActivity();
-        this.iMapFragmentActivity = (IMapFragmentActivity) activity;
+        if (activity instanceof IMapFragmentActivity) {
+            this.iMapFragmentActivity = (IMapFragmentActivity) activity;
+        }
         this.alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
@@ -226,7 +228,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         googleMap.setOnCameraIdleListener(() -> {
             removeDynamicMarker();
-            if (mode == Mode.EDIT) {
+            if (mode == Mode.EDIT && iMapFragmentActivity != null) {
                 editLatLng = googleMap.getCameraPosition().target;
                 setStaticMarker(editLatLng);
                 addressProvider.getAddress(
