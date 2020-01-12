@@ -38,7 +38,7 @@ public class AlarmViewModel extends AndroidViewModel {
     }
 
     @Nullable
-    public Alarm getAlarmLiveDataById(long id) {
+    public Alarm getAlarmById(long id) {
         return alarmRepository.getAlarmById(id);
     }
 

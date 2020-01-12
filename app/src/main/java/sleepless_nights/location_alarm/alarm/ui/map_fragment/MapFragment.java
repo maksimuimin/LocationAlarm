@@ -237,7 +237,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mode = Mode.valueOf(bundle.getString(MODE, Mode.CURRENT_LOC.toString()));
         long id = bundle.getLong(ID, -1);
         if (id != -1) {
-            showAlarm = alarmViewModel.getAlarmLiveDataById(id);
+            showAlarm = alarmViewModel.getAlarmById(id);
         }
         double lat = bundle.getDouble(LAT, Double.MIN_VALUE);
         if (lat != Double.MIN_VALUE) {

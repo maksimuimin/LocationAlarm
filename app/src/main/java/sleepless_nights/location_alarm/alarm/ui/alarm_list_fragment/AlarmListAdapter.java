@@ -1,6 +1,7 @@
 package sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment;
 
 import android.util.Log;
+import androidx.appcompat.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,9 +9,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
-import sleepless_nights.location_alarm.alarm.ui.IMainActivity;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
@@ -18,14 +20,15 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
     private static final String TAG = "AlarmListAdapter";
     private AlarmDataSet alarmDataSet;
     private AlarmViewModel viewModel;
-    private IMainActivity IMainActivity;
+
+    private ArrayList<Long> selectedItems = new ArrayList<>();
+    private boolean selectMode;
+    private ActionMode actionMode;
 
     AlarmListAdapter(@NonNull AlarmDataSet alarmDataSet,
-                     @NonNull AlarmViewModel viewModel,
-                     IMainActivity IMainActivity) {
+                     @NonNull AlarmViewModel viewModel) {
         this.alarmDataSet = alarmDataSet;
         this.viewModel = viewModel;
-        this.IMainActivity = IMainActivity;
     }
 
     @NonNull
@@ -35,9 +38,8 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
                 .from(parent.getContext())
                 .inflate(R.layout.alarm_item, parent, false);
 
-        return new AlarmViewHolder(view, viewModel, IMainActivity);
+        return new AlarmViewHolder(view, viewModel, this);
     }
-
 
     @Override
     public void onBindViewHolder(@NonNull final AlarmViewHolder holder, int position) {
@@ -46,8 +48,21 @@ public class AlarmListAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
             Log.wtf(TAG, "Trying to bindViewHolder with null Alarm");
             return;
         }
+
         holder.setAlarm(alarm);
+        holder.setViewMode(selectMode);
     }
+
+    ActionMode getActionMode() { return actionMode; }
+    void setActionMode(ActionMode actionMode) { this.actionMode = actionMode; }
+
+    ArrayList<Long> getSelectedItems() { return selectedItems; }
+    void clearSelectedItems() { this.selectedItems.clear(); }
+
+    void updateHolders() { notifyDataSetChanged(); }
+
+    void setSelectMode(boolean selectMode) { this.selectMode = selectMode; }
+    boolean isSelectMode() { return selectMode; }
 
     @Override
     public int getItemCount() { return alarmDataSet.size(); }
