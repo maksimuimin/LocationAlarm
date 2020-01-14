@@ -32,7 +32,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
     private AlertDialog permissionDialog;
     private final String TAB_STATE_NAME_BUNDLE_KEY = "tabState.name";
-    //TODO #6 optimize AlarmListFragment creations by extracting it to a field of MainActivity
+
+    private AlarmListFragment alarmListFragment = AlarmListFragment.newInstance();
+    private MapFragment mapFragment = MapFragment.newShowAll();
 
     BottomNavigationView bottomNavigationView;
     private int selectedItem;
@@ -150,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public void showAlarmList() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                .replace(R.id.fragment_container, alarmListFragment)
                 .commit();
     }
 
@@ -158,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public void showAllAlarms() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, MapFragment.newShowAll())
+                .replace(R.id.fragment_container, mapFragment)
                 .commit();
     }
 
