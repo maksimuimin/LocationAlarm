@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public void showAlarmList() {
         getSupportFragmentManager()
                 .beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
                 .replace(R.id.fragment_container, alarmListFragment)
                 .commit();
     }
@@ -160,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public void showAllAlarms() {
         getSupportFragmentManager()
                 .beginTransaction()
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, mapFragment)
                 .commit();
     }
