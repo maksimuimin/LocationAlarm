@@ -4,6 +4,7 @@
     <string name="error_str">Error</string>
     <string name="main_notification_channel">Active alarms</string>
     <string name="settings">Settings</string>
+    <string name="settings_stub">Settings are not currently available</string>
     <string name="alarms">Alarms</string>
     <string name="map">Map</string>
     <string name="address">Address</string>

@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.settingsBtn) {
             //  TODO - change with SettingsActivity
-            Toast.makeText(this, "settingsBtn is on click", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.settings_stub), Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
