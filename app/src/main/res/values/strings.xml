@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">LocationAlarm</string>
+    <string name="app_name">Location Alarm</string>
     <!-- In-App strings -->
     <string name="error_str">Error</string>
     <string name="main_notification_channel">Active alarms</string>
