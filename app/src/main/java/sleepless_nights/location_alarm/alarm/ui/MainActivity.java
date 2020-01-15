@@ -1,5 +1,6 @@
 package sleepless_nights.location_alarm.alarm.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -19,6 +20,8 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     BottomNavigationView bottomNavigationView;
     private int selectedItem;
+    private transient boolean transactionInProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,14 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         FloatingActionButton fab = findViewById(R.id.floating_button);
         fab.setOnClickListener(v -> newAlarm());
 
+        getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
+            @Override
+            public void onFragmentAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
+                super.onFragmentAttached(fm, f, context);
+                transactionInProgress = false;
+            }
+        }, false);
+
         if (savedInstanceState == null) {
             showAlarmList();
             return;
@@ -76,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     }
 
     BottomNavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener = item -> {
+        if (transactionInProgress) return false;
+
         int id = item.getItemId();
         int ALARM_LIST_TAB_ID = R.id.app_bar_alarm_list_tab;
         int MAP_TAB_ID = R.id.app_bar_map_tab;
@@ -148,6 +162,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @Override
     public void showAlarmList() {
+        transactionInProgress = true;
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, AlarmListFragment.newInstance())
@@ -156,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @Override
     public void showAllAlarms() {
+        transactionInProgress = true;
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, MapFragment.newShowAll())
@@ -170,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
     @Override
     public void showAlarm(Alarm alarm) {
+        transactionInProgress = true;
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, MapFragment.newShow(alarm))
