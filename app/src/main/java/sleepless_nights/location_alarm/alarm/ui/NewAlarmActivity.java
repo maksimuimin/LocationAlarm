@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -27,7 +28,7 @@ import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
 
-public class NewAlarmActivity extends AppCompatActivity {
+public class NewAlarmActivity extends AppCompatActivity implements IMapFragmentActivity {
     private static final String TAG = "NewAlarmActivity";
 
     private EditText nameInput;
@@ -60,7 +61,7 @@ public class NewAlarmActivity extends AppCompatActivity {
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, MapFragment.newEdit())
-                    .commit();
+                    .commitNow();
         }
 
         LinearLayout layout = findViewById(R.id.bottom_sheet_layout);
@@ -79,6 +80,16 @@ public class NewAlarmActivity extends AppCompatActivity {
         alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(this))
                 .get(AlarmViewModel.class);
+
+        MapFragment mapFragment =
+                (MapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (mapFragment != null) {
+            addressInput.setOnEditorActionListener((v, actionId, event) -> {
+                if (actionId != EditorInfo.IME_ACTION_DONE) return false;
+                mapFragment.setAddress(v.getText().toString());
+                return false;
+            });
+        }
     }
 
     @Override
@@ -145,4 +156,10 @@ public class NewAlarmActivity extends AppCompatActivity {
 
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
+
+    @Override
+    public void onAddressGot(String address) {
+        addressInput.setText(address);
+    }
+
 }

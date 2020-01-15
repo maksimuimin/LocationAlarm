@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
+import sleepless_nights.location_alarm.alarm.ui.IMapFragmentActivity;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSet;
 import sleepless_nights.location_alarm.alarm.use_cases.AlarmDataSetUpdate;
 import sleepless_nights.location_alarm.alarm.view_models.AlarmViewModel;
@@ -55,7 +56,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
 
     private Activity activity;
+    private IMapFragmentActivity iMapFragmentActivity;
     private AlarmViewModel alarmViewModel;
+    private AddressProvider addressProvider;
 
     private AlarmDataSet alarmDataSet;
     private Alarm showAlarm;
@@ -72,7 +75,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      * factory methods
      * */
 
-    public static MapFragment newCurentLoc() {
+    public static MapFragment newCurrentLoc() {
         return createWithArgs(Mode.CURRENT_LOC, null);
     }
 
@@ -118,6 +121,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         switchMode(Mode.EDIT);
     }
 
+    public void setAddress(String addressString) {
+        addressProvider.getLatLong(addressString, (lat, lon) -> {
+            if (mode != Mode.EDIT || lat == null || lon == null || activity == null) return;
+            activity.runOnUiThread(() -> {
+                setStaticMarker(new LatLng(lat, lon));
+                zoomAt(staticMarker);
+            });
+        });
+    }
+
     @Nullable
     public Double getLatitude() {
         if (editLatLng == null) {
@@ -146,9 +159,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         View res = inflater.inflate(R.layout.fragment_map, container, false);
 
         this.activity = getActivity();
+        if (activity instanceof IMapFragmentActivity) {
+            this.iMapFragmentActivity = (IMapFragmentActivity) activity;
+        }
         this.alarmViewModel = ViewModelProviders
                 .of(Objects.requireNonNull(getActivity()))
                 .get(AlarmViewModel.class);
+        this.addressProvider = new AddressProvider(getContext());
+
         this.alarmDataSet = alarmViewModel.getLiveData().getValue();
         if (alarmDataSet != null) {
             alarmDataSet = alarmDataSet.clone();
@@ -210,9 +228,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         googleMap.setOnCameraIdleListener(() -> {
             removeDynamicMarker();
-            if (mode == Mode.EDIT) {
+            if (mode == Mode.EDIT && iMapFragmentActivity != null) {
                 editLatLng = googleMap.getCameraPosition().target;
                 setStaticMarker(editLatLng);
+                addressProvider.getAddress(
+                        editLatLng.latitude,
+                        editLatLng.longitude,
+                        address -> activity.runOnUiThread(
+                                () -> iMapFragmentActivity.onAddressGot(address)
+                        )
+                );
             }
         });
 
