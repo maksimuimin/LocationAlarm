@@ -1,6 +1,5 @@
 package sleepless_nights.location_alarm.alarm.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -21,8 +20,9 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import sleepless_nights.location_alarm.R;
 import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
     private AlertDialog permissionDialog;
     private final String TAB_STATE_NAME_BUNDLE_KEY = "tabState.name";
+    private final long TAB_STATE_TRANSITION_LENGTH = 1000;
 
     private AlarmListFragment alarmListFragment = AlarmListFragment.newInstance();
     private MapFragment mapFragment = MapFragment.newShowAll();
@@ -84,14 +85,6 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
 
         FloatingActionButton fab = findViewById(R.id.floating_button);
         fab.setOnClickListener(v -> newAlarm());
-
-        getSupportFragmentManager().registerFragmentLifecycleCallbacks(new FragmentManager.FragmentLifecycleCallbacks() {
-            @Override
-            public void onFragmentAttached(@NonNull FragmentManager fm, @NonNull Fragment f, @NonNull Context context) {
-                super.onFragmentAttached(fm, f, context);
-                transactionInProgress = false;
-            }
-        }, false);
 
         if (savedInstanceState == null) {
             showAlarmList();
@@ -182,6 +175,14 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
                 .beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
                 .replace(R.id.fragment_container, alarmListFragment)
+                .runOnCommit(() -> {
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            transactionInProgress = false;
+                        }
+                    }, TAB_STATE_TRANSITION_LENGTH);
+                })
                 .commit();
     }
 
@@ -192,6 +193,14 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
                 .beginTransaction()
                 .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
                 .replace(R.id.fragment_container, mapFragment)
+                .runOnCommit(() -> {
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            transactionInProgress = false;
+                        }
+                    }, TAB_STATE_TRANSITION_LENGTH);
+                })
                 .commit();
     }
 
@@ -207,6 +216,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fragment_container, MapFragment.newShow(alarm))
+                .runOnCommit(() -> {
+                    transactionInProgress = false;
+                })
                 .commit();
     }
 
