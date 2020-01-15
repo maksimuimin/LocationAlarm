@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ import sleepless_nights.location_alarm.alarm.Alarm;
 import sleepless_nights.location_alarm.alarm.ui.alarm_list_fragment.AlarmListFragment;
 import sleepless_nights.location_alarm.alarm.ui.alarm_service.AlarmService;
 import sleepless_nights.location_alarm.alarm.ui.map_fragment.MapFragment;
+import sleepless_nights.location_alarm.alarm.use_cases.AlarmRepository;
 import sleepless_nights.location_alarm.permission.Permission;
 import sleepless_nights.location_alarm.permission.use_cases.PermissionRepository;
 
@@ -35,7 +37,9 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     private Integer MUST_HAVE_PERMISSIONS_REQUEST_ID = null;
     private AlertDialog permissionDialog;
     private final String TAB_STATE_NAME_BUNDLE_KEY = "tabState.name";
-    //TODO #6 optimize AlarmListFragment creations by extracting it to a field of MainActivity
+
+    private AlarmListFragment alarmListFragment = AlarmListFragment.newInstance();
+    private MapFragment mapFragment = MapFragment.newShowAll();
 
     BottomNavigationView bottomNavigationView;
     private int selectedItem;
@@ -44,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         permissionDialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.not_enough_permissions_dialog_title)
                 .setMessage(R.string.not_enough_permissions_dialog_message)
@@ -60,6 +65,16 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         MUST_HAVE_PERMISSIONS_REQUEST_ID = PermissionRepository.getInstance(this)
                 .requirePermissionsByGroup(this, Permission.Group.MUST_HAVE);
         setContentView(R.layout.activity_main);
+
+
+        View helper = findViewById(R.id.helper);
+        AlarmRepository.getInstance(this).getDataSetLiveData().observeForever(alarmDataSet -> {
+            if (alarmDataSet == null || alarmDataSet.size() == 0) {
+                helper.setVisibility(View.VISIBLE);
+            } else {
+                helper.setVisibility(View.GONE);
+            }
+        });
 
         Toolbar customToolBar = findViewById(R.id.toolbar);
         setSupportActionBar(customToolBar);
@@ -138,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.settingsBtn) {
             //  TODO - change with SettingsActivity
-            Toast.makeText(this, "settingsBtn is on click", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.settings_stub), Toast.LENGTH_SHORT).show();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -165,7 +180,8 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         transactionInProgress = true;
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, AlarmListFragment.newInstance())
+                .setCustomAnimations(R.anim.slide_in_left, R.anim.slide_out_right)
+                .replace(R.id.fragment_container, alarmListFragment)
                 .commit();
     }
 
@@ -174,7 +190,8 @@ public class MainActivity extends AppCompatActivity implements IMainActivity {
         transactionInProgress = true;
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, MapFragment.newShowAll())
+                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left)
+                .replace(R.id.fragment_container, mapFragment)
                 .commit();
     }
 

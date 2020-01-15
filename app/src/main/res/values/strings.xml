@@ -1,9 +1,21 @@
 <resources>
-    <string name="app_name">LocationAlarm</string>
+    <string name="app_name">Location Alarm</string>
+    <!-- Permissions descriptions -->
+    <string name="access_fine_location_permission_description">
+        create location-connected alarms
+    </string>
+    <string name="access_background_location_permission_description">
+        monitor alarms in background
+    </string>
+    <!-- Notification channels descriptions -->
+    <string name="main_notification_channel_description">
+        This channel is used for notifying about state of active alarms and quick access to them
+    </string>
     <!-- In-App strings -->
     <string name="error_str">Error</string>
     <string name="main_notification_channel">Active alarms</string>
     <string name="settings">Settings</string>
+    <string name="settings_stub">Settings are not currently available</string>
     <string name="alarms">Alarms</string>
     <string name="map">Map</string>
     <string name="address">Address</string>
@@ -16,18 +28,6 @@
     <string name="not_enough_permissions_dialog_title">Not enough permissions</string>
     <string name="not_enough_permissions_dialog_message">The application can not work without location permissions you denied. You can always fix it in Settings</string>
     <string name="start_geofence_monitoring_error_msg">Error: unable to turn on alarm</string>
-    <!-- Permissions descriptions -->
-    <string name="access_fine_location_permission_description">
-        create location-connected alarms
-    </string>
-    <string name="access_background_location_permission_description">
-        monitor alarms in background
-    </string>
-    <!-- Notification channels descriptions -->
-    <string name="main_notification_channel_description">
-        This channel is used for notifying about state of active alarms and quick access to them
-    </string>
-    <string name="icon_up">Icon Up</string>
     <string name="swipe_up_to_turn_off">Swipe up to turn off</string>
     <string name="default_alarm_name">Wake up,</string>
     <string name="default_address_name">you reached your destination</string>
@@ -35,4 +35,5 @@
     <string name="delete_alarms">Delete selected alarms</string>
     <string name="select_items">Select items</string>
     <string name="selected">: selected</string>
+    <string name="helper_text">You have no alarms yet, start with creating one by clicking button below</string>
 </resources>

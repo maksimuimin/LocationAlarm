@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Location Alarm</string>
+    <!-- Permissions descriptions -->
+    <string name="access_fine_location_permission_description">
+        создавать будильники с геолокацией
+    </string>
+    <string name="access_background_location_permission_description">
+        обеспечить работу будильников при выключенном экране
+    </string>
+    <!-- Notification channels descriptions -->
+    <string name="main_notification_channel_description">
+        Этот канал используется для оповещений о состоянии включённых будильников
+    </string>
+    <!-- In-App strings -->
+    <string name="error_str">Ошибка</string>
+    <string name="main_notification_channel">Активные будильники</string>
+    <string name="settings">Настройки</string>
+    <string name="settings_stub">Настройки временно не доступны</string>
+    <string name="alarms">Будильники</string>
+    <string name="map">Карта</string>
+    <string name="address">Адрес</string>
+    <string name="name">Имя</string>
+    <string name="add_new_alarm">Новый будильник</string>
+    <string name="permissions_dialog_title">Информация</string>
+    <string name="permission_dialog_msg_intro">Приложению необходимо запросить права, чтобы:</string>
+    <string name="dialog_positive_button">ОК</string>
+    <string name="dialog_negative_button">Отмена</string>
+    <string name="not_enough_permissions_dialog_title">Не достаточно прав</string>
+    <string name="not_enough_permissions_dialog_message">Приложение не может продолжить свою работу без прав, которые Вы не предоставили. Это можно испраивть в Настройках</string>
+    <string name="start_geofence_monitoring_error_msg">Ошибка: невозможно включить будильник</string>
+    <string name="swipe_up_to_turn_off">Смахните вверх, чтобы выключить</string>
+    <string name="default_alarm_name">Пора вставать,</string>
+    <string name="default_address_name">вы достигли пункта назначения</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="delete_alarms">Удалить выделенные будильники</string>
+    <string name="select_items">Выделите будильники</string>
+    <string name="selected">: выделено</string>
+    <string name="helper_text">У Вас ещё нет ни одного будильника, начните с создания, кликнув на кнопку внизу</string>
+</resources>
