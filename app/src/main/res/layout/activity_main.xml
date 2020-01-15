@@ -25,6 +25,19 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <TextView
+        android:id="@+id/helper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/helper_text"
+        android:textColor="@android:color/darker_gray"
+        android:textAlignment="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        style="@style/title" />
+
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
