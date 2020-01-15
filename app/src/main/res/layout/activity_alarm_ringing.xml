@@ -22,7 +22,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="@string/add_new_alarm"
-            android:textSize="@dimen/alarmRingingTitleTextSize" />
+            android:textSize="@dimen/alarmRingingTitleTextSize"
+            android:textAlignment="center"/>
 
         <TextView
             android:id="@+id/address"
@@ -31,7 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="@string/address"
-            android:textSize="@dimen/alarmRingingSubtitleTextSize" />
+            android:textSize="@dimen/alarmRingingSubtitleTextSize"
+            android:textAlignment="center"/>
 
     </LinearLayout>
 
